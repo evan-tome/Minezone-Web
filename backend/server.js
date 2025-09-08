@@ -27,7 +27,7 @@ http.createServer((req, res) => {
             return res.end(JSON.stringify({ error: "No username provided" }));
         }
 
-        const sql = "SELECT LastPlayerName, Wins, Losses FROM PlayerData WHERE LastPlayerName = ?";
+        const sql = "SELECT * FROM PlayerData WHERE LastPlayerName = ?";
         con.query(sql, [username], (err, result) => {
             if (err) {
                 res.writeHead(500, { "Content-Type": "application/json" });
@@ -42,6 +42,31 @@ http.createServer((req, res) => {
             res.writeHead(200, { "Content-Type": "application/json" });
             res.end(JSON.stringify(result[0]));
         });
+
+    } else if (reqUrl.pathname === "/leaderboard") {
+        const category = reqUrl.query.category;
+
+        const allowedCategories = ["Wins", "FlawlessWins", "Kills", "BestWinstreak", "TotalCaught"];
+            if (!allowedCategories.includes(category)) {
+            res.writeHead(400, { "Content-Type": "application/json" });
+            return res.end(JSON.stringify({ error: "Invalid category" }));
+        }
+
+        const sql = `
+            SELECT UUID, LastPlayerName, ${category}
+            FROM PlayerData
+            ORDER BY ${category} DESC
+            LIMIT 10
+        `;
+        con.query(sql, (err, result) => {
+            if (err) {
+                res.writeHead(500, { "Content-Type": "application/json" });
+                return res.end(JSON.stringify({ error: "Database error" }));
+            }
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.end(JSON.stringify(result));
+        });
+
     } else {
         res.writeHead(404, { "Content-Type": "text/plain" });
         res.end("Not found");

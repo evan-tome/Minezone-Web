@@ -30,7 +30,7 @@ export function Stats() {
             </header>
             <Navbar />
             <div className="main">
-                <h1>Mint</h1>
+                <h1>Stats Tracker</h1>
                 <Searchbar onSearch={handleSearch}/>
 
                 {error && <p style={{ color: "red" }}>{error}</p>}
