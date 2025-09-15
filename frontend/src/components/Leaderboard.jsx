@@ -3,12 +3,12 @@ import './Leaderboard.css'
 function Leaderboard({ players, category }) {
     return (
     <div className="leaderboard">
-        <h2>Top 10 {category}</h2>
+        <h2>Most {category}</h2>
         <table>
             <thead>
                 <tr>
-                    <th>#</th>
-                    <th>Player</th>
+                    <th>Rank</th>
+                    <th>Username</th>
                     <th>{category}</th>
                 </tr>
             </thead>
@@ -17,10 +17,10 @@ function Leaderboard({ players, category }) {
                     <tr key={player.UUID}>
                         <td>{index + 1}</td>
                         <td>
-                            <img src={`https://crafatar.com/avatars/${player.UUID}?size=32&overlay`}
+                            <img src={`https://minotar.net/helm/${player.UUID}/128.png`}
                             alt={`${player.LastPlayerName}'s head`}
                             className="player-head-small" />
-                            {player.LastPlayerName}
+                            <a href={`/stats/${player.LastPlayerName}`}>{player.LastPlayerName}</a>
                         </td>
                         <td>{player[category]}</td>
                     </tr>

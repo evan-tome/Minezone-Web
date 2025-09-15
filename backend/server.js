@@ -55,8 +55,9 @@ http.createServer((req, res) => {
         const sql = `
             SELECT UUID, LastPlayerName, ${category}
             FROM PlayerData
+            WHERE ${category} > 0
             ORDER BY ${category} DESC
-            LIMIT 10
+            LIMIT 100
         `;
         con.query(sql, (err, result) => {
             if (err) {

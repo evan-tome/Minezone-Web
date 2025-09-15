@@ -2,12 +2,11 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #333;
     color: #fff;
     width: 100%;
     padding: 10px 0px;
     font-size: large;
-    gap: 600px;
+    gap: 550px;
 }
 
 .navbar-left .logo {

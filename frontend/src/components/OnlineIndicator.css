@@ -1,0 +1,9 @@
+.online {
+  text-align: center;
+  min-width: 120px;
+  padding: 0 12px;
+  background-color: darkgreen;
+  color: #fff;
+  font-weight: bold;
+  border-radius: 8px;
+}

@@ -22,9 +22,6 @@ export function Leaderboards() {
     return(
         <>
         <div className="app">
-            <header>
-                <img src="minezonelogo.svg" alt="logo" width="250" height="250"></img>
-            </header>
             <Navbar />
             <div className="main">
                 <h1>Minezone</h1>

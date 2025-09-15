@@ -2,14 +2,18 @@ import '../App.css'
 import Navbar from "../components/Navbar";
 import Searchbar from '../components/Searchbar';
 import PlayerStats from '../components/PlayerStats';
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useNavigate, useParams } from 'react-router-dom';
 
 export function Stats() {
     const [playerData, setPlayerData] = useState(null);
     const [error, setError] = useState(null);
 
-    const handleSearch = (username) => {
-        fetch(`http://localhost:8080/player?username=${username}`)
+    const navigate = useNavigate();
+    const { username } = useParams();
+
+    const fetchPlayer = (name) => {
+        fetch(`http://localhost:8080/player?username=${name}`)
             .then(res => {
                 if (!res.ok) {
                     setPlayerData(null);
@@ -22,15 +26,22 @@ export function Stats() {
             .catch(err => setError(err.message));
     };
 
+    useEffect(() => {
+        if (username) {
+            fetchPlayer(username);
+        }
+    }, [username])
+
+    const handleSearch = (name) => {
+        navigate(`/stats/${name}`);
+    };
+
     return(
         <>
         <div className="app">
-            <header>
-                <img src="minezonelogo.svg" alt="logo" width="250" height="250"></img>
-            </header>
             <Navbar />
             <div className="main">
-                <h1>Stats Tracker</h1>
+                <h1>Player Search</h1>
                 <Searchbar onSearch={handleSearch}/>
 
                 {error && <p style={{ color: "red" }}>{error}</p>}
