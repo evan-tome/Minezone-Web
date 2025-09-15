@@ -57,7 +57,7 @@ http.createServer((req, res) => {
             FROM PlayerData
             WHERE ${category} > 0
             ORDER BY ${category} DESC
-            LIMIT 100
+            LIMIT 50
         `;
         con.query(sql, (err, result) => {
             if (err) {

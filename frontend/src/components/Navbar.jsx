@@ -6,10 +6,12 @@ const Navbar = () => {
     return (
         <nav className="navbar" 
         style={{
-        backgroundColor: isHomePage ? "transparent" : "#ee9d08ff",
+        backgroundColor: isHomePage ? "transparent" : "rgba(224, 147, 4, 0.8)",
         }}>
             <div className="navbar-left">
-                <img src="/minezonelogo.svg" alt="logo" className="logo" width="64" height="64"></img>
+                <a href="/">
+                    <img src="/minezonelogo.png" alt="logo" className="logo" width="64" height="64"></img>
+                </a>
             </div>
             <div className="navbar-center">
                 <ul className="nav-links">
@@ -17,7 +19,7 @@ const Navbar = () => {
                         <a href="/">Home</a>
                     </li>
                     <li>
-                        <a href="/#games">Games</a>
+                        <a href="/games">Games</a>
                     </li>
                     <li>
                         <a href="/leaderboards">Leaderboards</a>
@@ -27,6 +29,9 @@ const Navbar = () => {
                     </li>
                     <li>
                         <a href="https://discord.com" target="_blank">Discord</a>
+                    </li>
+                    <li>
+                        <a href="/store">Store</a>
                     </li>
                 </ul>
             </div>

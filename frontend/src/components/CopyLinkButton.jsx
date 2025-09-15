@@ -7,8 +7,8 @@ const CopyLinkButton = () => {
 
     return (
         <div className="tooltip">
-            <button onClick={copyLink}>Join Now!</button>
-            <span className="tooltip-text">minezone.club</span>
+            <button onClick={copyLink}>minezone.club</button>
+            <span className="tooltip-text">Copy to clipboard</span>
         </div>
     )
 }
