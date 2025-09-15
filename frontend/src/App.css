@@ -92,8 +92,9 @@ iframe {
     align-items: left;
     color: #fff;
     margin-bottom: 150px;
+    line-height: 1.1;
     gap: 350px;
-    text-shadow: 2px 3px 3px rgba(0, 0, 0, 0.4);
+    /*text-shadow: 2px 3px 3px rgba(0, 0, 0, 0.4);*/
 }
 
 .hero #big-desc {
@@ -103,8 +104,8 @@ iframe {
 }
 
 .hero p {
-    font-size: 1.1rem;
-    font-weight: 400;
+    font-size: 1.2rem;
+    font-weight: 500;
 }
 
 .img-bg-container {
@@ -161,12 +162,11 @@ iframe {
     font-size: 1.2rem;
 }
 
-.trailer {
-    margin: 60px;
+.info p {
+    width: 1200px;
 }
 
-.info span p {
-    margin: 0;
-    justify-self: center;
-    width: 60%;
+
+.trailer {
+    margin: 60px;
 }

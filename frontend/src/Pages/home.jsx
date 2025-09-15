@@ -16,6 +16,7 @@ export function Home() {
                             HOME OF <br />
                             SUPER CRAFT BROS.
                         </p>
+                        <p>Join in on the fun!</p>
                         <CopyLinkButton />
                     </div>
                     <img src="/minezonelogo.png" width="500px" height="500px" />
