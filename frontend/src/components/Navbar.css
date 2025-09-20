@@ -7,6 +7,9 @@
     padding: 10px 0px;
     font-size: 1.2rem;
     gap: 550px;
+    min-height: 80px;
+    max-height: 80px;
+    margin: 0;
 }
 
 .navbar-left .logo {

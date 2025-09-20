@@ -65,7 +65,7 @@ footer {
     border-radius: 10px;
     padding: 20px 20px;
     margin: 40px 0;
-    width: 1000px;
+    width: auto;
 }
 
 .game-info {
@@ -173,14 +173,13 @@ iframe {
 
 .trailer {
     margin: 60px;
-    justify-content: lef;
+    justify-content: left;
 }
 
 .games-list {
   list-style: none;
   padding: 0;
   margin: 0;
-  width: 50%;
 }
 
 .games-list li {
@@ -189,22 +188,22 @@ iframe {
   justify-content: center;
   background-color: #f5f5f5;
   border-radius: 10px;
-  padding: 20px;
+  padding: 10px 40px;
   margin: 40px 0;
   gap: 20px;
   align-items: center;
 }
 
 .games-list p {
-  margin: 0;
-  font-size: 1rem;
-  line-height: 1.5;
-  width: 40%;
+  width: auto;
+  max-width: 500px;
+  flex: 1;
 }
 
+
 .games-list img {
-  width: 200px;
   height: auto;
   border-radius: 8px;
   object-fit: cover;
+  width: 200px;
 }
