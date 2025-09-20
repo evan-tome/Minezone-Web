@@ -12,7 +12,7 @@ body {
     color: #222;
 }
 
-.app > *:not(footer) {
+.app > *:not(footer, .navbar) {
   flex: 1 0 auto;
 }
 
@@ -58,31 +58,6 @@ footer {
     outline: none;
     border-color: #7a5cff;
     background-color: #f5f5f5;
-}
-
-.game-info {
-    background-color: #f5f5f5;
-    border-radius: 10px;
-    padding: 20px 20px;
-    margin: 40px 0;
-    width: auto;
-}
-
-.game-info {
-    display: flex;
-    align-items: center;
-    gap: 40px;
-}
-
-.game-info ul {
-    margin: 10px 0;
-}
-
-.game-info li {
-    background: #fff;
-    border-radius: 10px;
-    padding: 1px 10px;
-    width: 550px;
 }
 
 iframe {
@@ -176,13 +151,13 @@ iframe {
     justify-content: left;
 }
 
-.games-list {
+.info-cards {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.games-list li {
+.info-cards li {
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -194,14 +169,14 @@ iframe {
   align-items: center;
 }
 
-.games-list p {
+.info-cards p {
   width: auto;
   max-width: 500px;
   flex: 1;
 }
 
 
-.games-list img {
+.info-cards img {
   height: auto;
   border-radius: 8px;
   object-fit: cover;

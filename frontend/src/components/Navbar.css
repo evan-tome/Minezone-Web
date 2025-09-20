@@ -1,15 +1,12 @@
 .navbar {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     color: #fff;
-    width: 100%;
-    padding: 10px 0px;
+    width: 100%;    
+    padding: 10px 40px;
     font-size: 1.2rem;
-    gap: 550px;
-    min-height: 80px;
-    max-height: 80px;
-    margin: 0;
+    box-sizing: border-box;
 }
 
 .navbar-left .logo {
@@ -22,8 +19,7 @@
 }
 
 .navbar-center {
-    display: flex;
-    justify-content: center;
+    justify-self: center;
 }
 
 .navbar-center .nav-links {
@@ -50,5 +46,6 @@
     display: flex;
     align-items: center;
     gap: 20px;
+    justify-self: end;
 }
 

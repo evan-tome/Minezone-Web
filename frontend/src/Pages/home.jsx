@@ -28,7 +28,7 @@ export function Home() {
                 <span>
                     <p>Welcome to Minezone, the Minecraft server featuring Super Craft Blocks! Engage in fast-paced battles with unique kits across numerous maps. Enjoy smooth gameplay with regular updates and events. Whether you're experienced or new, Minezone's community offers endless fun and creativity. Join us for unforgettable adventures!</p>
                 </span>
-                <ul className="games-list">
+                <ul className="info-cards">
                     <li>
                         <div>
                             <h3>A Classic Gamemode Recreated</h3>

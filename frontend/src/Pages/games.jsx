@@ -1,5 +1,6 @@
 import { useState } from "react";
 import '../App.css'
+import './games.css'
 import Navbar from "../components/Navbar";
 
 export function Games() {
