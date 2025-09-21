@@ -1,0 +1,15 @@
+.error-screen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    text-align: center;
+}
+
+.error-box h1 {
+    text-transform: uppercase;
+}
+
+.error-box p {
+    font-size: 1.4rem;
+}
