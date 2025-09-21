@@ -3,18 +3,79 @@ import './PlayerStats.css'
 function PlayerStats({ player }) {
     const headUrl = `https://minotar.net/helm/${player.UUID}/128.png`;
 
+    const RanksMap = new Map([
+        [0, "DEFAULT"],
+        [6, "VIP"],
+        [8, "CAPTAIN"],
+        [3, "TRAINEE"],
+        [4, "MODERATOR"],
+        [16, "SR_MODERATOR"],
+        [1, "ADMIN"],
+        [5, "DEVELOPER"],
+        [7, "SUPERVISOR"],
+        [2, "OWNER"],
+        [9, "QA"],
+        [10, "MEDIA"],
+        [11, "PARTNER"],
+        [12, "STAFF_MANAGER"],
+        [13, "DIRECTOR"],
+        [14, "BUILDER"],
+        [17, "SUPREME"],
+        [18, "HR"]
+    ]);
+
+    function getRankNameById(id) {
+        return RanksMap.get(id) || "DEFAULT";
+    }
+
+
     return (
         <div className="stats-card">
             <div className="profile">
-                <img className="player-head" src={headUrl} alt="Head"/>
-                <div className="username">{player.LastPlayerName}</div>
+                <img className="player-head" src={headUrl} alt="Head" />
             </div>
 
-            <div className="title">
-                <div className="yellow">Level: {player.Level}</div>
-                <div className="yellow">Progress: {player.Exp}/2500</div>
-                <div className="progress-bar">
-                    <div className="progress" style={{ width: `${(player.Exp / 2500) * 100}%` }}></div>
+            <div className="username-banner">{player.LastPlayerName}</div>
+            <div className="rank-banner">{getRankNameById(player.RoleID)}</div>
+
+            <div className="top-stats">
+                <div className="stat-box yellow">
+                    Tokens<br />
+                    <span>{player.Tokens}</span>
+                </div>
+                <div className="stat-box green">
+                    EXP<br />
+                    <span>{player.Exp}/2500</span>
+                    <div className="progress-bar">
+                        <div
+                            className="progress"
+                            style={{ width: `${(player.Exp / 2500) * 100}%` }}
+                        ></div>
+                    </div>
+                </div>
+                <div className="stat-box orange">
+                    Level<br />
+                    <span>{player.Level}</span>
+                </div>
+            </div>
+
+            <div className="stat-box green">
+                Matches Played<br />
+                <span>{player.Wins + player.Losses}</span>
+            </div>
+            
+            <div className="stats">
+                <div className="stat-box green">
+                    Current Winstreak<br />
+                    <span>{player.Winstreak}</span>
+                </div>
+                <div className="stat-box red">
+                    Best Winstreak<br />
+                    <span>{player.BestWinstreak}</span>
+                </div>
+                <div className="stat-box orange">
+                    Match MVPs<br />
+                    <span>{player.MatchMvps}</span>
                 </div>
             </div>
 
@@ -45,36 +106,10 @@ function PlayerStats({ player }) {
                 </div>
             </div>
 
-
-            {/* <div className="overall-stats">
-                <h3>Overall</h3>
-                <ul>
-                    <li>Level: {player.Level}</li>
-                    <li>Tokens: {player.Tokens}</li>
-                </ul>
+            <div className="stat-box yellow">
+                Lifetime Caught<br />
+                <span>{player.TotalCaught}</span>
             </div>
-            <div className="scb-stats">
-                <h3>SCB</h3>
-                <ul>
-                    <li>Matches Played: {player.Wins + player.Losses}</li>
-                    <li>Wins: {player.Wins}</li>
-                    <li>Losses: {player.Losses}</li>
-                    <li>Winrate: {(player.Wins / player.Losses).toFixed(3)}</li>
-                    <li>Flawless Wins: {player.FlawlessWins}</li>
-                    <li>Kills: {player.Kills}</li>
-                    <li>Deaths: {player.Deaths}</li>
-                    <li>KDR: {(player.Kills / player.Deaths).toFixed(3)}</li>
-                    <li>Winstreak: {player.Winstreak}</li>
-                    <li>Best Winstreak: {player.BestWinstreak}</li>
-                    <li>Match MVPs: {player.MatchMvps}</li>
-                </ul>
-            </div>
-            <div className="fishing-stats">
-                <h3>Fishing</h3>
-                <ul>
-                    <li>Lifetime Caught: {player.TotalCaught}</li>
-                </ul>
-            </div> */}
         </div>
     );
 }
