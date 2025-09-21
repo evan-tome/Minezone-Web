@@ -15,7 +15,7 @@ export function Games() {
                 { title: "Duels", desc: "Face off against a random player or friend to prove who's the best!" },
                 { title: "Frenzy", desc: "Random kits every life for a chaotic and fun experience!" },
             ],
-            img: "bb"
+            img: "./background.png"
         },
         fishing: {
             title: "Fishing",
@@ -25,7 +25,7 @@ export function Games() {
                 { title: "Discover New Areas", desc: "Explore the lobby and discover new fishing spots. Each body of water has unique catches!" },
                 { title: "Exclusive Rewards", desc: "Speed up progression by fishing to earn EXP, Tokens, and exclusive rewards!" },
             ],
-            img: "bb"
+            img: "./background.png"
         },
         parkour: {
             title: "Parkour",
@@ -35,7 +35,7 @@ export function Games() {
                 { title: "Reach the Top", desc: "Each course has a leaderboard. Jump in now and see if you can claim a spot!" },
                 { title: "Earn Rewards", desc: "Gain rewards for completing parkour courses!" },
             ],
-            img: "bb"
+            img: "./background.png"
         }
     };
     return(

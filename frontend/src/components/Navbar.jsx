@@ -39,7 +39,7 @@ const Navbar = () => {
                 <a href="https://minezone.tebex.io" target="_blank">
                     <img src="/cart.svg" alt="store" width="32" height="32"></img>
                 </a>
-                <a href="/profile">Profile</a>
+                {/*<a href="/profile">Profile</a>*/}
             </div>
         </nav>
     );

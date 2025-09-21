@@ -1,25 +1,47 @@
 .game-info {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
     background-color: #f5f5f5;
     border-radius: 10px;
-    padding: 20px 20px;
-    margin: 40px 0;
+    padding: 20px 30px;
+    margin: 20px 0;
+    margin-bottom: 90px;
     width: auto;
-}
-
-.game-info {
-    display: flex;
-    align-items: center;
     gap: 40px;
 }
 
 .game-info ul {
     list-style: none;
-    margin: 10px 0;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 15px
 }
 
 .game-info li {
     background: #fff;
     border-radius: 10px;
     padding: 1px 10px;
-    width: 550px;
+    width: 600px;
+}
+
+.game-info p {
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    width: 600px;
+}
+
+.game-info li p {
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.game-info img {
+    height: auto;
+    border-radius: 8px;
+    object-fit: cover;
+    width: 500px;
 }

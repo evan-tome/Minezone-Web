@@ -24,7 +24,7 @@ export function Leaderboards() {
         <div className="app">
             <Navbar />
             <div className="main">
-                <h1>Minezone</h1>
+                <h1>Leaderboards</h1>
                 <div class="category-selector">
                     <label for="category">Category: </label>
                     <select id="category" value={categoryData} onChange={(e) => setCategory(e.target.value)}>

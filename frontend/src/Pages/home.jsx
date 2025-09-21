@@ -34,28 +34,29 @@ export function Home() {
                             <h3>A Classic Gamemode Recreated</h3>
                             <p>Super Craft Blocks is a faithful recreation of SethBling and Minecade’s classic gamemode, Super Craft Brothers We've expanded on the original with brand-new classes, maps, and content to keep the gameplay fresh and exciting.</p>
                         </div>
-                        <iframe className="trailer" width="384" height="315" 
+                        {/* <iframe className="trailer" width="384" height="315" 
                             src="https://www.youtube.com/embed/0phpMgu1mH0" 
                             title="Minezone Trailer - Super Craft Bros (SCB RECREATION/Super Craft Bros Recreation)" 
                             frameBorder="0" 
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
                             referrerPolicy="strict-origin-when-cross-origin" 
                             allowFullScreen>
-                        </iframe>
+                        </iframe> */}
+                        <img src="./background.png"></img>
                     </li>
                     <li>
-                        <img src="bb"></img>
                         <div>
                             <h3>Level Up Your Game</h3>
                             <p>Support the server and unlock exclusive perks! Donor ranks come with unique cosmetics, quality-of-life features, and increased rewards to speed up progression.</p>
                         </div>
+                        <img src="./background.png"></img>
                     </li>
                     <li>
                         <div>
                             <h3>Singleplayer Modes</h3>
                             <p>Relax with a peaceful fishing session or test your skills on challenging parkour courses, all designed for solo play.</p>
                         </div>
-                        <img src="bb"></img>
+                        <img src="./background.png"></img>
                     </li>
                 </ul>
             </div>

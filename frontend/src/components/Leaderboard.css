@@ -1,5 +1,6 @@
 .leaderboard {
-    margin: 20px auto 40px;
+    justify-self: center;
+    margin: 20px 0 50px 0;
     padding: 20px;
     background: linear-gradient(135deg, #f9f9f9, #f1f1f1);
     border-radius: 12px;
@@ -21,7 +22,7 @@
 table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.95rem;
+    font-size: 1rem;
 }
 
 thead th {
