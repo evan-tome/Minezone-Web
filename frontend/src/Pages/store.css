@@ -1,0 +1,93 @@
+.rank-cards {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+}
+
+.rank-card {
+    background: #f5f5f5;
+    padding: 15px 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    text-align: center;
+    width: 220px;
+}
+
+.rank-desc {
+    height: 30%;
+}
+
+.rank-price {
+    color: #444;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.buy-button {
+    display: inline-block;
+    padding: 8px 16px;
+    background: #4CAF50;
+    color: white;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.buy-button:hover {
+    color: #f5f5f5;
+    background: #45a049;
+}
+
+.rank-table {
+    max-width: 900px;
+    margin: 0 auto 40px;
+    overflow-x: auto;
+}
+
+.rank-table table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #f9f9f9;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.rank-table th, 
+.rank-table td {
+    padding: 12px 16px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+.rank-table th {
+    background: #f1f1f1;
+    font-weight: 600;
+    color: #333;
+}
+
+.rank-table tr:last-child td {
+    border-bottom: none;
+}
+
+.rank-table .perk-name {
+    text-align: left;
+    font-weight: 500;
+    color: #444;
+}
+
+.store-button {
+    margin-bottom: 30px;
+}
+
+h2 {
+    line-height: 0.5rem;
+}
+
+.bottom {
+    width: 50%;
+    line-height: 1rem;
+    margin-bottom: 50px;
+}

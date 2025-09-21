@@ -3,6 +3,7 @@ import { Home } from './Pages/home'
 import { Games } from './Pages/games'
 import { Stats } from './Pages/Stats'
 import { Leaderboards } from './Pages/leaderboards'
+import { Store } from './Pages/store'
 import './App.css'
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
         <Route path="/stats" element={<Stats />}/>
         <Route path="/stats/:username" element={<Stats />}/>
         <Route path="/leaderboards" element={<Leaderboards />}/>
+        <Route path="/store" element={<Store />}/>
       </Routes>
     </Router>
   )
