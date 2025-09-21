@@ -1,15 +1,17 @@
 .search-bar {
     width: 450px;
+    justify-self: center;
 }
 
 .search-bar input {
-    padding: 15px 25px;
+    padding: 10px 20px;
     border: 1px solid #ccc;
     border-radius: 25px;
     font-size: 1rem;
     outline: none;
     transition: border-color 0.2s ease;
     width: 100%;
+    box-sizing: border-box;
 }
 
 .search-bar input:focus {
