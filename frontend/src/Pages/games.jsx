@@ -15,7 +15,8 @@ export function Games() {
                 { title: "Duels", desc: "Face off against a random player or friend to prove who's the best!" },
                 { title: "Frenzy", desc: "Random kits every life for a chaotic and fun experience!" },
             ],
-            img: "./background.png"
+            img: "../src/assets/scb.png",
+            page: "/games/scb"
         },
         fishing: {
             title: "Fishing",
@@ -25,7 +26,7 @@ export function Games() {
                 { title: "Discover New Areas", desc: "Explore the lobby and discover new fishing spots. Each body of water has unique catches!" },
                 { title: "Exclusive Rewards", desc: "Speed up progression by fishing to earn EXP, Tokens, and exclusive rewards!" },
             ],
-            img: "./background.png"
+            img: "../src/assets/fishing.png"
         },
         parkour: {
             title: "Parkour",
@@ -35,9 +36,10 @@ export function Games() {
                 { title: "Reach the Top", desc: "Each course has a leaderboard. Jump in now and see if you can claim a spot!" },
                 { title: "Earn Rewards", desc: "Gain rewards for completing parkour courses!" },
             ],
-            img: "./background.png"
+            img: "../src/assets/parkour.png"
         }
     };
+
     return(
         <>
         <div className="app">
@@ -50,21 +52,24 @@ export function Games() {
                 <button onClick={() => setSelectedGame("parkour")}>Parkour</button>
             </div>
             {selectedGame && (
-                <div className="game-info">
-                    <div>
-                        <h2>{games[selectedGame].title}</h2>
-                        <p>{games[selectedGame].description}</p>
-                        <ul>
-                            {games[selectedGame].modes.map((mode, idx) => (
-                                <li key={idx}>
-                                    <h3>{mode.title}</h3>
-                                    <p>{mode.desc}</p>
-                                </li>
-                            ))}
-                        </ul>
+                <>
+                    <div className="game-info">
+                        <div>
+                            <h2>{games[selectedGame].title}</h2>
+                            <p>{games[selectedGame].description}</p>
+                            <ul>
+                                {games[selectedGame].modes.map((mode, idx) => (
+                                    <li key={idx}>
+                                        <h3>{mode.title}</h3>
+                                        <p>{mode.desc}</p>
+                                    </li>
+                                ))}
+                            </ul>
+                            <a href={games[selectedGame].page} target="_blank"><button>More Info</button></a>
+                        </div>
+                        <img src={games[selectedGame].img} alt={games[selectedGame].title} />
                     </div>
-                    <img src={games[selectedGame].img} alt={games[selectedGame].title} />
-                </div>
+                </>
             )}
             <footer>© {new Date().getFullYear()} Minezone</footer>
         </div>

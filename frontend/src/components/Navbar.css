@@ -49,8 +49,16 @@
     justify-self: end;
 }
 
-.navbar-right img {
-    filter: brightness(0) invert(1);
+.navbar-right a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+    font-size: 1.6rem;
+}
+
+.navbar-right a:hover {
+    color: #f5f5f5;
 }
 
 

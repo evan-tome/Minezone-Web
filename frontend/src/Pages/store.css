@@ -12,7 +12,7 @@
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     text-align: center;
-    width: 220px;
+    width: 240px;
 }
 
 .rank-desc {
@@ -33,6 +33,7 @@
     border-radius: 6px;
     text-decoration: none;
     transition: all 0.2s;
+    font-weight: 500;
 }
 
 .buy-button:hover {
@@ -51,13 +52,12 @@
     border-collapse: collapse;
     background: #f9f9f9;
     border-radius: 12px;
-    overflow: hidden;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
 .rank-table th, 
 .rank-table td {
-    padding: 12px 16px;
+    padding: 12px 24px;
     text-align: center;
     border-bottom: 1px solid #ddd;
 }
@@ -79,7 +79,7 @@
 }
 
 .store-button {
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
 h2 {
@@ -87,7 +87,7 @@ h2 {
 }
 
 .bottom {
-    width: 50%;
+    width: 40%;
     line-height: 1rem;
     margin-bottom: 50px;
 }

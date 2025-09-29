@@ -1,29 +1,13 @@
 import '../App.css'
+import './gamepage.css'
 import Navbar from "../components/Navbar";
-import OnlineIndicator from '../components/OnlineIndicator';
 import CopyLinkButton from '../components/CopyLinkButton';
-import { FaDiscord, FaTwitter, FaYoutube } from "react-icons/fa";
 
-export function Home() {
+export function SCB() {
     return(
         <>
         <div className="app">
-            <div className="img-bg-container">
-                <Navbar />
-                <div className="hero">
-                    <div>
-                        <h1>Welcome to Minezone</h1>
-                        <p id="big-desc">
-                            HOME OF <br />
-                            SUPER CRAFT BLOCKS
-                        </p>
-                        <p>Join in on the fun!</p>
-                        <CopyLinkButton />
-                    </div>
-                    <img src="/minezonelogo.png" width="500px" height="500px" />
-                    {/* <OnlineIndicator /> */}
-                </div>
-            </div>
+            <Navbar />
             <div className="info">
                 <h1>About</h1>
                 <span>
@@ -62,12 +46,6 @@ export function Home() {
                         <img src="../src/assets/scb.png"></img>
                     </li>
                 </ul>
-            </div>
-            
-            <div className="socials">
-                <a href="https://discord.com/invite/3J32tT9Zhp" target="_blank" rel="noopener noreferrer"><FaDiscord /></a>
-                <a href="https://x.com/MinezoneMC" target="_blank" rel="noopener noreferrer"><FaTwitter /></a>
-                <a href="https://www.youtube.com/@minezone6480" target="_blank" rel="noopener noreferrer"><FaYoutube /></a>
             </div>
 
             <footer>© {new Date().getFullYear()} Minezone</footer>

@@ -44,7 +44,7 @@ footer {
 }
 
 .category-selector select {
-    border: 1px solid gray;
+    border: 1px solid #555;
     border-radius: 6px;
     padding: 0.4rem 0.6rem;
     font-size: 1rem;
@@ -61,10 +61,6 @@ footer {
     background-color: #f5f5f5;
 }
 
-iframe {
-    border-radius: 8px;
-}
-
 .hero {
     display: flex;
     text-align: left;
@@ -74,7 +70,7 @@ iframe {
     color: #fff;
     margin-bottom: 150px;
     line-height: 1.1;
-    gap: 350px;
+    gap: 200px;
     /*text-shadow: 2px 3px 3px rgba(0, 0, 0, 0.4);*/
 }
 
@@ -111,7 +107,7 @@ iframe {
     content: "";
     position: absolute;
     inset: 0;
-    background: rgba(224, 147, 4, 0.8);
+    background: rgba(224, 147, 4, 0.82);
     z-index: 1;
 }
 
@@ -150,10 +146,11 @@ iframe {
     justify-content: space-between;
     background-color: #f5f5f5;
     border-radius: 12px;
-    padding: 20px 40px;
+    padding: 15px 30px;
     margin: 40px 0;
     gap: 50px;
     align-items: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
 .info-cards li:nth-child(even) {
@@ -166,10 +163,41 @@ iframe {
     flex: 1;
 }
 
-
-.info-cards img, .info-cards .trailer {
+.info-cards img {
     height: auto;
     border-radius: 8px;
     object-fit: cover;
     width: 500px;
 }
+
+.trailer-wrapper {
+    width: 500px;
+    max-width: 100%;
+    aspect-ratio: 16 / 9;
+}
+
+.trailer {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.socials {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin: 10px 0 30px 0;
+}
+
+.socials a {
+    font-size: 2.4rem;
+    color: #444;
+    transition: color 0.2s ease;
+}
+
+.socials a:hover {
+    color: #333;
+}
+

@@ -5,10 +5,12 @@
     background-color: #f5f5f5;
     border-radius: 10px;
     padding: 20px 30px;
-    margin: 20px 0;
+    margin: 10px 0 300px 0;
     margin-bottom: 90px;
     width: auto;
     gap: 40px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    min-height: 492px; 
 }
 
 .game-info ul {
@@ -35,8 +37,12 @@
 }
 
 .game-info li p {
-    margin: 0;
-    font-size: 0.95rem;
+    margin-bottom: 10px;
+    font-size: 1rem;
+}
+
+.game-info li h3 {
+    line-height: 1rem;
 }
 
 .game-info img {
@@ -45,3 +51,28 @@
     object-fit: cover;
     width: 500px;
 }
+
+.game-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.game-buttons button {
+    background: rgb(224, 147, 4);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    width: 180px;
+    height: 50px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.game-buttons button:hover {
+    background: rgb(235, 165, 37);
+}
+

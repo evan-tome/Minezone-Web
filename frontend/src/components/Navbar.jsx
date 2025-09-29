@@ -1,12 +1,13 @@
 import { useLocation } from "react-router-dom";
 import './Navbar.css';
+import { FaShoppingCart } from "react-icons/fa";
 
 const Navbar = () => {
     const isHomePage = useLocation().pathname === "/";
     return (
         <nav className="navbar" 
         style={{
-        backgroundColor: isHomePage ? "transparent" : "rgba(224, 147, 4, 0.8)",
+        backgroundColor: isHomePage ? "transparent" : "rgb(224, 147, 4)",
         }}>
             <div className="navbar-left">
                 <a href="/">
@@ -28,7 +29,7 @@ const Navbar = () => {
                         <a href="/stats">Stats</a>
                     </li>
                     <li>
-                        <a href="https://discord.com" target="_blank">Discord</a>
+                        <a href="https://discord.com/invite/3J32tT9Zhp" target="_blank">Discord</a>
                     </li>
                     <li>
                         <a href="/store">Store</a>
@@ -36,9 +37,7 @@ const Navbar = () => {
                 </ul>
             </div>
             <div className="navbar-right">
-                <a href="https://minezone.tebex.io" target="_blank">
-                    <img src="/cart.svg" alt="store" width="32" height="32"></img>
-                </a>
+                <a href="https://minezone.tebex.io" target="_blank"><FaShoppingCart /></a>
                 {/*<a href="/profile">Profile</a>*/}
             </div>
         </nav>
