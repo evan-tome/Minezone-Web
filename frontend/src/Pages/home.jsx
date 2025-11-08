@@ -1,77 +1,77 @@
 import '../App.css'
+import './home.css'
 import Navbar from "../components/Navbar";
-import OnlineIndicator from '../components/OnlineIndicator';
 import CopyLinkButton from '../components/CopyLinkButton';
+import NewsCard from '../components/NewsCard';
+import Footer from '../components/Footer';
 import { FaDiscord, FaTwitter, FaYoutube } from "react-icons/fa";
 
 export function Home() {
-    return(
+    const newsPosts = [
+        {
+            title: "Halloween Event 2025 🎃",
+            date: "October 25, 2025",
+            content: "The Halloween event is live! Explore the spooky lobby, collect candy, and unlock limited-time cosmetics and rewards.",
+            image: "../src/assets/halloween.png"
+        },
+        {
+            title: "Fishing Update 🎣",
+            date: "September 10, 2025",
+            content: "Our new fishing system has arrived! Discover rare fish, earn EXP, and complete your collection for exclusive prizes.",
+            image: "../src/assets/fishing.png"
+        },
+        {
+            title: "Welcome to Minezone!",
+            date: "August 1, 2025",
+            content: "We’re thrilled to announce the launch of Minezone, featuring our flagship gamemode Super Craft Blocks. Join the fun today!",
+            image: "../src/assets/scb.png"
+        }
+    ];
+
+    return (
         <>
-        <div className="app">
-            <div className="img-bg-container">
-                <Navbar />
-                <div className="hero">
-                    <div>
-                        <h1>Welcome to Minezone</h1>
-                        <p id="big-desc">
-                            HOME OF <br />
-                            SUPER CRAFT BLOCKS
-                        </p>
-                        <p>Join in on the fun!</p>
-                        <CopyLinkButton />
+            <div className="app">
+                <div className="img-bg-container">
+                    <Navbar />
+                    <div className="hero">
+                        <img src="/minezonebanner.png" width="800px" height="auto" alt="Minezone Logo" />
+                        <div>
+                            <p id="big-desc">
+                                HOME OF <br />
+                                SUPER CRAFT BROS
+                            </p>
+                            <CopyLinkButton />
+                        </div>
                     </div>
-                    <img src="/minezonelogo.png" width="500px" height="500px" />
-                    {/* <OnlineIndicator /> */}
                 </div>
-            </div>
-            <div className="info">
-                <h1>About</h1>
-                <span>
-                    <p>Welcome to Minezone, the Minecraft server featuring Super Craft Blocks! Engage in fast-paced battles with unique kits across numerous maps. Enjoy smooth gameplay with regular updates and events. Whether you're experienced or new, Minezone's community offers endless fun and creativity. Join us for unforgettable adventures!</p>
-                </span>
 
-                <ul className="info-cards">
-                    <li>
-                        <div>
-                            <h3>A Classic Gamemode Recreated</h3>
-                            <p>Super Craft Blocks is a faithful recreation of SethBling and Minecade’s classic gamemode, Super Craft Brothers We've expanded on the original with brand-new classes, maps, and content to keep the gameplay fresh and exciting.</p>
-                        </div>
-                        <div className="trailer-wrapper">
-                            <iframe className="trailer"
-                                src="https://www.youtube.com/embed/0phpMgu1mH0" 
-                                title="Minezone Trailer - Super Craft Bros (SCB RECREATION/Super Craft Bros Recreation)" 
-                                frameBorder="0" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                                referrerPolicy="strict-origin-when-cross-origin" 
-                                allowFullScreen>
-                            </iframe>
-                        </div>
-                    </li>
-                    <li>
-                        <div>
-                            <h3>Level Up Your Game</h3>
-                            <p>Support the server and unlock exclusive perks! Donor ranks come with unique cosmetics, quality-of-life features, and increased rewards to speed up progression.</p>
-                        </div>
-                        <img src="../src/assets/cosmetics.png"></img>
-                    </li>
-                    <li>
-                        <div>
-                            <h3>Singleplayer Modes</h3>
-                            <p>Relax with a peaceful fishing session or test your skills on challenging parkour courses, all designed for solo play.</p>
-                        </div>
-                        <img src="../src/assets/scb.png"></img>
-                    </li>
-                </ul>
-            </div>
-            
-            <div className="socials">
-                <a href="https://discord.com/invite/3J32tT9Zhp" target="_blank" rel="noopener noreferrer"><FaDiscord /></a>
-                <a href="https://x.com/MinezoneMC" target="_blank" rel="noopener noreferrer"><FaTwitter /></a>
-                <a href="https://www.youtube.com/@minezone6480" target="_blank" rel="noopener noreferrer"><FaYoutube /></a>
-            </div>
+                {/* === Server Trailer === */}
+                <section className="trailer-section">
+                    <h1>Server Trailer</h1>
+                    <div className="trailer-wrapper">
+                        <iframe
+                            className="trailer"
+                            src="https://www.youtube.com/embed/0phpMgu1mH0"
+                            title="Minezone Trailer - Super Craft Bros (SCB RECREATION)"
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            referrerPolicy="strict-origin-when-cross-origin"
+                            allowFullScreen
+                        ></iframe>
+                    </div>
+                </section>
 
-            <footer>© {new Date().getFullYear()} Minezone</footer>
-        </div>
+                {/* === News Posts === */}
+                <section className="news-section">
+                    <h1>Latest News</h1>
+                    <ul className="news-cards">
+                        {newsPosts.map((post, i) => (
+                            <NewsCard key={i} {...post} reverse={i % 2 !== 0} />
+                        ))}
+                    </ul>
+                </section>
+                <Footer></Footer>
+            </div>
         </>
     );
 }

@@ -1,78 +1,98 @@
-.game-info {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    background-color: #f5f5f5;
-    border-radius: 10px;
-    padding: 20px 30px;
-    margin: 10px 0 300px 0;
-    margin-bottom: 90px;
-    width: auto;
-    gap: 40px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    min-height: 492px; 
+/* Page title */
+h1 {
+    font-size: 2.8rem;
+    margin-bottom: 40px;
+    color: #222;
+    text-align: center;
 }
 
-.game-info ul {
+/* Game cards container */
+.game-cards {
     list-style: none;
-    margin: 0;
     padding: 0;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 1200px;
+}
+
+/* Each game card */
+.game-cards li {
     display: flex;
-    flex-direction: column;
-    gap: 15px
+    flex-direction: row;
+    justify-content: space-between;
+    background-color: #f5f5f5;
+    border-radius: 12px;
+    padding: 30px 40px;
+    margin: 10px 0;
+    margin-bottom: 50px;
+    gap: 50px;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.game-info li {
-    background: #fff;
-    border-radius: 10px;
-    padding: 1px 10px;
-    width: 600px;
+/* Alternate full row direction */
+.game-cards > li:nth-child(even) {
+    flex-direction: row-reverse;
 }
 
-.game-info p {
-    font-size: 1rem;
-    line-height: 1.6;
-    margin-bottom: 20px;
-    width: 600px;
+/* Hover effect */
+.game-cards > li:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
 
-.game-info li p {
+/* Game title and description */
+.game-cards h2 {
+    font-size: 2rem;
     margin-bottom: 10px;
-    font-size: 1rem;
+    color: #111;
 }
 
-.game-info li h3 {
-    line-height: 1rem;
+.game-cards p {
+    font-size: 1.05rem;
+    color: #444;
+    max-width: 500px;
+    line-height: 1.6;
 }
 
-.game-info img {
+/* Game image */
+.game-cards img {
     height: auto;
     border-radius: 8px;
     object-fit: cover;
     width: 500px;
 }
 
-.game-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
+/* Inner game mode list */
+.game-cards ul {
+    margin-top: 15px;
+    padding-left: 0;
 }
 
-.game-buttons button {
-    background: rgb(224, 147, 4);
-    color: #fff;
-    font-size: 16px;
-    font-weight: 700;
-    text-transform: uppercase;
-    width: 180px;
-    height: 50px;
+.game-cards ul li {
+    padding: 20px 30px;
+    margin: 20px 0;
+}
+
+.game-cards h3 {
+    margin-bottom: 5px;
+    color: #333;
+    font-size: 1.2rem;
+}
+
+/* "More Info" button */
+.game-cards a button {
+    background-color: #4caf50;
+    color: white;
     border: none;
-    border-radius: 10px;
+    border-radius: 8px;
+    padding: 10px 20px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    margin-top: 15px;
+    transition: background-color 0.3s ease;
 }
 
-.game-buttons button:hover {
-    background: rgb(235, 165, 37);
+.game-cards a button:hover {
+    background-color: #3d8b40;
 }
-

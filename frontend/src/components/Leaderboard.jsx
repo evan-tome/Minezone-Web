@@ -1,34 +1,37 @@
-import './Leaderboard.css'
+import "./Leaderboard.css";
 
-function Leaderboard({ players, category }) {
-    return (
+function Leaderboard({ players, categoryKey, categoryLabel }) {
+  return (
     <div className="leaderboard">
-        <h2>Most {category}</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Rank</th>
-                    <th>Username</th>
-                    <th>{category}</th>
-                </tr>
-            </thead>
-            <tbody>
-                {players.map((player, index) => (
-                    <tr key={player.UUID}>
-                        <td>{index + 1}</td>
-                        <td>
-                            <img src={`https://minotar.net/helm/${player.UUID}/128.png`}
-                            alt={`${player.LastPlayerName}'s head`}
-                            className="player-head-small" />
-                            <a href={`/stats/${player.LastPlayerName}`}>{player.LastPlayerName}</a>
-                        </td>
-                        <td>{player[category]}</td>
-                    </tr>
-                ))}
-            </tbody>
-        </table>
+      <h2>{categoryLabel}</h2>
+
+      <div className="leaderboard-list">
+        {players.map((player, index) => (
+          <div className="leaderboard-row" key={player.UUID}>
+            <div className="player-info">
+              <div className={`rank rank-${index + 1 <= 3 ? index + 1 : ""}`}>
+                {index + 1}
+              </div>
+              <img
+                src={`https://minotar.net/helm/${player.UUID}/128.png`}
+                alt={player.LastPlayerName}
+                className="player-head"
+              />
+              <a
+                href={`/stats/${player.LastPlayerName}`}
+                className="player-name"
+              >
+                {player.LastPlayerName}
+              </a>
+            </div>
+            <div className="player-score">
+              {Number(player[categoryKey] ?? 0).toLocaleString()}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
-    );
+  );
 }
 
 export default Leaderboard;

@@ -32,7 +32,10 @@ const Navbar = () => {
                         <a href="https://discord.com/invite/3J32tT9Zhp" target="_blank">Discord</a>
                     </li>
                     <li>
-                        <a href="/store">Store</a>
+                        <a href="/stats">Support</a>
+                    </li>
+                    <li>
+                        <a href="https://minezone.tebex.io" target="_blank">Store</a>
                     </li>
                 </ul>
             </div>

@@ -1,13 +1,12 @@
-import { useState } from "react";
 import '../App.css'
 import './games.css'
 import Navbar from "../components/Navbar";
+import Footer from '../components/Footer';
 
 export function Games() {
-    const [selectedGame, setSelectedGame] = useState("scb");
 
-    const games = {
-        scb: {
+    const games = [
+        {
             title: "Super Craft Blocks",
             description: "SCB is a Minecraft minigame where you fight against other players using various kits. The last player standing wins!",
             modes: [
@@ -18,7 +17,7 @@ export function Games() {
             img: "../src/assets/scb.png",
             page: "/games/scb"
         },
-        fishing: {
+        {
             title: "Fishing",
             description: "Take a break from fighting and relax with some fishing, solo or with friends!",
             modes: [
@@ -28,9 +27,9 @@ export function Games() {
             ],
             img: "../src/assets/fishing.png"
         },
-        parkour: {
+        {
             title: "Parkour",
-            description: "Complete fun and challenging parkour courses to earn a spot on the leaderboard",
+            description: "Complete fun and challenging parkour courses to earn a spot on the leaderboard.",
             modes: [
                 { title: "Jump to New Heights", desc: "Test your parkour skills by completing parkour courses around the lobby!" },
                 { title: "Reach the Top", desc: "Each course has a leaderboard. Jump in now and see if you can claim a spot!" },
@@ -38,41 +37,39 @@ export function Games() {
             ],
             img: "../src/assets/parkour.png"
         }
-    };
+    ];
 
-    return(
-        <>
+    return (
         <div className="app">
             <Navbar />
             <h1>Games</h1>
 
-            <div className="game-buttons">
-                <button onClick={() => setSelectedGame("scb")}>Super Craft Blocks</button>
-                <button onClick={() => setSelectedGame("fishing")}>Fishing</button>
-                <button onClick={() => setSelectedGame("parkour")}>Parkour</button>
-            </div>
-            {selectedGame && (
-                <>
-                    <div className="game-info">
+            <ul className="game-cards">
+                {games.map((game, index) => (
+                    <li key={index}>
                         <div>
-                            <h2>{games[selectedGame].title}</h2>
-                            <p>{games[selectedGame].description}</p>
-                            <ul>
-                                {games[selectedGame].modes.map((mode, idx) => (
+                            <h2>{game.title}</h2>
+                            <p>{game.description}</p>
+                            <ul className="game-modes">
+                                {game.modes.map((mode, idx) => (
                                     <li key={idx}>
                                         <h3>{mode.title}</h3>
                                         <p>{mode.desc}</p>
                                     </li>
                                 ))}
                             </ul>
-                            <a href={games[selectedGame].page} target="_blank"><button>More Info</button></a>
+                            {game.page && (
+                                <a href={game.page} target="_blank" rel="noopener noreferrer">
+                                    <button>More Info</button>
+                                </a>
+                            )}
                         </div>
-                        <img src={games[selectedGame].img} alt={games[selectedGame].title} />
-                    </div>
-                </>
-            )}
-            <footer>© {new Date().getFullYear()} Minezone</footer>
+                        <img src={game.img} alt={game.title} />
+                    </li>
+                ))}
+            </ul>
+
+            <Footer></Footer>
         </div>
-        </>
     );
 }

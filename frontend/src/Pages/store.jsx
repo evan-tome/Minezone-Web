@@ -1,6 +1,7 @@
 import '../App.css'
 import './store.css'
 import Navbar from "../components/Navbar";
+import Footer from '../components/Footer';
 
 export function Store() {
     const ranks = [
@@ -110,8 +111,7 @@ export function Store() {
                         If you already have a rank, the value of your current rank is deducted from future rank upgrades.
                     </p>
                 </div>
-
-                <footer>© {new Date().getFullYear()} Minezone</footer>
+                <Footer></Footer>
             </div>
         </>
     );

@@ -5,6 +5,7 @@ import PlayerStats from '../components/PlayerStats';
 import ErrorScreen from '../components/ErrorScreen';
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
+import Footer from '../components/Footer';
 
 export function Stats() {
     const [playerData, setPlayerData] = useState(null);
@@ -48,7 +49,7 @@ export function Stats() {
                 {error && <ErrorScreen message={error} />}
                 {playerData && <PlayerStats player={playerData}/>}
             </div>
-            <footer>© {new Date().getFullYear()} Minezone</footer>
+            <Footer></Footer>
         </div>
         </>
     );
