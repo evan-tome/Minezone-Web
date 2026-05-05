@@ -40,7 +40,7 @@ export function Stats() {
 
     return(
         <>
-        <div className="app">
+        <div className="app dark-page">
             <Navbar />
             <div className="main">
                 <h1>Player Search</h1>

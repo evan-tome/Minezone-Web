@@ -1,0 +1,412 @@
+/* =========================
+   THEME TOKENS
+========================= */
+
+:root {
+    --bg: #272727;
+    --surface: #e0930409;
+
+    --border: #3a3a3a;
+
+    --text: #f0f0f0;
+    --muted: #a0a0a0;
+
+    --accent: #e09304;
+    --accent-soft: rgba(224, 168, 74, 0.18);
+}
+
+/* =========================
+   GLOBAL BACKGROUND
+========================= */
+
+body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+}
+
+.dark-page {
+    background: var(--bg);
+    color: var(--text);
+}
+
+/* =========================
+   LAYOUT
+========================= */
+
+.app {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    align-items: center;
+
+    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+.main {
+    width: 100%;
+    max-width: 1100px;
+
+    padding: 48px 24px 80px;
+    box-sizing: border-box;
+}
+
+.main h1 {
+    font-size: 2.6rem;
+    font-weight: 800;
+
+    color: var(--text);
+    text-align: center;
+
+    margin: 0 0 36px 0;
+}
+
+/* =========================
+   HERO (UNCHANGED)
+========================= */
+
+.img-bg-container {
+    position: relative;
+    width: 100%;
+    height: 800px;
+    overflow: hidden;
+}
+
+.img-bg-container::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    background: url('/background.png') no-repeat top center / cover;
+    filter: grayscale(100%);
+    top: -120px;
+    z-index: 0;
+}
+
+.img-bg-container::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    background: rgba(224, 147, 4, 0.82);
+    z-index: 1;
+}
+
+.img-bg-container > * {
+    position: relative;
+    z-index: 2;
+}
+
+/* =========================
+   HERO SECTION
+========================= */
+
+.hero {
+    text-align: center;
+    align-items: center;
+
+    padding: 60px 180px;
+
+    color: #fff;
+
+    margin-bottom: 150px;
+    line-height: 1.1;
+}
+
+.hero #big-desc {
+    font-size: 5rem;
+    font-weight: bold;
+    margin: 0;
+}
+
+.hero p {
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+.hero img {
+    margin-bottom: 30px;
+}
+
+/* =========================
+   SECTION HEADER
+========================= */
+
+.section-header {
+    text-align: center;
+    margin-bottom: 44px;
+}
+
+.section-header h2 {
+    font-size: 2.4rem;
+    font-weight: 800;
+
+    color: var(--text);
+    margin: 0;
+}
+
+.section-header p {
+    color: var(--muted);
+    font-size: 1.05rem;
+
+    margin: 20px 0 0 0;
+}
+
+/* =========================
+   TRAILER
+========================= */
+
+.trailer-section {
+    text-align: center;
+    margin: 80px auto;
+    max-width: 1000px;
+    padding: 0 24px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.trailer-wrapper {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+    overflow: hidden;
+    border-radius: 16px;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+}
+
+.trailer-wrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+/* =========================
+   GAMEMODES
+========================= */
+
+.game-grid {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 26px;
+
+    padding: 40px 24px;
+    box-sizing: border-box;
+}
+
+/* CARD */
+.game-pane {
+    background: #2a2a2a;
+    border: 2px solid rgba(224, 147, 4, 0.18);
+    border-radius: 18px;
+
+    padding: 24px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+
+    color: #f0f0f0;
+
+    min-height: 520px;
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.game-pane:hover {
+    transform: translateY(-6px);
+    border-color: var(--accent);
+    box-shadow: 0 10px 30px rgba(224, 168, 74, 0.15);
+}
+
+/* IMAGE */
+.game-pane img {
+    width: 100%;
+    height: 190px;
+
+    object-fit: cover;
+    border-radius: 12px;
+
+    display: block;
+}
+
+/* TITLE */
+.game-pane h2 {
+    font-size: 1.55rem;
+    font-weight: 800;
+
+    margin: 6px 0 0 0;
+}
+
+/* DESCRIPTION */
+.game-desc {
+    font-size: 0.95rem;
+    color: #a0a0a0;
+    line-height: 1.6;
+
+    margin: 0;
+}
+
+/* FEATURES (clean list style, no boxes) */
+.game-features {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    margin-top: 10px;
+}
+
+/* FEATURE ROW (no box, just spacing) */
+.feature {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+
+    padding: 0;            /* remove squish */
+    background: transparent;
+    border: none;
+
+    line-height: 1.4;
+}
+
+/* BULLET */
+.bullet {
+    color: var(--accent);
+    font-size: 1.2rem;
+    line-height: 1;
+    margin-top: 2px;
+}
+
+/* TEXT */
+.feature-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+/* TITLE */
+.feature-text strong {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+/* DESCRIPTION */
+.feature-text span {
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.5;
+}
+
+/* =========================
+   NEWS
+========================= */
+
+.news-section {
+    text-align: center;
+    margin: 80px auto;
+    max-width: 1100px;
+    padding: 0 24px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.news-cards {
+    list-style: none;
+    padding: 0;
+    margin: 0 auto;
+
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.news-cards li {
+    display: flex;
+    flex-direction: row;
+
+    align-items: stretch;
+
+    background: var(--surface);
+    border: 2px solid var(--accent-soft);
+
+    border-radius: 16px;
+    overflow: hidden;
+
+    transition: all 0.3s ease;
+}
+
+.news-cards li.reverse {
+    flex-direction: row-reverse;
+}
+
+.news-cards li:hover {
+    transform: translateY(-4px);
+
+    border-color: var(--accent);
+    box-shadow: 0 10px 30px rgba(224, 168, 74, 0.15);
+}
+
+.news-cards img {
+    width: 360px;
+    height: 240px;
+
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.news-content {
+    padding: 36px 44px;
+
+    text-align: left;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.news-content h2 {
+    font-size: 1.65rem;
+    font-weight: 700;
+
+    margin: 0 0 8px 0;
+    color: var(--text);
+}
+
+.news-content .date {
+    font-size: 0.82rem;
+    color: var(--accent);
+
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+
+    margin: 0 0 14px 0;
+}
+
+.news-content p {
+    color: var(--muted);
+    line-height: 1.7;
+
+    margin: 0;
+    font-size: 1rem;
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+footer {
+    background-color: #181818;
+    color: #cfcfcf;
+
+    text-align: center;
+    padding: 10px 0;
+
+    width: 100%;
+}

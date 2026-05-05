@@ -46,7 +46,7 @@ http.createServer((req, res) => {
     } else if (reqUrl.pathname === "/leaderboard") {
         const category = reqUrl.query.category;
 
-        const allowedCategories = ["Wins", "FlawlessWins", "Kills", "BestWinstreak", "TotalCaught"];
+        const allowedCategories = ["Wins", "FlawlessWins", "Kills", "BestWinstreak", "TotalCaught", "Level"];
             if (!allowedCategories.includes(category)) {
             res.writeHead(400, { "Content-Type": "application/json" });
             return res.end(JSON.stringify({ error: "Invalid category" }));

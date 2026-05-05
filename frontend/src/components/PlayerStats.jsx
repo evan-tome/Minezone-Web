@@ -1,115 +1,115 @@
 import './PlayerStats.css'
 
+const RANKS = new Map([
+    [0, { label: "Default", color: "#aaa" }],
+    [6, { label: "VIP", color: "#ffff55" }],
+    [8, { label: "Captain", color: "#55ffff" }],
+    [17, { label: "Supreme", color: "#ff5555" }],
+    [3, { label: "Trainee", color: "#aaa" }],
+    [4, { label: "Moderator", color: "#55ff55" }],
+    [16, { label: "Sr. Moderator", color: "#00aa00" }],
+    [12, { label: "Staff Manager", color: "#ff5555" }],
+    [7, { label: "Supervisor", color: "#ff5555" }],
+    [13, { label: "Director", color: "#ff5555" }],
+    [14, { label: "Builder", color: "#ffaa00" }],
+    [9, { label: "QA", color: "#aa00aa" }],
+    [10, { label: "Media", color: "#ff55ff" }],
+    [11, { label: "Partner", color: "#ff55ff" }],
+    [5, { label: "Developer", color: "#aa00aa" }],
+    [18, { label: "HR", color: "#ff5555" }],
+    [1, { label: "Admin", color: "#ff5555" }],
+    [2, { label: "Owner", color: "#ff5555" }],
+]);
+
+function getRank(id) {
+    return RANKS.get(id) || { label: "Default", color: "#aaa" };
+}
+
+function StatCell({ label, value, accent }) {
+    return (
+        <div className="stat-cell">
+            <span className="stat-cell-label">{label}</span>
+            <span className={`stat-cell-value${accent ? " accent" : ""}`}>{value}</span>
+        </div>
+    );
+}
+
+function SectionTitle({ children }) {
+    return <div className="ps-section-title">{children}</div>;
+}
+
 function PlayerStats({ player }) {
     const headUrl = `https://minotar.net/helm/${player.UUID}/128.png`;
-
-    const RanksMap = new Map([
-        [0, "DEFAULT"],
-        [6, "VIP"],
-        [8, "CAPTAIN"],
-        [3, "TRAINEE"],
-        [4, "MODERATOR"],
-        [16, "SR_MODERATOR"],
-        [1, "ADMIN"],
-        [5, "DEVELOPER"],
-        [7, "SUPERVISOR"],
-        [2, "OWNER"],
-        [9, "QA"],
-        [10, "MEDIA"],
-        [11, "PARTNER"],
-        [12, "STAFF_MANAGER"],
-        [13, "DIRECTOR"],
-        [14, "BUILDER"],
-        [17, "SUPREME"],
-        [18, "HR"]
-    ]);
-
-    function getRankNameById(id) {
-        return RanksMap.get(id) || "DEFAULT";
-    }
-
+    const rank = getRank(player.RoleID);
+    const expPct = Math.min((player.Exp / 2500) * 100, 100).toFixed(1);
+    const wlr = player.Losses > 0 ? (player.Wins / player.Losses).toFixed(2) : player.Wins;
+    const kdr = player.Deaths > 0 ? (player.Kills / player.Deaths).toFixed(2) : player.Kills;
+    const matches = player.Wins + player.Losses;
 
     return (
-        <div className="stats-card">
-            <div className="profile">
-                <img className="player-head" src={headUrl} alt="Head" />
+        <div className="ps-card">
+
+            {/* Header */}
+            <div className="ps-header">
+                <img className="ps-avatar" src={headUrl} alt={player.LastPlayerName} />
+                <div className="ps-identity">
+                    <h2 className="ps-username">{player.LastPlayerName}</h2>
+                    <span className="ps-rank-badge" style={{ color: rank.color, borderColor: rank.color }}>
+                        {rank.label}
+                    </span>
+                </div>
             </div>
 
-            <div className="username-banner">{player.LastPlayerName}</div>
-            <div className="rank-banner">{getRankNameById(player.RoleID)}</div>
-
-            <div className="top-stats">
-                <div className="stat-box yellow">
-                    Tokens<br />
-                    <span>{player.Tokens}</span>
+            {/* Level / EXP / Tokens */}
+            <div className="ps-progression">
+                <div className="ps-prog-item">
+                    <span className="ps-prog-label">Level</span>
+                    <span className="ps-prog-value">{player.Level}</span>
                 </div>
-                <div className="stat-box green">
-                    EXP<br />
-                    <span>{player.Exp}/2500</span>
-                    <div className="progress-bar">
-                        <div
-                            className="progress"
-                            style={{ width: `${(player.Exp / 2500) * 100}%` }}
-                        ></div>
+                <div className="ps-prog-item ps-exp-item">
+                    <div className="ps-prog-top">
+                        <span className="ps-prog-label">EXP</span>
+                        <span className="ps-prog-value">{player.Exp.toLocaleString()} / 2,500</span>
+                    </div>
+                    <div className="ps-exp-bar">
+                        <div className="ps-exp-fill" style={{ width: `${expPct}%` }} />
                     </div>
                 </div>
-                <div className="stat-box orange">
-                    Level<br />
-                    <span>{player.Level}</span>
+                <div className="ps-prog-item">
+                    <span className="ps-prog-label">Tokens</span>
+                    <span className="ps-prog-value">{player.Tokens.toLocaleString()}</span>
                 </div>
             </div>
 
-            <div className="stat-box green">
-                Matches Played<br />
-                <span>{player.Wins + player.Losses}</span>
+            <div className="ps-divider" />
+
+            {/* Combat */}
+            <SectionTitle>Super Craft Bros</SectionTitle>
+            <div className="ps-stat-grid ps-grid-4">
+                <StatCell label="Wins" value={player.Wins.toLocaleString()} />
+                <StatCell label="Losses" value={player.Losses.toLocaleString()} />
+                <StatCell label="W/L Ratio" value={wlr} accent />
+                <StatCell label="Matches" value={matches.toLocaleString()} />
             </div>
-            
-            <div className="stats">
-                <div className="stat-box green">
-                    Current Winstreak<br />
-                    <span>{player.Winstreak}</span>
-                </div>
-                <div className="stat-box red">
-                    Best Winstreak<br />
-                    <span>{player.BestWinstreak}</span>
-                </div>
-                <div className="stat-box orange">
-                    Match MVPs<br />
-                    <span>{player.MatchMvps}</span>
-                </div>
+            <div className="ps-stat-grid ps-grid-4">
+                <StatCell label="Kills" value={player.Kills.toLocaleString()} />
+                <StatCell label="Deaths" value={player.Deaths.toLocaleString()} />
+                <StatCell label="K/D Ratio" value={kdr} accent />
+                <StatCell label="Match MVPs" value={player.MatchMvps.toLocaleString()} />
+            </div>
+            <div className="ps-stat-grid ps-grid-2">
+                <StatCell label="Current Winstreak" value={player.Winstreak.toLocaleString()} />
+                <StatCell label="Best Winstreak" value={player.BestWinstreak.toLocaleString()} accent />
             </div>
 
-            <div className="stats">
-                <div className="stat-box green">
-                    Wins<br />
-                    <span>{player.Wins}</span>
-                </div>
-                <div className="stat-box red">
-                    Losses<br />
-                    <span>{player.Losses}</span>
-                </div>
-                <div className="stat-box orange">
-                    WLR<br />
-                    <span>{player.Losses > 0 ? (player.Wins / player.Losses).toFixed(3) : player.Wins}</span>
-                </div>
-                <div className="stat-box green">
-                    Kills<br />
-                    <span>{player.Kills}</span>
-                </div>
-                <div className="stat-box red">
-                    Deaths<br />
-                    <span>{player.Deaths}</span>
-                </div>
-                <div className="stat-box orange">
-                    KDR<br />
-                    <span>{player.Deaths > 0 ? (player.Kills / player.Deaths).toFixed(3) : player.Kills}</span>
-                </div>
+            <div className="ps-divider" />
+
+            {/* Fishing */}
+            <SectionTitle>Fishing</SectionTitle>
+            <div className="ps-stat-grid ps-grid-1">
+                <StatCell label="Fish Caught" value={player.TotalCaught.toLocaleString()} />
             </div>
 
-            <div className="stat-box yellow">
-                Lifetime Caught<br />
-                <span>{player.TotalCaught}</span>
-            </div>
         </div>
     );
 }

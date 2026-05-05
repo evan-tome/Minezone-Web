@@ -4,26 +4,14 @@ import Navbar from "../components/Navbar";
 import CopyLinkButton from '../components/CopyLinkButton';
 import NewsCard from '../components/NewsCard';
 import Footer from '../components/Footer';
-import { FaDiscord, FaTwitter, FaYoutube } from "react-icons/fa";
+import { Games } from '../components/Games';
 
 export function Home() {
     const newsPosts = [
         {
-            title: "Halloween Event 2025 🎃",
-            date: "October 25, 2025",
-            content: "The Halloween event is live! Explore the spooky lobby, collect candy, and unlock limited-time cosmetics and rewards.",
-            image: "../src/assets/halloween.png"
-        },
-        {
-            title: "Fishing Update 🎣",
-            date: "September 10, 2025",
-            content: "Our new fishing system has arrived! Discover rare fish, earn EXP, and complete your collection for exclusive prizes.",
-            image: "../src/assets/fishing.png"
-        },
-        {
-            title: "Welcome to Minezone!",
-            date: "August 1, 2025",
-            content: "We’re thrilled to announce the launch of Minezone, featuring our flagship gamemode Super Craft Blocks. Join the fun today!",
+            title: "Welcome to Our Website!",
+            date: "May 8, 2026",
+            content: "We're thrilled to announce the official launch of the Minezone website!",
             image: "../src/assets/scb.png"
         }
     ];
@@ -47,10 +35,12 @@ export function Home() {
 
                 {/* === Server Trailer === */}
                 <section className="trailer-section">
-                    <h1>Server Trailer</h1>
+                    <div className="section-header">
+                        <h2>Server Trailer</h2>
+                        <p>See what Minezone has to offer</p>
+                    </div>
                     <div className="trailer-wrapper">
                         <iframe
-                            className="trailer"
                             src="https://www.youtube.com/embed/0phpMgu1mH0"
                             title="Minezone Trailer - Super Craft Bros (SCB RECREATION)"
                             frameBorder="0"
@@ -61,16 +51,33 @@ export function Home() {
                     </div>
                 </section>
 
+                {/* === Gamemodes Section === */}
+                <section id="games">
+                    <section className="gamemodes-section">
+                        <div className="section-header">
+                            <h2>What We Offer</h2>
+                            <p>Jump into one of our exciting game modes</p>
+                        </div>
+                        <div className="gamemode-cards">
+                            <Games></Games>
+                        </div>
+                    </section>
+                </section>
+
                 {/* === News Posts === */}
                 <section className="news-section">
-                    <h1>Latest News</h1>
+                    <div className="section-header">
+                        <h2>Latest News</h2>
+                        <p>Stay up to date with what's happening on Minezone</p>
+                    </div>
                     <ul className="news-cards">
                         {newsPosts.map((post, i) => (
                             <NewsCard key={i} {...post} reverse={i % 2 !== 0} />
                         ))}
                     </ul>
                 </section>
-                <Footer></Footer>
+
+                <Footer />
             </div>
         </>
     );

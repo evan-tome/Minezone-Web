@@ -1,47 +1,114 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import './Navbar.css';
 import { FaShoppingCart } from "react-icons/fa";
 
 const Navbar = () => {
-    const isHomePage = useLocation().pathname === "/";
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    const isHomePage = location.pathname === "/";
+
+    const scrollToGames = () => {
+        const el = document.getElementById("games");
+        if (el) {
+            el.scrollIntoView({ behavior: "smooth" });
+        }
+    };
+
+    const handleGamesClick = (e) => {
+        e.preventDefault();
+
+        if (!isHomePage) {
+            navigate("/");
+            sessionStorage.setItem("scrollToGames", "true");
+        } else {
+            scrollToGames();
+        }
+    };
+
+    useEffect(() => {
+        if (isHomePage && sessionStorage.getItem("scrollToGames") === "true") {
+            sessionStorage.removeItem("scrollToGames");
+            scrollToGames();
+        }
+    }, [isHomePage]);
+
     return (
-        <nav className="navbar" 
-        style={{
-        backgroundColor: isHomePage ? "transparent" : "rgb(224, 147, 4)",
-        }}>
+        <nav
+            className="navbar"
+            style={{
+                backgroundColor: isHomePage
+                    ? "transparent"
+                    : "rgb(224, 147, 4)",
+            }}
+        >
             <div className="navbar-left">
                 <a href="/">
-                    <img src="/minezonelogo.png" alt="logo" className="logo" width="64" height="64"></img>
+                    <img
+                        src="/minezonelogo.png"
+                        alt="logo"
+                        className="logo"
+                        width="64"
+                        height="64"
+                    />
                 </a>
             </div>
+
             <div className="navbar-center">
                 <ul className="nav-links">
                     <li>
                         <a href="/">Home</a>
                     </li>
+
                     <li>
-                        <a href="/games">Games</a>
+                        <a href="/#games" onClick={handleGamesClick}>
+                            Games
+                        </a>
                     </li>
+
                     <li>
                         <a href="/leaderboards">Leaderboards</a>
                     </li>
+
                     <li>
                         <a href="/stats">Stats</a>
                     </li>
+
                     <li>
-                        <a href="https://discord.com/invite/3J32tT9Zhp" target="_blank">Discord</a>
+                        <a
+                            href="https://discord.com/invite/3J32tT9Zhp"
+                            target="_blank"
+                            rel="noreferrer"
+                        >
+                            Discord
+                        </a>
                     </li>
+
                     <li>
-                        <a href="/stats">Support</a>
+                        <a href="/support">Support</a>
                     </li>
+
                     <li>
-                        <a href="https://minezone.tebex.io" target="_blank">Store</a>
+                        <a
+                            href="https://minezone.tebex.io"
+                            target="_blank"
+                            rel="noreferrer"
+                        >
+                            Store
+                        </a>
                     </li>
                 </ul>
             </div>
+
             <div className="navbar-right">
-                <a href="https://minezone.tebex.io" target="_blank"><FaShoppingCart /></a>
-                {/*<a href="/profile">Profile</a>*/}
+                <a
+                    href="https://minezone.tebex.io"
+                    target="_blank"
+                    rel="noreferrer"
+                >
+                    <FaShoppingCart />
+                </a>
             </div>
         </nav>
     );

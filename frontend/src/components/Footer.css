@@ -1,0 +1,135 @@
+/* General Footer Styles */
+.footer {
+  background-color: #1b1b1b;
+  color: #ccc;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  padding-top: 1.5rem;
+}
+
+.footer-top {
+  padding: 2rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.footer-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 equal columns */
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  gap: 2rem;
+  text-align: center; /* center all column content */
+  justify-items: center; /* center each column within its grid cell */
+  align-items: start;
+}
+
+/* Column Headers */
+.footer-column h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* center header text and any icons */
+  gap: 0.5rem;
+}
+
+/* Paragraphs */
+.footer-column p {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #ccc;
+  margin: 0;
+}
+
+/* Navigation Links */
+.footer-column ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-column ul li {
+  margin: 0.5rem 0;
+}
+
+.footer-column ul li a {
+  color: #ccc;
+  text-decoration: none;
+  transition: color 0.25s;
+}
+
+.footer-column ul li a:hover {
+  color: #e09304;
+}
+
+/* Social Media Icons */
+.social-icons {
+  display: flex;
+  justify-content: center; /* center icons horizontally */
+  gap: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+.social-icons a {
+  color: #ccc;
+  font-size: 1.6rem;
+  transition: color 0.25s, transform 0.2s;
+}
+
+.social-icons a:hover {
+  color: #e09304;
+  transform: scale(1.15);
+}
+
+/* Store Button */
+.store-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.8rem;
+  padding: 0.7rem 1.5rem;
+  color: #1b1b1b;
+  background-color: #e09304;
+  font-weight: 600;
+  border-radius: 30px;
+  text-decoration: none;
+  transition: background-color 0.25s, transform 0.2s;
+}
+
+.store-button:hover {
+  background-color: #ffb43b;
+}
+
+/* Bottom Bar */
+.footer-bottom {
+  background-color: #141414;
+  text-align: center;
+  padding: 1rem 0;
+  font-size: 0.92rem;
+  color: #aaa;
+}
+
+/* Responsive Adjustments */
+
+/* Tablets */
+@media (max-width: 1024px) {
+  .footer-container {
+    grid-template-columns: repeat(2, 1fr); /* 2 columns */
+    gap: 2rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .footer-container {
+    grid-template-columns: 1fr; /* 1 column */
+    gap: 1.5rem;
+    padding: 0 1rem;
+  }
+
+  .social-icons {
+    justify-content: center; /* center on mobile as well */
+  }
+}

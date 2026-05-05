@@ -2,14 +2,33 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 40px;
+    padding: 60px 24px;
     text-align: center;
 }
 
-.error-box h1 {
-    text-transform: uppercase;
+.error-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+}
+
+.error-icon {
+    font-size: 3rem;
+    color: #e09304;
+}
+
+.error-box h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #eee;
+    margin: 0;
 }
 
 .error-box p {
-    font-size: 1.2rem;
+    font-size: 1rem;
+    color: #999;
+    margin: 0;
+    max-width: 400px;
+    line-height: 1.6;
 }

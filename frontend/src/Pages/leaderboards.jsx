@@ -16,7 +16,6 @@ export function Leaderboards() {
     "Level",
   ];
 
-  // Display labels for each category
   const categoryLabels = {
     Wins: "Wins",
     FlawlessWins: "Flawless Wins",
@@ -28,13 +27,19 @@ export function Leaderboards() {
 
   const [playersData, setPlayers] = useState([]);
   const [categoryIndex, setCategoryIndex] = useState(0);
+  const [error, setError] = useState(null);
   const categoryData = categories[categoryIndex];
 
   useEffect(() => {
+    setError(null);
+    setPlayers([]);
     fetch(`http://localhost:8080/leaderboard?category=${categoryData}`)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to load leaderboard data.");
+        return res.json();
+      })
       .then((data) => setPlayers(data))
-      .catch((err) => console.error(err));
+      .catch(() => setError("We couldn't reach the server. Please try again later."));
   }, [categoryData]);
 
   const nextCategory = () => {
@@ -48,12 +53,11 @@ export function Leaderboards() {
   };
 
   return (
-    <div className="app">
+    <div className="app dark-page">
       <Navbar />
       <div className="main">
         <h1>Leaderboards</h1>
 
-        {/* Category Navigation */}
         <div className="category-nav">
           <button className="arrow-btn" onClick={prevCategory}>
             <FaChevronLeft />
@@ -63,9 +67,7 @@ export function Leaderboards() {
             {categories.map((cat, index) => (
               <button
                 key={cat}
-                className={`category-btn ${
-                  categoryIndex === index ? "active" : ""
-                }`}
+                className={`category-btn ${categoryIndex === index ? "active" : ""}`}
                 onClick={() => setCategoryIndex(index)}
               >
                 {categoryLabels[cat]}
@@ -78,11 +80,11 @@ export function Leaderboards() {
           </button>
         </div>
 
-        {/* Pass both key and label */}
         <Leaderboard
           players={playersData}
           categoryKey={categoryData}
           categoryLabel={categoryLabels[categoryData]}
+          error={error}
         />
       </div>
 
