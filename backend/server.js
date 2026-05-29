@@ -10,9 +10,30 @@ let con = mysql.createConnection({
     database: process.env.DB_NAME
 });
 
+const LEADERBOARD_CATEGORIES = ["Wins", "FlawlessWins", "Kills", "BestWinstreak", "TotalCaught", "Level"];
+const CACHE_TTL = 1 * 60 * 1000; // refresh every minute
+const leaderboardCache = {};
+
+function refreshLeaderboards() {
+    LEADERBOARD_CATEGORIES.forEach(category => {
+        const sql = `
+            SELECT UUID, LastPlayerName, Wins, FlawlessWins, Kills, BestWinstreak, TotalCaught, Level
+            FROM PlayerData
+            WHERE ${category} > 0
+            ORDER BY ${category} DESC
+            LIMIT 50
+        `;
+        con.query(sql, (err, result) => {
+            if (!err) leaderboardCache[category] = result;
+        });
+    });
+}
+
 con.connect(err => {
     if (err) throw err;
     console.log("Connected to MySQL!");
+    refreshLeaderboards();
+    setInterval(refreshLeaderboards, CACHE_TTL);
 });
 
 http.createServer((req, res) => {
@@ -27,7 +48,9 @@ http.createServer((req, res) => {
             return res.end(JSON.stringify({ error: "No username provided" }));
         }
 
-        const sql = "SELECT * FROM PlayerData WHERE LastPlayerName = ?";
+        const sql = "SELECT " +
+            "UUID, LastPlayerName, RoleID, Tokens, Wins, Kills, Deaths, FlawlessWins, Losses, Winstreak, BestWinstreak, Exp, Level, MatchMvps, TotalCaught" +
+            " FROM PlayerData WHERE LastPlayerName = ?";
         con.query(sql, [username], (err, result) => {
             if (err) {
                 res.writeHead(500, { "Content-Type": "application/json" });
@@ -46,27 +69,19 @@ http.createServer((req, res) => {
     } else if (reqUrl.pathname === "/leaderboard") {
         const category = reqUrl.query.category;
 
-        const allowedCategories = ["Wins", "FlawlessWins", "Kills", "BestWinstreak", "TotalCaught", "Level"];
-            if (!allowedCategories.includes(category)) {
+        if (!LEADERBOARD_CATEGORIES.includes(category)) {
             res.writeHead(400, { "Content-Type": "application/json" });
             return res.end(JSON.stringify({ error: "Invalid category" }));
         }
 
-        const sql = `
-            SELECT UUID, LastPlayerName, ${category}
-            FROM PlayerData
-            WHERE ${category} > 0
-            ORDER BY ${category} DESC
-            LIMIT 50
-        `;
-        con.query(sql, (err, result) => {
-            if (err) {
-                res.writeHead(500, { "Content-Type": "application/json" });
-                return res.end(JSON.stringify({ error: "Database error" }));
-            }
-            res.writeHead(200, { "Content-Type": "application/json" });
-            res.end(JSON.stringify(result));
-        });
+        const cached = leaderboardCache[category];
+        if (!cached) {
+            res.writeHead(503, { "Content-Type": "application/json" });
+            return res.end(JSON.stringify({ error: "Data not ready yet, try again shortly." }));
+        }
+
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(cached));
 
     } else {
         res.writeHead(404, { "Content-Type": "text/plain" });

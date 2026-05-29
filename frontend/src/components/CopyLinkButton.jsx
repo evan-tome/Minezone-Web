@@ -14,10 +14,10 @@ const CopyLinkButton = () => {
   return (
     <button className="join-btn" onClick={copyLink}>
       <span className="join-text">
-        {copied ? "Copied!" : "Join minezone.club"}
+        {copied ? "Copied!" : "minezone.club"}
       </span>
       <span className="join-icon">
-        {copied ? <FaCheck /> : <FaRegCopy />}
+        {copied ? "" : <FaRegCopy />}
       </span>
     </button>
   );

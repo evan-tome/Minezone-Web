@@ -2,21 +2,21 @@ import './PlayerStats.css'
 
 const RANKS = new Map([
     [0, { label: "Default", color: "#aaa" }],
-    [6, { label: "VIP", color: "#ffff55" }],
-    [8, { label: "Captain", color: "#55ffff" }],
+    [6, { label: "VIP", color: "#fff460" }],
+    [8, { label: "Pro", color: "#508bfa" }],
     [17, { label: "Supreme", color: "#ff5555" }],
-    [3, { label: "Trainee", color: "#aaa" }],
-    [4, { label: "Moderator", color: "#55ff55" }],
-    [16, { label: "Sr. Moderator", color: "#00aa00" }],
+    [3, { label: "Trainee", color: "#157c15" }],
+    [4, { label: "Moderator", color: "#ffbb00" }],
+    [16, { label: "Sr. Moderator", color: "#55ff55" }],
     [12, { label: "Staff Manager", color: "#ff5555" }],
-    [7, { label: "Supervisor", color: "#ff5555" }],
+    [7, { label: "Supervisor", color: "#2ba198" }],
     [13, { label: "Director", color: "#ff5555" }],
-    [14, { label: "Builder", color: "#ffaa00" }],
-    [9, { label: "QA", color: "#aa00aa" }],
-    [10, { label: "Media", color: "#ff55ff" }],
-    [11, { label: "Partner", color: "#ff55ff" }],
-    [5, { label: "Developer", color: "#aa00aa" }],
-    [18, { label: "HR", color: "#ff5555" }],
+    [14, { label: "Builder", color: "#ffbb00" }],
+    [9, { label: "QA", color: "#55ff55" }],
+    [10, { label: "Media", color: "#55ffff" }],
+    [11, { label: "Partner", color: "#55ffff" }],
+    [5, { label: "Developer", color: "#ffbb00" }],
+    [18, { label: "HR", color: "#cf55ff" }],
     [1, { label: "Admin", color: "#ff5555" }],
     [2, { label: "Owner", color: "#ff5555" }],
 ]);
@@ -45,6 +45,7 @@ function PlayerStats({ player }) {
     const wlr = player.Losses > 0 ? (player.Wins / player.Losses).toFixed(2) : player.Wins;
     const kdr = player.Deaths > 0 ? (player.Kills / player.Deaths).toFixed(2) : player.Kills;
     const matches = player.Wins + player.Losses;
+    const flawless = player.FlawlessWins;
 
     return (
         <div className="ps-card">
@@ -60,7 +61,7 @@ function PlayerStats({ player }) {
                 </div>
             </div>
 
-            {/* Level / EXP / Tokens */}
+            {/* General Profile */}
             <div className="ps-progression">
                 <div className="ps-prog-item">
                     <span className="ps-prog-label">Level</span>
@@ -81,15 +82,16 @@ function PlayerStats({ player }) {
                 </div>
             </div>
 
-            <div className="ps-divider" />
-
-            {/* Combat */}
+            {/* Super Craft Bros */}
             <SectionTitle>Super Craft Bros</SectionTitle>
+            <div className="ps-stat-grid ps-grid-1">
+                <StatCell label="Matches Played" value={matches.toLocaleString()} />
+            </div>
             <div className="ps-stat-grid ps-grid-4">
                 <StatCell label="Wins" value={player.Wins.toLocaleString()} />
                 <StatCell label="Losses" value={player.Losses.toLocaleString()} />
                 <StatCell label="W/L Ratio" value={wlr} accent />
-                <StatCell label="Matches" value={matches.toLocaleString()} />
+                <StatCell label="Flawless Wins" value={flawless.toLocaleString()} />
             </div>
             <div className="ps-stat-grid ps-grid-4">
                 <StatCell label="Kills" value={player.Kills.toLocaleString()} />
@@ -101,8 +103,6 @@ function PlayerStats({ player }) {
                 <StatCell label="Current Winstreak" value={player.Winstreak.toLocaleString()} />
                 <StatCell label="Best Winstreak" value={player.BestWinstreak.toLocaleString()} accent />
             </div>
-
-            <div className="ps-divider" />
 
             {/* Fishing */}
             <SectionTitle>Fishing</SectionTitle>

@@ -1,11 +1,13 @@
-import '../App.css'
-import Navbar from "../components/Navbar";
-import Searchbar from '../components/Searchbar';
-import PlayerStats from '../components/PlayerStats';
-import ErrorScreen from '../components/ErrorScreen';
+import '../../App.css';
+import './stats.css'
+import Navbar from "../../components/Navbar";
+import Searchbar from '../../components/Searchbar';
+import PlayerStats from '../../components/PlayerStats';
+import ErrorScreen from '../../components/ErrorScreen';
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
-import Footer from '../components/Footer';
+import Footer from '../../components/Footer';
+import Pattern from '../../components/Pattern';
 
 export function Stats() {
     const [playerData, setPlayerData] = useState(null);
@@ -41,12 +43,16 @@ export function Stats() {
     return(
         <>
         <div className="app dark-page">
+            <Pattern />
             <Navbar />
-            <div className="main">
-                <h1>Player Search</h1>
+            <div className="main stats-main">
+                <div className="stats-header">
+                    <h1>Player Stats</h1>
+                    <p>Look up a player to view their stats</p>
+                </div>
                 <Searchbar onSearch={handleSearch}/>
 
-                {error && <ErrorScreen message={error} />}
+                {error && <ErrorScreen title="Player not found" message={error} />}
                 {playerData && <PlayerStats player={playerData}/>}
             </div>
             <Footer></Footer>

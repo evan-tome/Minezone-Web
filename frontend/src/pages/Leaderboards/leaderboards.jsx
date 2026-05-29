@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import "../App.css";
+import '../../App.css';
 import "./leaderboards.css";
-import Navbar from "../components/Navbar";
-import Leaderboard from "../components/Leaderboard";
-import Footer from "../components/Footer";
+import Navbar from "../../components/Navbar";
+import Leaderboard from "../../components/Leaderboard";
+import Footer from "../../components/Footer";
+import Pattern from "../../components/Pattern";
 
 export function Leaderboards() {
   const categories = [
@@ -32,7 +33,6 @@ export function Leaderboards() {
 
   useEffect(() => {
     setError(null);
-    setPlayers([]);
     fetch(`http://localhost:8080/leaderboard?category=${categoryData}`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to load leaderboard data.");
@@ -54,6 +54,7 @@ export function Leaderboards() {
 
   return (
     <div className="app dark-page">
+      <Pattern />
       <Navbar />
       <div className="main">
         <h1>Leaderboards</h1>
@@ -83,9 +84,10 @@ export function Leaderboards() {
         <Leaderboard
           players={playersData}
           categoryKey={categoryData}
-          categoryLabel={categoryLabels[categoryData]}
           error={error}
         />
+
+        <p className="lb-disclaimer">Stats refresh every minute.</p>
       </div>
 
       <Footer />

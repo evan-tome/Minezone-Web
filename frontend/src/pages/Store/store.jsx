@@ -1,7 +1,8 @@
-import '../App.css'
+import '../../App.css';
 import './store.css'
-import Navbar from "../components/Navbar";
-import Footer from '../components/Footer';
+import Navbar from "../../components/Navbar";
+import Footer from '../../components/Footer';
+import Pattern from '../../components/Pattern';
 
 export function Store() {
     const ranks = [
@@ -44,6 +45,7 @@ export function Store() {
     return (
         <>
             <div className="app">
+                <Pattern />
                 <Navbar />
                 <h1>Store</h1>
 

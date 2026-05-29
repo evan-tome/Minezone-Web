@@ -1,26 +1,35 @@
 import { useState } from 'react';
 import { FaChevronDown, FaChevronUp, FaDiscord, FaPaperPlane } from 'react-icons/fa';
-import '../App.css';
+import '../../App.css';
 import './support.css';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
+import Pattern from '../../components/Pattern';
 
 const FAQ_ITEMS = [
     {
         question: "How do I join the server?",
-        answer: "Open Minecraft Java Edition and add minezone.club to your server list. We support versions 1.8 through 1.21. Once connected, you'll be placed in the lobby where you can join any game."
+        answer: "Open Minecraft Java Edition and add minezone.club to your server list. We support versions 1.8 through 26.1.2. Once connected, you'll be placed in the lobby where you can join any game."
     },
     {
         question: "What game modes are available?",
-        answer: "Minezone currently features Super Craft Blocks (Classic, Duels, and Frenzy), Fishing, and Parkour. We're constantly working on adding new modes — follow our Discord for announcements."
+        answer: "Minezone currently features Super Craft Bros (Classic, Duels, and Frenzy), Fishing, and Parkour. We're constantly working on exciting new features. Join our Discord for announcements."
     },
     {
-        question: "How do I report a player or bug?",
-        answer: "The fastest way to report a player or bug is through our Discord server. Open a ticket in the #support channel and a staff member will assist you. You can also use the contact form on this page."
+        question: "How do I report a player?",
+        answer: "The fastest way to report a player or bug is through our Discord server. Open a ticket in the #all-forms channel and a staff member will assist you. You can also use the contact form on this page."
     },
     {
-        question: "How do I purchase a rank or cosmetics?",
-        answer: "Visit our store at minezone.tebex.io to browse available ranks and cosmetics. All purchases are processed securely through Tebex. Purchased items are applied to your account automatically."
+        question: "How do I report a bug or get support?",
+        answer: "The fastest way to report a bug or get support is through our Discord server. Create a post in the support-bugs forum and a staff member will assist you. You can also use the contact form on this page."
+    },
+     {
+        question: "How do I make a suggestion?",
+        answer: "The fastest way to make a suggestion is through our Discord server. Create a post in the suggestion forum and a staff member will read it. You can also use the contact form on this page. We look forward to hearing your ideas!"
+    },
+    {
+        question: "How do I purchase a rank",
+        answer: "Visit our store at minezone.tebex.io to browse available ranks and the perks they offer. All purchases are processed securely through Tebex. Purchased items are applied to your account automatically."
     },
     {
         question: "Can I appeal a ban?",
@@ -28,11 +37,11 @@ const FAQ_ITEMS = [
     },
     {
         question: "How does the EXP / leveling system work?",
-        answer: "You earn EXP by playing games on the server. Each match rewards EXP based on your performance. Leveling up unlocks cosmetics and other rewards. Your current EXP and level can be viewed on your stats page."
+        answer: "You earn EXP by playing games on the server. Each match rewards EXP based on your performance. Leveling up unlocks classes and other rewards. Your current EXP and level can be viewed on your stats page."
     },
     {
         question: "Are there events or seasonal content?",
-        answer: "Yes! We run seasonal events with limited-time rewards and special game modes. Keep an eye on our Discord and the Latest News section on the homepage to stay informed."
+        answer: "Yes! We run tournaments and seasonal events with limited-time rewards and special game modes. Keep an eye on our Discord and the Latest News section on the homepage to stay informed."
     },
 ];
 
@@ -59,19 +68,20 @@ export function Support() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Placeholder — wire up to backend or email service later
+        // Placeholder - wire up to backend or email service later
         setSubmitted(true);
     };
 
     return (
         <div className="app dark-page">
+            <Pattern />
             <Navbar />
             <div className="main support-main">
 
                 {/* Page header */}
                 <div className="support-header">
                     <h1>Support</h1>
-                    <p>Find answers below or get in touch with our team.</p>
+                    <p>Find answers below or get in touch with our team</p>
                 </div>
 
                 {/* Discord CTA */}
@@ -151,6 +161,7 @@ export function Support() {
                                         <option value="player-report">Player Report</option>
                                         <option value="ban-appeal">Ban Appeal</option>
                                         <option value="store">Store / Purchase Issue</option>
+                                        <option value="suggestion">Suggestion</option>
                                         <option value="other">Other</option>
                                     </select>
                                 </div>

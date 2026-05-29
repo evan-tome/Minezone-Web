@@ -1,9 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import { Home } from './Pages/Home'
-import { Stats } from './Pages/Stats'
-import { Leaderboards } from './Pages/leaderboards'
-import { Store } from './Pages/store'
-import { Support } from './Pages/support'
+import { Home } from './pages/Home/home'
+import { Stats } from './pages/Stats/stats'
+import { Leaderboards } from './Pages/Leaderboards/leaderboards'
+import { Store } from './pages/Store/store'
+import { Support } from './pages/Support/support'
 import './App.css'
 
 function App() {

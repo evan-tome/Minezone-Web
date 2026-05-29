@@ -44,11 +44,11 @@
 
 .ps-rank-badge {
     display: inline-block;
-    font-size: 0.78rem;
+    font-size: 0.8rem;
     font-weight: 700;
     letter-spacing: 1.2px;
     text-transform: uppercase;
-    padding: 3px 12px;
+    padding: 2px 12px;
     border-radius: 20px;
     border: 1.5px solid;
     width: fit-content;
@@ -85,8 +85,8 @@
 }
 
 .ps-prog-label {
-    font-size: 0.75rem;
-    font-weight: 600;
+    font-size: 0.8rem;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1px;
     color: #666;
@@ -117,12 +117,6 @@
     background: linear-gradient(90deg, #e09304, #f5b942);
     border-radius: 4px;
     transition: width 0.5s ease;
-}
-
-/* DIVIDER */
-.ps-divider {
-    height: 1px;
-    background: #2a2a2a;
 }
 
 /* SECTION TITLE */
@@ -176,8 +170,8 @@
 }
 
 .stat-cell-label {
-    font-size: 0.72rem;
-    font-weight: 600;
+    font-size: 0.8rem;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1px;
     color: #666;

@@ -1,0 +1,19 @@
+.stats-main {
+    max-width: 1200px;
+}
+
+/* Page header */
+.stats-header {
+    text-align: center;
+    margin-bottom: 36px;
+}
+
+.stats-header h1 {
+    margin-bottom: 10px;
+}
+
+.stats-header p {
+    color: #888;
+    font-size: 1.05rem;
+    margin: 0;
+}

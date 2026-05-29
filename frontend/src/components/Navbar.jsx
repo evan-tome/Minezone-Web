@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import './Navbar.css';
 import { FaShoppingCart } from "react-icons/fa";
+import OnlineIndicator from "./OnlineIndicator";
 
 const Navbar = () => {
     const location = useLocation();
@@ -49,8 +50,8 @@ const Navbar = () => {
                         src="/minezonelogo.png"
                         alt="logo"
                         className="logo"
-                        width="64"
-                        height="64"
+                        width="80"
+                        height="80"
                     />
                 </a>
             </div>
@@ -85,9 +86,9 @@ const Navbar = () => {
                         </a>
                     </li>
 
-                    <li>
+                    {/* <li>
                         <a href="/support">Support</a>
-                    </li>
+                    </li> */}
 
                     <li>
                         <a
@@ -102,12 +103,8 @@ const Navbar = () => {
             </div>
 
             <div className="navbar-right">
-                <a
-                    href="https://minezone.tebex.io"
-                    target="_blank"
-                    rel="noreferrer"
-                >
-                    <FaShoppingCart />
+                <a>
+                    <OnlineIndicator />
                 </a>
             </div>
         </nav>

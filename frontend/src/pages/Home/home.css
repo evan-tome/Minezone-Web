@@ -1,0 +1,495 @@
+/* =========================
+   LAYOUT
+========================= */
+
+.page-section {
+    width: 100%;
+    max-width: 1100px;
+    padding: 0 24px;
+    margin: 48px auto;
+    box-sizing: border-box;
+}
+
+.main {
+    width: 100%;
+    max-width: 1100px;
+
+    padding: 48px 24px 80px;
+    box-sizing: border-box;
+}
+
+.main h1 {
+    font-size: 2.6rem;
+    font-weight: 800;
+
+    color: var(--text);
+    text-align: center;
+
+    margin: 0 0 36px 0;
+}
+
+/* =========================
+   HERO BACKGROUND
+========================= */
+
+.img-bg-container {
+    position: relative;
+    width: 100%;
+    height: 620px;
+    overflow: hidden;
+}
+
+.img-bg-container::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    background: url('/background.png') no-repeat top center / cover;
+    filter: grayscale(100%);
+    top: -120px;
+    z-index: 0;
+}
+
+.img-bg-container::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    background: rgba(224, 147, 4, 0.82);
+    z-index: 1;
+}
+
+.img-bg-container > * {
+    position: relative;
+    z-index: 2;
+}
+
+/* =========================
+   HERO SECTION
+========================= */
+
+.hero {
+    text-align: center;
+    align-items: center;
+
+    padding: 50px 180px;
+
+    color: #fff;
+    line-height: 1.1;
+}
+
+.hero #big-desc {
+    font-size: 4.5rem;
+    font-weight: bold;
+    margin: 0;
+}
+
+.hero p {
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+.hero img {
+    margin-bottom: 15px;
+}
+
+/* =========================
+   SECTION HEADER
+========================= */
+
+.section-header {
+    text-align: left;
+    margin-bottom: 40px;
+}
+
+.section-header h2 {
+    font-size: 2.4rem;
+    font-weight: 800;
+
+    color: var(--text);
+    margin: 0;
+}
+
+.section-header p {
+    color: var(--muted);
+    font-size: 1.05rem;
+
+    margin: 20px 0 0 0;
+}
+
+/* =========================
+   ABOUT
+========================= */
+
+.about-section {
+    margin-top: 60px;
+}
+
+.about-container {
+    display: flex;
+    flex-direction: row;
+    gap: 48px;
+    align-items: stretch;
+    border-radius: 18px;
+    background: var(--surface);
+    padding: 40px;
+}
+
+.about-description {
+    flex: 1;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.about-description h2 {
+    font-size: 2.4rem;
+    font-weight: 800;
+    color: var(--text);
+    margin: 0;
+}
+
+.about-description p {
+    color: var(--muted);
+    font-size: 1.05rem;
+    line-height: 1.7;
+    margin: 0;
+}
+
+.trailer-wrapper {
+    flex: 0 0 44%;
+    position: relative;
+    border-radius: 12px;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
+
+.trailer-wrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+p.about-socials-label {
+    font-size: 0.85rem;
+    color: var(--accent);
+    margin-top: auto;
+    margin-bottom: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.about-socials {
+    display: flex;
+    justify-content: flex-start;
+    gap: 20px;
+}
+
+.about-socials a {
+    color: var(--muted);
+    font-size: 1.75rem;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.about-socials a:hover {
+    color: var(--accent);
+    transform: translateY(-3px);
+}
+
+/* =========================
+   FEATURE CARDS
+========================= */
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.feature-card {
+    background: var(--surface);
+    border: 2px solid var(--accent-soft);
+    border-radius: 14px;
+    padding: 20px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.feature-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 4px 20px rgba(224, 168, 74, 0.12);
+}
+
+.feature-card-icon {
+    color: var(--accent);
+    font-size: 1.4rem;
+    display: flex;
+}
+
+.feature-card h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0;
+}
+
+.feature-card p {
+    font-size: 0.875rem;
+    color: var(--muted);
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* =========================
+   GAMEMODES CAROUSEL
+========================= */
+
+.game-carousel {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.game-carousel-track {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: calc(100% + 128px);
+    margin: 0 -64px;
+}
+
+.carousel-btn {
+    flex-shrink: 0;
+    background: var(--accent);
+    border: none;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 1rem;
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.carousel-btn:hover {
+    background: #c97e03;
+    transform: scale(1.08);
+}
+
+.game-pane {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    background: #2a2a2a;
+    border: 2px solid rgba(224, 147, 4, 0.18);
+    border-radius: 18px;
+    overflow: hidden;
+    height: 340px;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.game-pane:hover {
+    border-color: var(--accent);
+    box-shadow: 0 10px 30px rgba(224, 168, 74, 0.15);
+}
+
+.game-pane img {
+    width: 38%;
+    object-fit: cover;
+    object-position: center;
+    flex-shrink: 0;
+    display: block;
+}
+
+.game-content {
+    flex: 1;
+    padding: 30px 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    color: #f0f0f0;
+}
+
+.game-content h2 {
+    font-size: 2rem;
+    font-weight: 800;
+    margin: 0;
+    color: var(--text);
+}
+
+.game-desc {
+    font-size: 1.1rem;
+    color: var(--muted);
+    line-height: 1.7;
+    margin: 0;
+}
+
+.game-features {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.feature {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    line-height: 1.4;
+}
+
+.bullet {
+    color: var(--accent);
+    font-size: 1.5rem;
+    line-height: 1;
+    margin-top: 1px;
+}
+
+.feature-text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.feature-text strong {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.feature-text span {
+    font-size: 0.95rem;
+    color: var(--muted);
+    line-height: 1.5;
+}
+
+.carousel-tabs {
+    display: flex;
+    gap: 10px;
+}
+
+.carousel-tab {
+    flex: 1;
+    padding: 10px 16px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    background: transparent;
+    color: var(--muted);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.carousel-tab:hover {
+    border-color: var(--accent);
+    color: var(--text);
+}
+
+.carousel-tab.active {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: #fff;
+}
+
+/* =========================
+   NEWS
+========================= */
+
+.news-section {
+    text-align: center;
+}
+
+.news-cards {
+    list-style: none;
+    padding: 0;
+    margin: 0 auto;
+
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.news-cards li {
+    display: flex;
+    flex-direction: row;
+
+    align-items: stretch;
+
+    background: var(--surface);
+    border: 2px solid var(--accent-soft);
+
+    border-radius: 16px;
+    overflow: hidden;
+
+    transition: all 0.3s ease;
+}
+
+.news-cards li.reverse {
+    flex-direction: row-reverse;
+}
+
+.news-cards li:hover {
+    transform: translateY(-4px);
+
+    border-color: var(--accent);
+    box-shadow: 0 10px 30px rgba(224, 168, 74, 0.15);
+}
+
+.news-cards img {
+    width: 360px;
+    height: 240px;
+
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.news-content {
+    padding: 36px 44px;
+
+    text-align: left;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.news-content h2 {
+    font-size: 1.65rem;
+    font-weight: 700;
+
+    margin: 0 0 8px 0;
+    color: var(--text);
+}
+
+.news-content .date {
+    font-size: 0.82rem;
+    color: var(--accent);
+
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+
+    margin: 0 0 14px 0;
+}
+
+.news-content p {
+    color: var(--muted);
+    line-height: 1.7;
+
+    margin: 0;
+    font-size: 1rem;
+}
+
