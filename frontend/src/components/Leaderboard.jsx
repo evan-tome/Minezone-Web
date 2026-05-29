@@ -5,7 +5,7 @@ const COLUMNS = [
     { key: 'Wins',          label: 'Wins' },
     { key: 'FlawlessWins',  label: 'Flawless' },
     { key: 'Kills',         label: 'Kills' },
-    { key: 'BestWinstreak', label: 'Winstreak' },
+    { key: 'BestWinstreak', label: 'Best Winstreak' },
     { key: 'TotalCaught',   label: 'Fish Caught' },
     { key: 'Level',         label: 'Level' },
 ];

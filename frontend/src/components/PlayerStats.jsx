@@ -106,8 +106,15 @@ function PlayerStats({ player }) {
 
             {/* Fishing */}
             <SectionTitle>Fishing</SectionTitle>
+            <div className="ps-stat-grid ps-grid-2">
+                <StatCell label="Total Fish Caught" value={player.TotalCaught.toLocaleString()} />
+                <StatCell label="Species Caught" value={`${player.TotalCaught.toLocaleString()}/100`} />
+            </div>
+
+            {/* Parkour */}
+            <SectionTitle>Parkour</SectionTitle>
             <div className="ps-stat-grid ps-grid-1">
-                <StatCell label="Fish Caught" value={player.TotalCaught.toLocaleString()} />
+                <StatCell label="Best Time" value={player.TotalCaught.toLocaleString()} />
             </div>
 
         </div>

@@ -17,7 +17,7 @@ export function Stats() {
     const { username } = useParams();
 
     const fetchPlayer = (name) => {
-        fetch(`http://localhost:8080/player?username=${name}`)
+        fetch(`http://localhost:8080/stats/${name}`)
             .then(res => {
                 if (!res.ok) {
                     setPlayerData(null);

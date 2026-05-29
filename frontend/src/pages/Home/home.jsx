@@ -6,15 +6,15 @@ import NewsCard from '../../components/NewsCard';
 import Footer from '../../components/Footer';
 import { Games } from '../../components/Games';
 import Pattern from '../../components/Pattern';
-import { FaDiscord, FaYoutube, FaInstagram, FaTwitter, FaTiktok, FaMap, FaUser, FaMedal, FaTrophy, FaUsers, FaSync, FaStar } from 'react-icons/fa';
+import { FaDiscord, FaYoutube, FaInstagram, FaTwitter, FaTiktok, FaMap, FaUser, FaMedal, FaTrophy, FaUsers, FaSync, FaStar, FaBolt } from 'react-icons/fa';
 
 const features = [
     { icon: <FaMap />,    title: "60+ Classes & Maps",  desc: "Dozens of unique kits and battle arenas to master" },
-    { icon: <FaUser />,   title: "Singleplayer Modes",   desc: "Reel in rare catches while fishing or race through parkour courses" },
     { icon: <FaMedal />,  title: "Progression",         desc: "Level up, earn rewards, and track your growth over time" },
     { icon: <FaTrophy />, title: "Leaderboards",        desc: "Compete for the top spot in every game mode" },
     { icon: <FaStar />,  title: "Cosmetics",            desc: "Unlock skins, effects, and more to stand out" },
-    { icon: <FaSync />,   title: "Updates",             desc: "Regular content drops and improvements" },
+    { icon: <FaUser />,   title: "Singleplayer Modes",   desc: "Reel in rare catches while fishing or race through parkour courses" },
+    { icon: <FaBolt />,   title: "Updates",             desc: "Regular content drops and improvements" },
 ];
 
 export function Home() {

@@ -3,7 +3,7 @@
 ========================= */
 
 :root {
-    --bg: #272727;
+    --bg: #313131;
     --surface: #2d2d2d;
     --border: #3a3a3a;
     --text: #f0f0f0;
@@ -98,7 +98,7 @@ footer {
     overflow: hidden;
     z-index: -1;
     pointer-events: none;
-    opacity: 0.06;
+    opacity: 0.03;
 }
 
 .pattern-row {
@@ -108,7 +108,7 @@ footer {
 }
 
 .pattern-row.offset {
-    transform: translateX(40px);
+    transform: translateX(160px);
 }
 
 .tile {
@@ -116,6 +116,7 @@ footer {
     height: 60px;
     flex-shrink: 0;
     object-fit: contain;
+    rotate: -45deg;
     filter: grayscale(100%);
 }
 

@@ -26,7 +26,7 @@ export function Leaderboards() {
     Level: "Level",
   };
 
-  const [playersData, setPlayers] = useState([]);
+  const [playersData, setPlayersData] = useState([]);
   const [categoryIndex, setCategoryIndex] = useState(0);
   const [error, setError] = useState(null);
   const categoryData = categories[categoryIndex];
@@ -38,7 +38,7 @@ export function Leaderboards() {
         if (!res.ok) throw new Error("Failed to load leaderboard data.");
         return res.json();
       })
-      .then((data) => setPlayers(data))
+      .then((data) => setPlayersData(data))
       .catch(() => setError("We couldn't reach the server. Please try again later."));
   }, [categoryData]);
 

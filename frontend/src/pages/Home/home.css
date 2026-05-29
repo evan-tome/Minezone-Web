@@ -280,7 +280,7 @@ p.about-socials-label {
     display: grid;
     place-items: center;
     cursor: pointer;
-    transition: background 0.2s ease, transform 0.15s ease;
+    transition: background-color 0.2s ease, transform 0.15s ease;
 }
 
 .carousel-btn:hover {
@@ -306,7 +306,7 @@ p.about-socials-label {
 }
 
 .game-pane img {
-    width: 38%;
+    width: 42%;
     object-fit: cover;
     object-position: center;
     flex-shrink: 0;
@@ -325,7 +325,7 @@ p.about-socials-label {
 .game-content h2 {
     font-size: 2rem;
     font-weight: 800;
-    margin: 0;
+    margin: 0 0 5px 0;
     color: var(--text);
 }
 
@@ -352,9 +352,8 @@ p.about-socials-label {
 
 .bullet {
     color: var(--accent);
-    font-size: 1.5rem;
+    font-size: 2rem;
     line-height: 1;
-    margin-top: 1px;
 }
 
 .feature-text {
@@ -364,13 +363,13 @@ p.about-socials-label {
 }
 
 .feature-text strong {
-    font-size: 1.05rem;
+    font-size: 1.2rem;
     font-weight: 700;
     color: var(--text);
 }
 
 .feature-text span {
-    font-size: 0.95rem;
+    font-size: 1rem;
     color: var(--muted);
     line-height: 1.5;
 }
@@ -385,12 +384,12 @@ p.about-socials-label {
     padding: 10px 16px;
     border: 2px solid var(--border);
     border-radius: 10px;
-    background: transparent;
+    background: var(--surface);
     color: var(--muted);
     font-size: 0.95rem;
     font-weight: 600;
     cursor: pointer;
-    transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+    transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
 }
 
 .carousel-tab:hover {

@@ -44,7 +44,7 @@
 
 .ps-rank-badge {
     display: inline-block;
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     font-weight: 700;
     letter-spacing: 1.2px;
     text-transform: uppercase;
@@ -85,8 +85,8 @@
 }
 
 .ps-prog-label {
-    font-size: 0.8rem;
-    font-weight: 700;
+    font-size: 0.9rem;
+    font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 1px;
     color: #666;
@@ -121,31 +121,18 @@
 
 /* SECTION TITLE */
 .ps-section-title {
-    font-size: 0.8rem;
+    font-size: 1rem;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 3px;
 
-    color: #c9c9c9;
+    color: var(--accent);
 
-    margin: 8px 0 12px;
+    margin: 6px 0 0 0;
 
     display: flex;
     align-items: center;
     gap: 10px;
-}
-
-/* diamond icon */
-.ps-section-title::before {
-    content: "";
-    width: 8px;
-    height: 8px;
-    background: #e09304;
-
-    transform: rotate(45deg);
-
-    display: inline-block;
-    flex-shrink: 0;
 }
 
 /* STAT GRIDS */
@@ -170,8 +157,8 @@
 }
 
 .stat-cell-label {
-    font-size: 0.8rem;
-    font-weight: 700;
+    font-size: 0.85rem;
+    font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 1px;
     color: #666;
