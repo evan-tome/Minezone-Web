@@ -28,8 +28,7 @@ export function Home() {
     ];
 
     return (
-        <>
-            <div className="app">
+        <div className="app">
                 <div className="img-bg-container">
                     <Navbar />
                     <div className="hero">
@@ -121,6 +120,5 @@ export function Home() {
 
                 <Footer />
             </div>
-        </>
     );
 }

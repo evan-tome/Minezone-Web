@@ -41,7 +41,6 @@ export function Stats() {
     };
 
     return(
-        <>
         <div className="app dark-page">
             <Pattern />
             <Navbar />
@@ -57,6 +56,5 @@ export function Stats() {
             </div>
             <Footer></Footer>
         </div>
-        </>
     );
 }

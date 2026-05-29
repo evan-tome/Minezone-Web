@@ -43,8 +43,7 @@ export function Store() {
     const allPerks = Array.from(new Set(ranks.flatMap(r => r.perks)));
 
     return (
-        <>
-            <div className="app">
+        <div className="app">
                 <Pattern />
                 <Navbar />
                 <h1>Store</h1>
@@ -115,6 +114,5 @@ export function Store() {
                 </div>
                 <Footer></Footer>
             </div>
-        </>
     );
 }
