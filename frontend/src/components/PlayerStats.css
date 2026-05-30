@@ -2,13 +2,13 @@
     width: 100%;
     max-width: 720px;
     margin: 32px auto 0;
-    background: #272727;
-    border: 1px solid #333;
+    background: var(--dark-surface);
+    border: 1px solid var(--border);
     border-radius: 20px;
     padding: 32px;
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 18px;
     box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
     font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
@@ -25,7 +25,7 @@
     height: 80px;
     border-radius: 12px;
     flex-shrink: 0;
-    border: 2px solid #2e2e2e;
+    border: 2px solid var(--border);
 }
 
 .ps-identity {
@@ -37,7 +37,7 @@
 .ps-username {
     font-size: 1.8rem;
     font-weight: 800;
-    color: #f0f0f0;
+    color: var(--text);
     margin: 0;
     line-height: 1;
 }
@@ -52,6 +52,7 @@
     border-radius: 20px;
     border: 1.5px solid;
     width: fit-content;
+    margin-top: 5px;
 }
 
 /* PROGRESSION */
@@ -60,7 +61,8 @@
     grid-template-columns: 80px 1fr 80px;
     gap: 16px;
     align-items: center;
-    background: #2e2e2e;
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: 12px;
     padding: 18px 20px;
 }
@@ -86,27 +88,27 @@
 
 .ps-prog-label {
     font-size: 0.9rem;
-    font-weight: 800;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: #666;
+    color: var(--muted);
 }
 
 .ps-prog-value {
     font-size: 1.3rem;
-    font-weight: 800;
-    color: #f0f0f0;
+    font-weight: 700;
+    color: var(--text);
 }
 
 .ps-exp-item .ps-prog-value {
     font-size: 0.95rem;
     font-weight: 700;
-    color: #ccc;
+    color: var(--muted);
 }
 
 .ps-exp-bar {
     height: 8px;
-    background: #333;
+    background: var(--surface);
     border-radius: 4px;
     overflow: hidden;
     margin-top: 8px;
@@ -114,7 +116,7 @@
 
 .ps-exp-fill {
     height: 100%;
-    background: linear-gradient(90deg, #e09304, #f5b942);
+    background: linear-gradient(90deg, var(--accent), #f5b942);
     border-radius: 4px;
     transition: width 0.5s ease;
 }
@@ -124,7 +126,7 @@
     font-size: 1rem;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 3px;
+    letter-spacing: 2px;
 
     color: var(--accent);
 
@@ -147,8 +149,8 @@
 
 /* STAT CELL */
 .stat-cell {
-    background: #2e2e2e;
-    border: 1px solid #383838;
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: 10px;
     padding: 14px 16px;
     display: flex;
@@ -158,19 +160,19 @@
 
 .stat-cell-label {
     font-size: 0.85rem;
-    font-weight: 800;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: #666;
+    color: var(--muted);
 }
 
 .stat-cell-value {
     font-size: 1.4rem;
-    font-weight: 800;
-    color: #f0f0f0;
+    font-weight: 700;
+    color: var(--text);
     line-height: 1;
 }
 
 .stat-cell-value.accent {
-    color: #e09304;
+    color: var(--accent);
 }

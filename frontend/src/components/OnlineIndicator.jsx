@@ -1,9 +1,12 @@
+import { useState } from 'react';
 import './OnlineIndicator.css';
 
 const OnlineIndicator = () => {
+    const [online] = useState(4);
+
     return (
         <div className="online">
-            <p>12 Online</p>
+            <p>Online players: {online}</p>
         </div>
     );
 };

@@ -78,9 +78,30 @@ app.get('/stats', (req, res) => {
     const limit = Number.parseInt(req.query.limit) || 10;
     const offset = Number.parseInt(req.query.offset) || 0;
 
-    const sql = "SELECT " +
-            "UUID, LastPlayerName, RoleID, Tokens, Wins, Kills, Deaths, FlawlessWins, Losses, Winstreak, BestWinstreak, Exp, Level, MatchMvps, TotalCaught" +
-            " FROM PlayerData ORDER BY Level DESC LIMIT ? OFFSET ?";
+    const sql = `
+        SELECT
+            pd.UUID,
+            pd.LastPlayerName,
+            pd.RoleID,
+            pd.Tokens,
+            pd.Wins,
+            pd.Kills,
+            pd.Deaths,
+            pd.FlawlessWins,
+            pd.Losses,
+            pd.Winstreak,
+            pd.BestWinstreak,
+            pd.Exp,
+            pd.Level,
+            pd.MatchMvps,
+            pd.TotalCaught,
+            COUNT(pf.UUID) AS UniqueCaught
+        FROM PlayerData pd
+        LEFT JOIN PlayerFishing pf ON pd.UUID = pf.UUID
+        GROUP BY pd.UUID
+        ORDER BY pd.Level DESC
+        LIMIT ? OFFSET ?
+    `;
     con.query(sql, [limit, offset], (err, result) => {
         if (err) {
             return res.status(500).json({ error: "Database error" });
@@ -92,10 +113,30 @@ app.get('/stats', (req, res) => {
 
 app.get('/stats/:username', (req, res) => {
     const username = req.params.username;
-
-    const sql = "SELECT " +
-        "UUID, LastPlayerName, RoleID, Tokens, Wins, Kills, Deaths, FlawlessWins, Losses, Winstreak, BestWinstreak, Exp, Level, MatchMvps, TotalCaught" +
-        " FROM PlayerData WHERE LastPlayerName = ?";
+    
+        const sql = `
+        SELECT
+            pd.UUID,
+            pd.LastPlayerName,
+            pd.RoleID,
+            pd.Tokens,
+            pd.Wins,
+            pd.Kills,
+            pd.Deaths,
+            pd.FlawlessWins,
+            pd.Losses,
+            pd.Winstreak,
+            pd.BestWinstreak,
+            pd.Exp,
+            pd.Level,
+            pd.MatchMvps,
+            pd.TotalCaught,
+            COUNT(pf.UUID) AS UniqueCaught
+        FROM PlayerData pd
+        LEFT JOIN PlayerFishing pf ON pd.UUID = pf.UUID
+        WHERE pd.LastPlayerName = ?
+        GROUP BY pd.UUID
+    `;
     con.query(sql, [username], (err, result) => {
         if (err) {
             return res.status(500).json({ error: "Database error" });
@@ -106,6 +147,80 @@ app.get('/stats/:username', (req, res) => {
         res.json(result[0]);
     });
 })
+
+app.get('/stats/:username/fishing', (req, res) => {
+    const username = req.params.username;
+
+    const sql = `
+        SELECT
+            pf.FishID,
+            pf.TimesCaught
+        FROM PlayerFishing pf
+        JOIN PlayerData pd ON pf.UUID = pd.UUID
+        WHERE pd.LastPlayerName = ?
+        ORDER BY pf.FishID ASC
+    `;
+
+    con.query(sql, [username], (err, result) => {
+        if (err) {
+            return res.status(500).json({ error: "Database error" });
+        }
+
+        res.json({
+            username,
+            fishing: result
+        });
+    });
+});
+
+app.get('/stats/:username/parkour', (req, res) => {
+    const username = req.params.username;
+
+    const sql = `
+        SELECT
+            pp.ParkourID,
+            pp.TotalTime
+        FROM PlayerParkour pp
+        JOIN PlayerData pd ON pp.UUID = pd.UUID
+        WHERE pd.LastPlayerName = ?
+        ORDER BY pp.TotalTime ASC
+    `;
+
+    con.query(sql, [username], (err, result) => {
+        if (err) {
+            return res.status(500).json({ error: "Database error" });
+        }
+
+        res.json({
+            username,
+            parkour: result
+        });
+    });
+});
+
+app.get('/stats/:username/favclass', (req, res) => {
+    const username = req.params.username;
+
+    const sql = `
+        SELECT
+            pc.ClassID
+        FROM PlayerClasses pc
+        JOIN PlayerData pd ON pc.UUID = pd.UUID
+        WHERE pd.LastPlayerName = ?
+        ORDER BY pc.GamesPlayed DESC
+        LIMIT 1
+    `;
+
+    con.query(sql, [username], (err, result) => {
+        if (err) {
+            return res.status(500).json({ error: "Database error" });
+        }
+
+        res.json({
+            ClassID: result[0]?.ClassID ?? null
+        });
+    });
+});
 
 app.get('/leaderboard', (req, res) => {
     const category = req.query.category;

@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import '../App.css';
 import './Navbar.css';
 import { FaShoppingCart } from "react-icons/fa";
 import OnlineIndicator from "./OnlineIndicator";

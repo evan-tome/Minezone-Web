@@ -110,7 +110,7 @@ export function Support() {
                         </div>
                     </section>
 
-                    {/* Contact form */}
+                    {/* Contact form
                     <section className="contact-section">
                         <h2>Contact Us</h2>
                         {submitted ? (
@@ -183,7 +183,7 @@ export function Support() {
                                 </button>
                             </form>
                         )}
-                    </section>
+                    </section> */}
 
                 </div>
             </div>

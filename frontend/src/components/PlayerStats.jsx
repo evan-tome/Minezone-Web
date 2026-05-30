@@ -1,28 +1,20 @@
 import './PlayerStats.css'
-
-const RANKS = new Map([
-    [0, { label: "Default", color: "#aaa" }],
-    [6, { label: "VIP", color: "#fff460" }],
-    [8, { label: "Pro", color: "#508bfa" }],
-    [17, { label: "Supreme", color: "#ff5555" }],
-    [3, { label: "Trainee", color: "#157c15" }],
-    [4, { label: "Moderator", color: "#ffbb00" }],
-    [16, { label: "Sr. Moderator", color: "#55ff55" }],
-    [12, { label: "Staff Manager", color: "#ff5555" }],
-    [7, { label: "Supervisor", color: "#2ba198" }],
-    [13, { label: "Director", color: "#ff5555" }],
-    [14, { label: "Builder", color: "#ffbb00" }],
-    [9, { label: "QA", color: "#55ff55" }],
-    [10, { label: "Media", color: "#55ffff" }],
-    [11, { label: "Partner", color: "#55ffff" }],
-    [5, { label: "Developer", color: "#ffbb00" }],
-    [18, { label: "HR", color: "#cf55ff" }],
-    [1, { label: "Admin", color: "#ff5555" }],
-    [2, { label: "Owner", color: "#ff5555" }],
-]);
+import { RANKS } from '../utils/ranks';
+import { CLASSES } from '../utils/classes';
 
 function getRank(id) {
     return RANKS.get(id) || { label: "Default", color: "#aaa" };
+}
+
+function getClassName(id) {
+    return CLASSES.get(id)?.name || "Unknown";
+}
+
+function formatTime(nanoseconds) {
+    const totalSeconds = Math.floor(nanoseconds / 1e9);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 }
 
 function StatCell({ label, value, accent }) {
@@ -45,7 +37,6 @@ function PlayerStats({ player }) {
     const wlr = player.Losses > 0 ? (player.Wins / player.Losses).toFixed(2) : player.Wins;
     const kdr = player.Deaths > 0 ? (player.Kills / player.Deaths).toFixed(2) : player.Kills;
     const matches = player.Wins + player.Losses;
-    const flawless = player.FlawlessWins;
 
     return (
         <div className="ps-card">
@@ -91,7 +82,7 @@ function PlayerStats({ player }) {
                 <StatCell label="Wins" value={player.Wins.toLocaleString()} />
                 <StatCell label="Losses" value={player.Losses.toLocaleString()} />
                 <StatCell label="W/L Ratio" value={wlr} accent />
-                <StatCell label="Flawless Wins" value={flawless.toLocaleString()} />
+                <StatCell label="Flawless Wins" value={player.FlawlessWins.toLocaleString()} />
             </div>
             <div className="ps-stat-grid ps-grid-4">
                 <StatCell label="Kills" value={player.Kills.toLocaleString()} />
@@ -103,18 +94,21 @@ function PlayerStats({ player }) {
                 <StatCell label="Current Winstreak" value={player.Winstreak.toLocaleString()} />
                 <StatCell label="Best Winstreak" value={player.BestWinstreak.toLocaleString()} accent />
             </div>
+            <div className="ps-stat-grid ps-grid-1">
+                <StatCell label="Favorite Class" value={player.FavClass ? getClassName(player.FavClass) : "N/A"} />
+            </div>
 
             {/* Fishing */}
             <SectionTitle>Fishing</SectionTitle>
             <div className="ps-stat-grid ps-grid-2">
                 <StatCell label="Total Fish Caught" value={player.TotalCaught.toLocaleString()} />
-                <StatCell label="Species Caught" value={`${player.TotalCaught.toLocaleString()}/100`} />
+                <StatCell label="Species Caught" value={`${player.UniqueCaught?.toLocaleString()}/100`} />
             </div>
 
             {/* Parkour */}
             <SectionTitle>Parkour</SectionTitle>
             <div className="ps-stat-grid ps-grid-1">
-                <StatCell label="Best Time" value={player.TotalCaught.toLocaleString()} />
+                <StatCell label="Best Time" value={player.TotalTime ? formatTime(player.TotalTime) : "N/A"} />
             </div>
 
         </div>

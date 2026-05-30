@@ -6,7 +6,7 @@
     width: 100%;
     max-width: 1100px;
     padding: 0 24px;
-    margin: 48px auto;
+    margin: 36px auto;
     box-sizing: border-box;
 }
 
@@ -74,7 +74,7 @@
 
     padding: 50px 180px;
 
-    color: #fff;
+    color: var(--text);
     line-height: 1.1;
 }
 
@@ -99,7 +99,7 @@
 
 .section-header {
     text-align: left;
-    margin-bottom: 40px;
+    margin-bottom: 30px;
 }
 
 .section-header h2 {
@@ -112,7 +112,7 @@
 
 .section-header p {
     color: var(--muted);
-    font-size: 1.05rem;
+    font-size: 1.1rem;
 
     margin: 20px 0 0 0;
 }
@@ -147,12 +147,12 @@
     font-size: 2.4rem;
     font-weight: 800;
     color: var(--text);
-    margin: 0;
+    margin: 0 0 4px 0;
 }
 
 .about-description p {
     color: var(--muted);
-    font-size: 1.05rem;
+    font-size: 1.1rem;
     line-height: 1.7;
     margin: 0;
 }
@@ -175,7 +175,7 @@
 }
 
 p.about-socials-label {
-    font-size: 0.85rem;
+    font-size: 1rem;
     color: var(--accent);
     margin-top: auto;
     margin-bottom: 0;
@@ -192,7 +192,7 @@ p.about-socials-label {
 
 .about-socials a {
     color: var(--muted);
-    font-size: 1.75rem;
+    font-size: 1.8rem;
     display: flex;
     align-items: center;
     transition: color 0.2s ease, transform 0.2s ease;
@@ -200,7 +200,7 @@ p.about-socials-label {
 
 .about-socials a:hover {
     color: var(--accent);
-    transform: translateY(-3px);
+    transform: translateY(-2px);
 }
 
 /* =========================
@@ -236,14 +236,14 @@ p.about-socials-label {
 }
 
 .feature-card h3 {
-    font-size: 1rem;
+    font-size: 1.15rem;
     font-weight: 700;
     color: var(--text);
     margin: 0;
 }
 
 .feature-card p {
-    font-size: 0.875rem;
+    font-size: 1rem;
     color: var(--muted);
     margin: 0;
     line-height: 1.5;
@@ -369,7 +369,7 @@ p.about-socials-label {
 }
 
 .feature-text span {
-    font-size: 1rem;
+    font-size: 1.05rem;
     color: var(--muted);
     line-height: 1.5;
 }
@@ -386,7 +386,7 @@ p.about-socials-label {
     border-radius: 10px;
     background: var(--surface);
     color: var(--muted);
-    font-size: 0.95rem;
+    font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
     transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
@@ -474,7 +474,7 @@ p.about-socials-label {
 }
 
 .news-content .date {
-    font-size: 0.82rem;
+    font-size: 0.9rem;
     color: var(--accent);
 
     font-weight: 700;
@@ -489,6 +489,6 @@ p.about-socials-label {
     line-height: 1.7;
 
     margin: 0;
-    font-size: 1rem;
+    font-size: 1.05rem;
 }
 

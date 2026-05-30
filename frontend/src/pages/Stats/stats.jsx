@@ -26,7 +26,31 @@ export function Stats() {
                 setError(null);
                 return res.json();
             })
-            .then(data => setPlayerData(data))
+            .then(data => {
+                setPlayerData(data);
+
+                return fetch(`http://localhost:8080/stats/${name}/favclass`);
+            })
+            .then(res => res.json())
+            .then(favClassData => {
+                const classId = favClassData?.ClassID ?? null;
+
+                setPlayerData(prev => ({
+                    ...prev,
+                    FavClass: classId
+                }));
+
+                return fetch(`http://localhost:8080/stats/${name}/parkour`);
+            })
+            .then(res => res.json())
+            .then(parkourData => {
+                const time = parkourData.parkour?.[0]?.TotalTime ?? null;
+
+                setPlayerData(prev => ({
+                    ...prev,
+                    TotalTime: time
+                }));
+            })
             .catch(err => setError(err.message));
     };
 

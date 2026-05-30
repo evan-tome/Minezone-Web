@@ -3,6 +3,11 @@ import "./Footer.css";
 import { FaDiscord, FaYoutube, FaInstagram, FaTwitter, FaTiktok, FaShoppingCart } from "react-icons/fa";
 
 export default function Footer() {
+
+  const copyLink = async () => {
+    await navigator.clipboard.writeText("minezone.club");
+  };
+
   return (
     <footer className="footer">
       <div className="footer-top">
@@ -16,6 +21,7 @@ export default function Footer() {
               along with new minigames, events, and a friendly player community.
               Join us and be part of something awesome!
             </p>
+            <button className="copy-button" onClick={copyLink}>minezone.club</button>
           </div>
 
           {/* Navigation Section */}

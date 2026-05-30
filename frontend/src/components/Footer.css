@@ -85,11 +85,12 @@
 }
 
 /* Store Button */
-.store-button {
+.store-button, .copy-button {
+  font-size: 1rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-top: 0.8rem;
+  margin-top: 1rem;
   padding: 0.7rem 1.5rem;
   color: #1b1b1b;
   background-color: #e09304;
@@ -99,7 +100,7 @@
   transition: background-color 0.25s, transform 0.2s;
 }
 
-.store-button:hover {
+.store-button:hover, .copy-button:hover {
   background-color: #ffb43b;
 }
 

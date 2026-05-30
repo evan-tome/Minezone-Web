@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FaRegCopy, FaCheck } from "react-icons/fa";
+import { FaRegCopy } from "react-icons/fa";
 import "./CopyLinkButton.css";
 
 const CopyLinkButton = () => {
@@ -8,7 +8,7 @@ const CopyLinkButton = () => {
   const copyLink = async () => {
     await navigator.clipboard.writeText("minezone.club");
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setTimeout(() => setCopied(false), 1000);
   };
 
   return (

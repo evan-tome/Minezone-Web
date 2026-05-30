@@ -5,8 +5,9 @@
 :root {
     --bg: #313131;
     --surface: #2d2d2d;
+    --dark-surface: #272727;
     --border: #3a3a3a;
-    --text: #f0f0f0;
+    --text: #fcfcfc;
     --muted: #a0a0a0;
     --accent: #e09304;
     --accent-soft: rgba(224, 168, 74, 0.18);

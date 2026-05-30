@@ -1,4 +1,5 @@
 import { FaExclamationCircle } from "react-icons/fa";
+import ErrorScreen from "./ErrorScreen";
 import "./Leaderboard.css";
 
 const COLUMNS = [
@@ -14,10 +15,7 @@ function Leaderboard({ players, categoryKey, error }) {
   return (
     <div className="leaderboard">
       {error ? (
-        <div className="lb-error">
-          <FaExclamationCircle className="lb-error-icon" />
-          <p>{error}</p>
-        </div>
+        <ErrorScreen title="Leaderboard error" message={error} />
       ) : players.length === 0 ? (
         <div className="lb-empty">Loading...</div>
       ) : (
