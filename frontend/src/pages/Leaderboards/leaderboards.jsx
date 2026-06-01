@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import '../../App.css';
-import "./leaderboards.css";
+import "./Leaderboards.css";
 import Navbar from "../../components/Navbar";
-import Leaderboard from "../../components/Leaderboard";
+import Leaderboard from "./Leaderboard";
 import Footer from "../../components/Footer";
-import Pattern from "../../components/Pattern";
+import { fetchLeaderboard } from '../../api/leaderboards.js';
 
 export function Leaderboards() {
   const categories = [
@@ -33,12 +33,8 @@ export function Leaderboards() {
 
   useEffect(() => {
     setError(null);
-    fetch(`http://localhost:8080/leaderboard?category=${categoryData}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to load leaderboard data.");
-        return res.json();
-      })
-      .then((data) => setPlayersData(data))
+    fetchLeaderboard(categoryData)
+      .then(data => setPlayersData(data))
       .catch(() => setError("We couldn't reach the server. Please try again later."));
   }, [categoryData]);
 
@@ -54,7 +50,6 @@ export function Leaderboards() {
 
   return (
     <div className="app dark-page">
-      <Pattern />
       <Navbar />
       <div className="main">
         <h1>Leaderboards</h1>

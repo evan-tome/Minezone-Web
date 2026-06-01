@@ -1,5 +1,5 @@
 import { FaExclamationCircle } from "react-icons/fa";
-import ErrorScreen from "./ErrorScreen";
+import ErrorScreen from "../../components/ErrorScreen";
 import "./Leaderboard.css";
 
 const COLUMNS = [
