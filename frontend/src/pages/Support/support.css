@@ -1,8 +1,7 @@
 .support-main {
-    max-width: 1200px;
+    max-width: 860px;
 }
 
-/* Page header */
 .support-header {
     text-align: center;
     margin-bottom: 36px;
@@ -13,7 +12,7 @@
 }
 
 .support-header p {
-    color: #888;
+    color: var(--muted);
     font-size: 1.05rem;
     margin: 0;
 }
@@ -23,22 +22,24 @@
     display: flex;
     align-items: center;
     gap: 18px;
-    background: #1e2a3a;
-    border: 1px solid #2a3d52;
-    border-radius: 14px;
-    padding: 20px 24px;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 24px;
     text-decoration: none;
     color: inherit;
-    margin-bottom: 48px;
+    margin-bottom: 40px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .discord-cta:hover {
     border-color: #5865f2;
+    box-shadow: 0 4px 16px rgba(88, 101, 242, 0.12);
 }
 
 .discord-cta-icon {
-    font-size: 2.4rem;
+    font-size: 2.2rem;
     color: #5865f2;
     flex-shrink: 0;
 }
@@ -46,21 +47,21 @@
 .discord-cta div {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 3px;
 }
 
 .discord-cta strong {
     font-size: 1rem;
     font-weight: 700;
-    color: #f0f0f0;
+    color: var(--text);
 }
 
 .discord-cta span {
-    font-size: 1rem;
-    color: #888;
+    font-size: 0.95rem;
+    color: var(--muted);
 }
 
-/* Two-column layout */
+/* Layout */
 .support-columns {
     display: grid;
     grid-template-columns: 1fr;
@@ -72,13 +73,13 @@
 .contact-section h2 {
     font-size: 1.3rem;
     font-weight: 700;
-    color: #f0f0f0;
+    color: var(--text);
     margin: 0 0 20px 0;
     padding-bottom: 12px;
-    border-bottom: 1px solid #2a2a2a;
+    border-bottom: 2px solid var(--border);
 }
 
-/* FAQ items */
+/* FAQ */
 .faq-list {
     display: flex;
     flex-direction: column;
@@ -86,15 +87,16 @@
 }
 
 .faq-item {
-    background: #272727;
-    border: 1px solid #333;
-    border-radius: 12px;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 10px;
     overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
     transition: border-color 0.2s ease;
 }
 
 .faq-item.open {
-    border-color: #e09304;
+    border-color: var(--accent);
 }
 
 .faq-question {
@@ -106,9 +108,9 @@
     background: none;
     border: none;
     padding: 16px 18px;
-    font-size: 0.95rem;
+    font-size: 0.97rem;
     font-weight: 600;
-    color: #e0e0e0;
+    color: var(--text);
     text-align: left;
     cursor: pointer;
     font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -116,163 +118,31 @@
 }
 
 .faq-question:hover {
-    color: #e09304;
+    color: var(--accent);
 }
 
 .faq-chevron {
     font-size: 0.8rem;
-    color: #747474;
+    color: var(--muted);
     flex-shrink: 0;
     transition: color 0.2s ease;
 }
 
 .faq-item.open .faq-chevron {
-    color: #e09304;
+    color: var(--accent);
 }
 
 .faq-answer {
-    padding: 0 18px 16px;
-    font-size: 1rem;
-    color: #999;
+    padding: 14px 18px 16px;
+    font-size: 0.97rem;
+    color: var(--muted);
     line-height: 1.7;
-    border-top: 1px solid #2a2a2a;
-    padding-top: 14px;
+    border-top: 1px solid var(--border);
 }
 
-/* Contact form */
-.contact-form {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.form-group label {
-    font-size: 0.8rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    color: #777;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
-    background: #272727;
-    border: 1.5px solid #383838;
-    border-radius: 10px;
-    padding: 11px 14px;
-    font-size: 0.95rem;
-    color: #f0f0f0;
-    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-    outline: none;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    resize: none;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.form-group input::placeholder,
-.form-group textarea::placeholder {
-    color: #747474;
-}
-
-.form-group select option {
-    background: #2a2a2a;
-    color: #f0f0f0;
-}
-
-.form-group select {
-    cursor: pointer;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 14px center;
-    padding-right: 36px;
-}
-
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-    border-color: #e09304;
-    box-shadow: 0 0 0 3px rgba(224, 147, 4, 0.12);
-}
-
-.form-submit {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    background: #e09304;
-    color: #fff;
-    border: none;
-    border-radius: 10px;
-    padding: 13px 28px;
-    font-size: 0.95rem;
-    font-weight: 700;
-    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-    cursor: pointer;
-    transition: background 0.2s ease, transform 0.15s ease;
-    align-self: flex-start;
-}
-
-.form-submit:hover {
-    background: #c98200;
-    transform: translateY(-1px);
-}
-
-/* Success state */
-.form-success {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 14px;
-    padding: 48px 24px;
-    text-align: center;
-    background: #272727;
-    border: 1px solid #333;
-    border-radius: 14px;
-}
-
-.form-success-icon {
-    font-size: 2.4rem;
-    color: #e09304;
-}
-
-.form-success h3 {
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: #f0f0f0;
-    margin: 0;
-}
-
-.form-success p {
-    color: #999;
-    font-size: 0.95rem;
-    margin: 0;
-    max-width: 320px;
-    line-height: 1.6;
-}
-
-/* Responsive */
 @media (max-width: 860px) {
     .support-columns {
         grid-template-columns: 1fr;
         gap: 40px;
-    }
-
-    .form-row {
-        grid-template-columns: 1fr;
     }
 }
