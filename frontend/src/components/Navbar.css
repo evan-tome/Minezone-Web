@@ -1,65 +1,70 @@
 .navbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    color: var(--text);
-    width: 100%;    
-    padding: 10px 100px;
-    font-size: 1.2rem;
+    width: 100%;
+    padding: 8px 100px;
     box-sizing: border-box;
+    background: var(--accent);
 }
 
 .navbar-left .logo {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: var(--text);
-    text-decoration: none;
     display: flex;
     align-items: center;
-}
-
-.navbar-center {
-    justify-self: center;
+    text-decoration: none;
 }
 
 .navbar-center .nav-links {
-    list-style-type: none;
+    list-style: none;
     display: flex;
-    gap: 40px;
+    gap: 16px;
     margin: 0;
     padding: 0;
 }
 
 .navbar-center .nav-links a {
-    color: var(--text);
+    color: #fff;
+    font-weight: 600;
+    font-size: 1.2rem;
     text-decoration: none;
-    font-weight: 500;
-    transition: color 0.2s ease;
-    font-size: 1.25rem;
+    padding: 6px 14px;
+    border-radius: 50px;
+    transition: background 0.2s ease;
 }
 
 .navbar-center .nav-links a:hover {
-    color: #f5f5f5;
+    background: rgba(0, 0, 0, 0.2);
 }
 
 .navbar-right {
     display: flex;
     align-items: center;
     gap: 20px;
-    justify-self: end;
 }
 
 .navbar-right a {
-    color: var(--text);
+    color: #fff;
     text-decoration: none;
-    font-weight: 500;
-    transition: color 0.2s ease;
     font-size: 1.6rem;
+    transition: color 0.15s;
 }
 
 .navbar-right a:hover {
-    color: #f5f5f5;
+    color: #fff;
 }
 
-
-
+.labs-nav-tag {
+    font-size: 0.58rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    background: rgba(255, 255, 255, 0.22);
+    border-radius: 4px;
+    padding: 1px 5px;
+    vertical-align: middle;
+    margin-left: 5px;
+    position: relative;
+    top: -1px;
+}

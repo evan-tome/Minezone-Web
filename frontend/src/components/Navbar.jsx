@@ -2,7 +2,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import '../App.css';
 import './Navbar.css';
-import { FaShoppingCart } from "react-icons/fa";
 import OnlineIndicator from "./OnlineIndicator";
 
 const Navbar = () => {
@@ -21,11 +20,11 @@ const Navbar = () => {
     const handleGamesClick = (e) => {
         e.preventDefault();
 
-        if (!isHomePage) {
+        if (isHomePage) {
+            scrollToGames();
+        } else {
             navigate("/");
             sessionStorage.setItem("scrollToGames", "true");
-        } else {
-            scrollToGames();
         }
     };
 
@@ -39,11 +38,7 @@ const Navbar = () => {
     return (
         <nav
             className="navbar"
-            style={{
-                backgroundColor: isHomePage
-                    ? "transparent"
-                    : "rgb(224, 147, 4)",
-            }}
+            style={isHomePage ? { background: 'transparent', borderBottom: 'none' } : undefined}
         >
             <div className="navbar-left">
                 <a href="/">
@@ -100,13 +95,17 @@ const Navbar = () => {
                             Store
                         </a>
                     </li>
+
+                    <li>
+                        <a href="/labs" className="labs-nav-link">
+                            Labs <span className="labs-nav-tag">AI</span>
+                        </a>
+                    </li>
                 </ul>
             </div>
 
             <div className="navbar-right">
-                <a>
-                    <OnlineIndicator />
-                </a>
+                <OnlineIndicator />
             </div>
         </nav>
     );
