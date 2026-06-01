@@ -60,6 +60,7 @@ function GameCard({ game }) {
         <div className={`game-card ${won ? 'game-card-win' : 'game-card-loss'}`}>
             <div className="game-card-header">
                 <span className={`game-card-result ${won ? 'win' : 'loss'}`}>{won ? 'Win' : 'Loss'}</span>
+                {game.first_blood && <span className="gc-firstblood-tag">First Blood</span>}
                 <span className="game-card-date">{date}</span>
             </div>
             <div className="game-card-map">{game.map_name}</div>

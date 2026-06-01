@@ -39,7 +39,7 @@ router.get('/', (req, res) => {
 router.get('/recent-matches', (req, res) => {
     const sql = `
         SELECT g.game_id, g.game_type, g.map_name, g.end_time, g.game_duration_minutes,
-               gp.class_id, gp.placement, gp.kills, gp.deaths, gp.lives, gp.winner,
+               gp.class_id, gp.placement, gp.kills, gp.deaths, gp.lives, gp.firstblood, gp.winner,
                pd.LastPlayerName, pd.UUID, pd.Level, pd.RoleID
         FROM scb_games g
         JOIN scb_game_players gp ON g.game_id = gp.game_id
@@ -82,6 +82,7 @@ router.get('/recent-matches', (req, res) => {
                 kills: row.kills,
                 deaths: row.deaths,
                 lives: row.lives,
+                first_blood: row.firstblood === 1 || row.firstblood === true,
                 winner: row.winner === 1 || row.winner === true,
                 level: row.Level,
                 role_id: row.RoleID,
@@ -179,7 +180,7 @@ router.get('/:username/games', (req, res) => {
 
     const sql = `
         SELECT g.game_id, g.game_type, g.map_name, g.end_time, g.game_duration_minutes,
-               gp.class_id, gp.placement, gp.kills, gp.deaths, gp.lives, gp.winner
+               gp.class_id, gp.placement, gp.kills, gp.deaths, gp.lives, gp.firstblood, gp.winner
         FROM scb_game_players gp
         JOIN scb_games g ON gp.game_id = g.game_id
         JOIN PlayerData pd ON gp.uuid = pd.UUID

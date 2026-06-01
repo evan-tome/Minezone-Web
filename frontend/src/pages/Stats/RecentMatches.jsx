@@ -85,6 +85,9 @@ function MatchCard({ match }) {
                                 <button className="rm-name-btn" onClick={() => navigate(`/stats/${p.username}`)}>
                                     {p.username}
                                 </button>
+                                {p.first_blood && (
+                                    <span className="rm-firstblood-tag">First Blood</span>
+                                )}
                             </span>
                             <span className="rm-col-class rm-class">{getClassName(p.class_id)}</span>
                             <span className="rm-col-stat rm-kills">{p.kills}</span>

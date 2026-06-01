@@ -240,6 +240,19 @@
     color: var(--muted);
 }
 
+.gc-firstblood-tag {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 1px 6px;
+    border-radius: 20px;
+    border: 1px solid #e05252;
+    color: #e05252;
+    background: rgba(224, 82, 82, 0.08);
+    white-space: nowrap;
+}
+
 .game-card-map {
     font-size: 0.95rem;
     font-weight: 700;
