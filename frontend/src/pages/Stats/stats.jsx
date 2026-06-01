@@ -1,64 +1,69 @@
 import '../../App.css';
-import './stats.css'
+import './Stats.css'
 import Navbar from "../../components/Navbar";
-import Searchbar from '../../components/Searchbar';
-import PlayerStats from '../../components/PlayerStats';
+import Searchbar from './Searchbar';
+import PlayerStats from './PlayerStats';
+import RecentMatches from './RecentMatches';
 import ErrorScreen from '../../components/ErrorScreen';
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
 import Footer from '../../components/Footer';
-import Pattern from '../../components/Pattern';
+import { fetchPlayer, fetchFavClass, fetchParkour, fetchRecentGames, fetchRecentMatches } from '../../api/stats.js';
 
 export function Stats() {
+    const [tab, setTab] = useState('players');
     const [playerData, setPlayerData] = useState(null);
     const [error, setError] = useState(null);
+    const [recentMatches, setRecentMatches] = useState([]);
+    const [matchesLoading, setMatchesLoading] = useState(true);
+    const [matchesError, setMatchesError] = useState(null);
 
     const navigate = useNavigate();
     const { username } = useParams();
 
-    const fetchPlayer = (name) => {
-        fetch(`http://localhost:8080/stats/${name}`)
-            .then(res => {
-                if (!res.ok) {
-                    setPlayerData(null);
-                    throw new Error("Couldn't find the player you're looking for. Try checking the spelling.");
-                }
-                setError(null);
-                return res.json();
-            })
+    useEffect(() => {
+        fetchRecentMatches()
             .then(data => {
-                setPlayerData(data);
-
-                return fetch(`http://localhost:8080/stats/${name}/favclass`);
+                setRecentMatches(data?.matches ?? []);
+                setMatchesLoading(false);
             })
-            .then(res => res.json())
-            .then(favClassData => {
-                const classId = favClassData?.ClassID ?? null;
+            .catch(err => {
+                console.error('Recent matches fetch failed:', err);
+                setMatchesError(err.message);
+                setMatchesLoading(false);
+            });
+    }, []);
 
-                setPlayerData(prev => ({
-                    ...prev,
-                    FavClass: classId
-                }));
+    const loadPlayer = async (name) => {
+        try {
+            const player = await fetchPlayer(name);
+            setPlayerData(player);
+            setError(null);
 
-                return fetch(`http://localhost:8080/stats/${name}/parkour`);
-            })
-            .then(res => res.json())
-            .then(parkourData => {
-                const time = parkourData.parkour?.[0]?.TotalTime ?? null;
+            const [favClassData, parkourData, gamesData] = await Promise.all([
+                fetchFavClass(name),
+                fetchParkour(name),
+                fetchRecentGames(name),
+            ]);
 
-                setPlayerData(prev => ({
-                    ...prev,
-                    TotalTime: time
-                }));
-            })
-            .catch(err => setError(err.message));
+            setPlayerData(prev => ({
+                ...prev,
+                FavClass: favClassData?.ClassID ?? null,
+                TotalTime: parkourData.parkour?.[0]?.TotalTime ?? null,
+                RecentGames: gamesData?.games ?? [],
+            }));
+        } catch (err) {
+            setPlayerData(null);
+            setError(err.message);
+        }
     };
 
     useEffect(() => {
         if (username) {
-            fetchPlayer(username);
+            setTab('players');
+            loadPlayer(username);
         }
-    }, [username])
+    }, [username]);
 
     const handleSearch = (name) => {
         navigate(`/stats/${name}`);
@@ -66,17 +71,29 @@ export function Stats() {
 
     return(
         <div className="app dark-page">
-            <Pattern />
             <Navbar />
             <div className="main stats-main">
-                <div className="stats-header">
-                    <h1>Player Stats</h1>
-                    <p>Look up a player to view their stats</p>
+                <div className="stats-tabs">
+                    <button className={`stats-tab-btn${tab === 'players' ? ' active' : ''}`} onClick={() => setTab('players')}>
+                        Player Stats
+                    </button>
+                    <button className={`stats-tab-btn${tab === 'games' ? ' active' : ''}`} onClick={() => setTab('games')}>
+                        Game Stats
+                    </button>
                 </div>
-                <Searchbar onSearch={handleSearch}/>
 
-                {error && <ErrorScreen title="Player not found" message={error} />}
-                {playerData && <PlayerStats player={playerData}/>}
+                <div className="stats-header">
+                    <h1>{tab === 'players' ? 'Player Stats' : 'Game Stats'}</h1>
+                    <p>{tab === 'players' ? 'Look up a player to view their stats' : 'Recent match history'}</p>
+                </div>
+
+                {tab === 'players' && <>
+                    <Searchbar onSearch={handleSearch}/>
+                    {error && <ErrorScreen title="Player not found" message={error} />}
+                    {playerData && <PlayerStats player={playerData} />}
+                </>}
+
+                {tab === 'games' && <RecentMatches matches={recentMatches} loading={matchesLoading} error={matchesError} />}
             </div>
             <Footer></Footer>
         </div>

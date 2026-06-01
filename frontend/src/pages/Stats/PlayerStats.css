@@ -1,15 +1,15 @@
 .ps-card {
     width: 100%;
-    max-width: 720px;
+    max-width: 900px;
     margin: 32px auto 0;
-    background: var(--dark-surface);
+    background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 20px;
     padding: 32px;
     display: flex;
     flex-direction: column;
     gap: 18px;
-    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
     font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
 
@@ -58,10 +58,10 @@
 /* PROGRESSION */
 .ps-progression {
     display: grid;
-    grid-template-columns: 80px 1fr 80px;
+    grid-template-columns: 80px 1fr 120px;
     gap: 16px;
-    align-items: center;
-    background: var(--surface);
+    align-items: start;
+    background: var(--bg);
     border: 1px solid var(--border);
     border-radius: 12px;
     padding: 18px 20px;
@@ -87,11 +87,17 @@
 }
 
 .ps-prog-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
     font-size: 0.9rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1px;
     color: var(--muted);
+    overflow: visible;
+    line-height: 1.4;
 }
 
 .ps-prog-value {
@@ -108,7 +114,7 @@
 
 .ps-exp-bar {
     height: 8px;
-    background: var(--surface);
+    background: var(--border);
     border-radius: 4px;
     overflow: hidden;
     margin-top: 8px;
@@ -118,7 +124,6 @@
     height: 100%;
     background: linear-gradient(90deg, var(--accent), #f5b942);
     border-radius: 4px;
-    transition: width 0.5s ease;
 }
 
 /* SECTION TITLE */
@@ -149,7 +154,7 @@
 
 /* STAT CELL */
 .stat-cell {
-    background: var(--surface);
+    background: var(--bg);
     border: 1px solid var(--border);
     border-radius: 10px;
     padding: 14px 16px;
@@ -159,11 +164,27 @@
 }
 
 .stat-cell-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
     font-size: 0.85rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1px;
     color: var(--muted);
+}
+
+.stat-cell-icon {
+    display: flex;
+    align-items: center;
+    font-size: 0.85rem;
+    opacity: 0.7;
+}
+
+.ps-section-icon {
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
 }
 
 .stat-cell-value {
@@ -175,4 +196,82 @@
 
 .stat-cell-value.accent {
     color: var(--accent);
+}
+
+/* GAME CARDS */
+.game-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.game-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-left-width: 3px;
+}
+
+.game-card-win  { border-left-color: #4caf79; }
+.game-card-loss { border-left-color: #e05555; }
+
+.game-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.game-card-result {
+    font-size: 0.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.game-card-result.win  { color: #4caf79; }
+.game-card-result.loss { color: #e05555; }
+
+.game-card-date {
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+
+.game-card-map {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.game-card-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 2px;
+}
+
+.game-card-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.game-card-stat-label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--muted);
+}
+
+.game-card-stat-value {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text);
 }

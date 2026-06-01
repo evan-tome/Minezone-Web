@@ -13,7 +13,41 @@
 }
 
 .stats-header p {
-    color: #888;
+    color: var(--muted);
     font-size: 1.05rem;
     margin: 0;
+}
+
+/* Tabs */
+.stats-tabs {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 24px;
+}
+
+.stats-tab-btn {
+    background: var(--surface);
+    color: var(--muted);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 0.5rem 1.4rem;
+    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+    white-space: nowrap;
+}
+
+.stats-tab-btn:hover {
+    border-color: var(--accent);
+    color: var(--text);
+}
+
+.stats-tab-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    box-shadow: none;
 }
