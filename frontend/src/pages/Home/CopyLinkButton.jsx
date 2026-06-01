@@ -8,17 +8,14 @@ const CopyLinkButton = () => {
   const copyLink = async () => {
     await navigator.clipboard.writeText("minezone.club");
     setCopied(true);
-    setTimeout(() => setCopied(false), 1000);
+    setTimeout(() => setCopied(false), 1500);
   };
 
   return (
     <button className="join-btn" onClick={copyLink}>
-      <span className="join-text">
-        {copied ? "Copied!" : "minezone.club"}
-      </span>
-      <span className="join-icon">
-        {copied ? "" : <FaRegCopy />}
-      </span>
+      {copied && <span className="join-tooltip">Copied!</span>}
+      <span className="join-text">minezone.club</span>
+      <span className="join-icon"><FaRegCopy /></span>
     </button>
   );
 };

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
-import '../App.css';
+import '../../App.css';
 
 export function Games() {
     const [current, setCurrent] = useState(0);
