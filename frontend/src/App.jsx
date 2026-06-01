@@ -1,9 +1,11 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import { Home } from './pages/Home/home'
-import { Stats } from './pages/Stats/stats'
-import { Leaderboards } from './Pages/Leaderboards/leaderboards'
-import { Store } from './pages/Store/store'
-import { Support } from './pages/Support/support'
+import { Home } from './pages/Home/Home'
+import { Stats } from './pages/Stats/Stats'
+import { Leaderboards } from './pages/Leaderboards/Leaderboards'
+import { Store } from './pages/Store/Store'
+import { Support } from './pages/Support/Support'
+import { Analytics } from './pages/Analytics/Analytics'
+import { Labs } from './pages/Labs/Labs'
 import './App.css'
 
 function App() {
@@ -16,6 +18,8 @@ function App() {
         <Route path="/leaderboards" element={<Leaderboards />}/>
         <Route path="/store" element={<Store />}/>
         <Route path="/support" element={<Support />}/>
+        <Route path="/analytics" element={<Analytics />}/>
+        <Route path="/labs" element={<Labs />}/>
       </Routes>
     </Router>
   )

@@ -32,6 +32,7 @@ export default function Footer() {
               <li><a href="/games">Games</a></li>
               <li><a href="/leaderboard">Leaderboard</a></li>
               <li><a href="/stats">Stats</a></li>
+              <li><a href="/analytics">Analytics</a></li>
               <li><a href="/support">Support</a></li>
 
             </ul>
