@@ -83,6 +83,13 @@
     grid-column: 1 / -1;
 }
 
+.map-time-group {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
 .chart-card-header {
     display: flex;
     align-items: center;
@@ -194,5 +201,9 @@
 
     .chart-card-full {
         grid-column: 1;
+    }
+
+    .map-time-group {
+        grid-template-columns: 1fr;
     }
 }

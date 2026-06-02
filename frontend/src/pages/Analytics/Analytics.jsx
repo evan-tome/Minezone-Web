@@ -3,11 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import {
     ResponsiveContainer, BarChart, Bar, XAxis, YAxis,
     Tooltip, Cell, CartesianGrid, Legend, PieChart, Pie,
+    AreaChart, Area,
 } from 'recharts';
 import { FaUsers, FaGamepad, FaMedal, FaSkull, FaFish, FaFire } from 'react-icons/fa';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
-import { fetchOverview, fetchLevelDistribution, fetchTopByStat, fetchTopClasses, fetchBottomClasses, fetchWinRates, fetchAllClassStats } from '../../api/analytics.js';
+import { fetchOverview, fetchLevelDistribution, fetchTopByStat, fetchTopClasses, fetchBottomClasses, fetchWinRates, fetchAllClassStats, fetchMapPopularity, fetchGamesOverTime, fetchPeakHours, fetchKDRatios } from '../../api/analytics.js';
 import { CLASSES } from '../../utils/classes.js';
 import '../../App.css';
 import './Analytics.css';
@@ -85,9 +86,10 @@ function ClassesTooltip({ active, payload, label }) {
     );
 }
 
-function ChartCard({ title, children, full, action }) {
+function ChartCard({ title, children, full, action, rowSpan }) {
     return (
-        <div className={`chart-card ${full ? 'chart-card-full' : ''}`}>
+        <div className={`chart-card ${full ? 'chart-card-full' : ''}`}
+             style={rowSpan ? { gridRow: `span ${rowSpan}` } : undefined}>
             <div className="chart-card-header">
                 <h3 className="chart-card-title">{title}</h3>
                 {action}
@@ -226,8 +228,124 @@ function WinRateTooltip({ active, payload, label }) {
         <div className="chart-tooltip">
             <p className="chart-tooltip-name">{label}</p>
             <p className="chart-tooltip-value" style={{ color: '#4ade80' }}>{d.winRate}% win rate</p>
-            <p className="chart-tooltip-name">{d.wins}W / {d.losses}L — {d.total} games</p>
+            <p className="chart-tooltip-name">{d.wins}W / {d.losses}L · {d.total} games</p>
         </div>
+    );
+}
+
+function formatHour(h) {
+    if (h === 0)  return '12am';
+    if (h < 12)  return `${h}am`;
+    if (h === 12) return '12pm';
+    return `${h - 12}pm`;
+}
+
+function formatDate(dateStr) {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function MapPopularityChart({ data }) {
+    return (
+        <ResponsiveContainer width="100%" height={520}>
+            <BarChart layout="vertical" data={data} margin={{ left: 8, right: 52, top: 8, bottom: 4 }}>
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--border)" />
+                <XAxis type="number" hide />
+                <YAxis type="category" dataKey="name" width={120} axisLine={false} tickLine={false}
+                    tick={{ fill: 'var(--text)', fontSize: 12 }} />
+                <Tooltip content={<ChartTooltip />} cursor={{ fill: 'var(--accent-soft)' }} />
+                <Bar dataKey="value" radius={[0, 4, 4, 0]} maxBarSize={24}
+                    label={{ position: 'right', formatter: v => v.toLocaleString(), fill: 'var(--muted)', fontSize: 12 }}>
+                    {data.map((entry, i) => <Cell key={entry.name} fill={BAR_COLORS[i] ?? BAR_COLORS.at(-1)} />)}
+                </Bar>
+            </BarChart>
+        </ResponsiveContainer>
+    );
+}
+
+function GamesOverTimeChart({ data }) {
+    return (
+        <ResponsiveContainer width="100%" height={220}>
+            <AreaChart data={data} margin={{ left: 8, right: 24, top: 4, bottom: 4 }}>
+                <defs>
+                    <linearGradient id="gamesGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%"  stopColor={ACCENT} stopOpacity={0.35} />
+                        <stop offset="95%" stopColor={ACCENT} stopOpacity={0} />
+                    </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+                <XAxis dataKey="date" tick={{ fill: 'var(--muted)', fontSize: 11 }} axisLine={false} tickLine={false}
+                    tickFormatter={formatDate} interval="preserveStartEnd" />
+                <YAxis tick={{ fill: 'var(--muted)', fontSize: 12 }} axisLine={false} tickLine={false} />
+                <Tooltip content={({ active, payload, label }) => {
+                    if (!active || !payload?.length) return null;
+                    return (
+                        <div className="chart-tooltip">
+                            <p className="chart-tooltip-name">{formatDate(label)}</p>
+                            <p className="chart-tooltip-value" style={{ color: ACCENT }}>{payload[0].value} games</p>
+                        </div>
+                    );
+                }} cursor={{ stroke: ACCENT, strokeWidth: 1 }} />
+                <Area type="monotone" dataKey="games" stroke={ACCENT} strokeWidth={2} fill="url(#gamesGrad)" dot={false} activeDot={{ r: 4, fill: ACCENT }} />
+            </AreaChart>
+        </ResponsiveContainer>
+    );
+}
+
+function PeakHoursChart({ data }) {
+    const peak = data.reduce((m, d) => d.games > m.games ? d : m, { games: 0 });
+    return (
+        <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={data} margin={{ left: 8, right: 8, top: 4, bottom: 4 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+                <XAxis dataKey="hour" tick={{ fill: 'var(--muted)', fontSize: 10 }} axisLine={false} tickLine={false}
+                    interval={2} />
+                <YAxis tick={{ fill: 'var(--muted)', fontSize: 12 }} axisLine={false} tickLine={false} />
+                <Tooltip content={({ active, payload, label }) => {
+                    if (!active || !payload?.length) return null;
+                    return (
+                        <div className="chart-tooltip">
+                            <p className="chart-tooltip-name">{label}</p>
+                            <p className="chart-tooltip-value" style={{ color: ACCENT }}>{payload[0].value} games</p>
+                        </div>
+                    );
+                }} cursor={{ fill: 'var(--accent-soft)' }} />
+                <Bar dataKey="games" radius={[4, 4, 0, 0]} maxBarSize={28}>
+                    {data.map(entry => (
+                        <Cell key={entry.hour} fill={entry.hour === peak.hour ? ACCENT : 'var(--muted)'} opacity={entry.hour === peak.hour ? 1 : 0.45} />
+                    ))}
+                </Bar>
+            </BarChart>
+        </ResponsiveContainer>
+    );
+}
+
+function KDTooltip({ active, payload, label }) {
+    if (!active || !payload?.length) return null;
+    const d = payload[0].payload;
+    return (
+        <div className="chart-tooltip">
+            <p className="chart-tooltip-name">{label}</p>
+            <p className="chart-tooltip-value" style={{ color: '#60a5fa' }}>{d.kd.toFixed(2)} K/D</p>
+            <p className="chart-tooltip-name">{d.kills.toLocaleString()}K / {d.deaths.toLocaleString()}D</p>
+        </div>
+    );
+}
+
+function KDChart({ data }) {
+    const navigate = useNavigate();
+    return (
+        <ResponsiveContainer width="100%" height={380}>
+            <BarChart layout="vertical" data={data} margin={{ left: 8, right: 48, top: 4, bottom: 4 }}>
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--border)" />
+                <XAxis type="number" tick={{ fill: 'var(--muted)', fontSize: 12 }} axisLine={false} tickLine={false} />
+                <YAxis type="category" dataKey="name" width={110} axisLine={false} tickLine={false}
+                    tick={(props) => <PlayerTick {...props} navigate={navigate} />} />
+                <Tooltip content={<KDTooltip />} cursor={{ fill: 'var(--accent-soft)' }} />
+                <Bar dataKey="kd" name="K/D" radius={[0, 4, 4, 0]} maxBarSize={18} fill="#60a5fa"
+                    label={{ position: 'right', formatter: v => v.toFixed(2), fill: 'var(--muted)', fontSize: 12 }} />
+            </BarChart>
+        </ResponsiveContainer>
     );
 }
 
@@ -275,7 +393,11 @@ export function Analytics() {
     const [bottomClasses, setBottomClasses] = useState([]);
     const [bottomClassSort, setBottomClassSort] = useState('won');
     const [winRates, setWinRates]         = useState([]);
+    const [kdRatios, setKdRatios]         = useState([]);
     const [classCategories, setClassCategories] = useState([]);
+    const [mapPopularity, setMapPopularity]     = useState([]);
+    const [gamesOverTime, setGamesOverTime]     = useState([]);
+    const [peakHours, setPeakHours]             = useState([]);
 
     useEffect(() => {
         fetchOverview().then(setOverview).catch(() => {});
@@ -297,7 +419,7 @@ export function Analytics() {
         ).catch(() => {});
 
         fetchLevelDistribution().then(d =>
-            setLevels(d.map(b => ({ name: `${b.bucket}–${b.bucket + 4}`, value: b.count })))
+            setLevels(d.map(b => ({ name: `${b.bucket}-${b.bucket + 4}`, value: b.count })))
         ).catch(() => {});
 
         fetchTopClasses().then(d =>
@@ -339,6 +461,34 @@ export function Analytics() {
                 total: Number(p.TotalGames),
             })))
         ).catch(() => {});
+
+        fetchKDRatios().then(d =>
+            setKdRatios(d.map(p => ({
+                name: p.LastPlayerName,
+                kd: Number(p.KDRatio),
+                kills: Number(p.Kills),
+                deaths: Number(p.Deaths),
+            })))
+        ).catch(() => {});
+
+        fetchMapPopularity().then(d =>
+            setMapPopularity(d.map(r => ({ name: r.map_name, value: Number(r.game_count) })))
+        ).catch(() => {});
+
+        fetchGamesOverTime().then(d =>
+            setGamesOverTime(d.map(r => ({ date: r.date, games: Number(r.games) })))
+        ).catch(() => {});
+
+        fetchPeakHours().then(d => {
+            const byHour = {};
+            d.forEach(r => { byHour[Number(r.hour)] = Number(r.games); });
+            setPeakHours(
+                Array.from({ length: 24 }, (_, estH) => ({
+                    hour: formatHour(estH),
+                    games: byHour[(estH + 5) % 24] ?? 0,
+                }))
+            );
+        }).catch(() => {});
     }, []);
 
     return (
@@ -363,6 +513,26 @@ export function Analytics() {
                 )}
 
                 <div className="charts-grid">
+                    {(mapPopularity.length > 0 || peakHours.length > 0 || gamesOverTime.length > 0) && (
+                        <div className="map-time-group">
+                            {mapPopularity.length > 0 && (
+                                <ChartCard title="Map Popularity" rowSpan={2}>
+                                    <MapPopularityChart data={mapPopularity} />
+                                </ChartCard>
+                            )}
+                            {peakHours.length > 0 && (
+                                <ChartCard title="Peak Hours (all time, EST)">
+                                    <PeakHoursChart data={peakHours} />
+                                </ChartCard>
+                            )}
+                            {gamesOverTime.length > 0 && (
+                                <ChartCard title="Games Played: Last 60 Days">
+                                    <GamesOverTimeChart data={gamesOverTime} />
+                                </ChartCard>
+                            )}
+                        </div>
+                    )}
+
                     <ChartCard title="Top 10 by Wins">
                         <HorizontalBar data={topWins} />
                     </ChartCard>
@@ -396,8 +566,14 @@ export function Analytics() {
                     )}
 
                     {winRates.length > 0 && (
-                        <ChartCard title="Top Win Rates (min. 20 games)" full>
+                        <ChartCard title="Top Win Rates (min. 20 games)">
                             <WinRateChart data={winRates} />
+                        </ChartCard>
+                    )}
+
+                    {kdRatios.length > 0 && (
+                        <ChartCard title="Top K/D Ratios (min. 20 games)">
+                            <KDChart data={kdRatios} />
                         </ChartCard>
                     )}
 

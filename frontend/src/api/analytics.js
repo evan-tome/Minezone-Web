@@ -41,3 +41,27 @@ export async function fetchAllClassStats() {
     if (!res.ok) throw new Error('Failed to fetch class stats');
     return res.json();
 }
+
+export async function fetchKDRatios() {
+    const res = await fetch(`${API_URL}/analytics/kd-ratios`);
+    if (!res.ok) throw new Error('Failed to fetch K/D ratios');
+    return res.json();
+}
+
+export async function fetchMapPopularity() {
+    const res = await fetch(`${API_URL}/analytics/maps`);
+    if (!res.ok) throw new Error('Failed to fetch map popularity');
+    return res.json();
+}
+
+export async function fetchGamesOverTime() {
+    const res = await fetch(`${API_URL}/analytics/over-time`);
+    if (!res.ok) throw new Error('Failed to fetch games over time');
+    return res.json();
+}
+
+export async function fetchPeakHours() {
+    const res = await fetch(`${API_URL}/analytics/peak-hours`);
+    if (!res.ok) throw new Error('Failed to fetch peak hours');
+    return res.json();
+}

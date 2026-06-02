@@ -94,6 +94,53 @@ const getWinRates = makeCache(`
     LIMIT 15
 `);
 
+const getKDRatios = makeCache(`
+    SELECT
+        LastPlayerName,
+        Kills,
+        Deaths,
+        ROUND(Kills / Deaths, 2) AS KDRatio
+    FROM PlayerData
+    WHERE Deaths > 0 AND (Wins + Losses) >= 20
+    ORDER BY KDRatio DESC
+    LIMIT 15
+`);
+
+const getMapPopularity = makeCache(`
+    SELECT
+        g.map_name,
+        COUNT(*) AS game_count
+    FROM scb_games g
+    INNER JOIN (
+        SELECT game_id
+        FROM scb_game_players
+        GROUP BY game_id
+        HAVING COUNT(*) > 1
+    ) multi ON multi.game_id = g.game_id
+    WHERE g.map_name IS NOT NULL AND g.map_name != ''
+    GROUP BY g.map_name
+    ORDER BY game_count DESC
+`);
+
+const getGamesOverTime = makeCache(`
+    SELECT
+        DATE(end_time) AS date,
+        COUNT(*)       AS games
+    FROM scb_games
+    WHERE end_time >= DATE_SUB(NOW(), INTERVAL 60 DAY)
+    GROUP BY date
+    ORDER BY date ASC
+`);
+
+const getPeakHours = makeCache(`
+    SELECT
+        HOUR(end_time) AS hour,
+        COUNT(*)       AS games
+    FROM scb_games
+    GROUP BY hour
+    ORDER BY hour ASC
+`);
+
 function send(getter, req, res) {
     getter()
         .then(data => {
@@ -109,5 +156,9 @@ router.get('/top-classes',          (req, res) => send(getTopClasses, req, res))
 router.get('/bottom-classes',       (req, res) => send(getBottomClasses, req, res));
 router.get('/winrates',             (req, res) => send(getWinRates, req, res));
 router.get('/all-class-stats',      (req, res) => send(getAllClassStats, req, res));
+router.get('/kd-ratios',            (req, res) => send(getKDRatios, req, res));
+router.get('/maps',                 (req, res) => send(getMapPopularity, req, res));
+router.get('/over-time',            (req, res) => send(getGamesOverTime, req, res));
+router.get('/peak-hours',           (req, res) => send(getPeakHours, req, res));
 
 module.exports = router;
