@@ -7,7 +7,6 @@ import { Support } from './pages/Support/Support'
 import { Analytics } from './pages/Analytics/Analytics'
 import { Labs } from './pages/Labs/Labs'
 import { Match } from './pages/Match/Match'
-import LabsEntry from './components/LabsEntry'
 import './App.css'
 
 function App() {
@@ -23,7 +22,6 @@ function App() {
         <Route path="/labs" element={<Labs />}/>
         <Route path="/match/:id" element={<Match />}/>
       </Routes>
-      <LabsEntry />
     </Router>
   )
 }

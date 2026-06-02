@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { FaFlask, FaChartBar } from 'react-icons/fa';
 import '../App.css';
 import './Navbar.css';
 import OnlineIndicator from "./OnlineIndicator";
@@ -95,6 +96,14 @@ const Navbar = () => {
             </div>
 
             <div className="navbar-right">
+                <a href="/labs" className="navbar-tool-btn" aria-current={ariaCurrent('/labs')}>
+                    <FaFlask />
+                    <span>Labs</span>
+                </a>
+                <a href="/analytics" className="navbar-tool-btn" aria-current={ariaCurrent('/analytics')}>
+                    <FaChartBar />
+                    <span>Analytics</span>
+                </a>
                 <OnlineIndicator />
             </div>
         </nav>
