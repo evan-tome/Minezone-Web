@@ -1,7 +1,8 @@
 import './RecentMatches.css';
 import { CLASSES } from '../../utils/classes.js';
 import { RANKS } from '../../utils/ranks.js';
-import { FaCrown, FaChevronLeft, FaChevronRight, FaStar, FaBolt, FaClock, FaLink } from 'react-icons/fa';
+import { FaCrown, FaChevronLeft, FaChevronRight, FaStar, FaClock, FaLink } from 'react-icons/fa';
+import { PiSwordBold } from "react-icons/pi";
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import ErrorScreen from '../../components/ErrorScreen';
@@ -112,7 +113,7 @@ export function MatchCard({ match, linked = true }) {
                                 {(isMvp(p, match.players) || p.first_blood) && (
                                     <span className="rm-badge-group">
                                         {isMvp(p, match.players) && <StatBadge icon={<FaStar />} label="Match MVP" variant="mvp" />}
-                                        {p.first_blood && <StatBadge icon={<FaBolt />} label="First Blood" variant="firstblood" />}
+                                        {p.first_blood && <StatBadge icon={<PiSwordBold />} label="First Blood" variant="firstblood" />}
                                     </span>
                                 )}
                             </span>

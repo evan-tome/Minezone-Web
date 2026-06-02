@@ -278,8 +278,8 @@
 }
 
 .rm-stat-badge svg {
-    width: 13px;
-    height: 13px;
+    width: 14px;
+    height: 14px;
     flex-shrink: 0;
 }
 
@@ -308,11 +308,11 @@
 }
 
 .rm-badge-firstblood {
-    color: #f06060;
+    color: #da3030;
 }
 
 .rm-badge-mvp {
-    color: #f5a623;
+    color: #f3c01a;
 }
 
 .rm-permalink {
