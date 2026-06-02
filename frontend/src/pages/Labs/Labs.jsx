@@ -1,23 +1,28 @@
 import { useState, useRef, useEffect } from 'react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
-import { fetchRecommendation, fetchArchetype } from '../../api/stats.js';
+import { fetchRecommendation, fetchArchetype, fetchWinPrediction, fetchGamePrediction, fetchTrend } from '../../api/stats.js';
 import { CLASSES } from '../../utils/classes.js';
 import './Labs.css';
 import {
     FaFlask, FaLightbulb, FaUser, FaChartLine,
-    FaFire, FaLock, FaSearch, FaSkull, FaCrown, FaShieldAlt, FaStar,
+    FaFire, FaLock, FaSearch, FaSkull, FaCrown, FaBolt, FaStar, FaTrophy, FaChartArea, FaChevronDown,
 } from 'react-icons/fa';
 import {
     RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
+    AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
     ResponsiveContainer,
 } from 'recharts';
 
-const FEATURES = [
+const ML_FEATURES = [
     { id: 'recommender', label: 'Class Recommender', icon: <FaLightbulb />, available: true },
     { id: 'archetype',   label: 'Player Archetype',  icon: <FaUser />,      available: true },
-    { id: 'predictor',   label: 'Win Predictor',     icon: <FaChartLine />, available: false },
-    { id: 'rival',       label: 'Rival Finder',      icon: <FaFire />,      available: false },
+    { id: 'predictor',   label: 'Win Predictor',     icon: <FaChartLine />, available: true },
+    { id: 'match',       label: 'Match Predictor',   icon: <FaTrophy />,    available: true },
+];
+
+const TOOL_FEATURES = [
+    { id: 'trend', label: 'Performance Trend', icon: <FaChartArea />, available: true },
 ];
 
 function getClassName(id) {
@@ -82,7 +87,7 @@ function ClassRecommender() {
                 <div className="labs-feature-icon-wrap">
                     <FaLightbulb />
                 </div>
-                <div>
+                <div className="labs-feature-text">
                     <h2 className="labs-feature-title">Class Recommender</h2>
                     <p className="labs-feature-desc">
                         Not sure which class fits your playstyle? Enter any username and we'll
@@ -134,7 +139,7 @@ function ClassRecommender() {
                 <div className="labs-results">
                     <div className="labs-results-meta">
                         <span className="labs-results-tag">ANALYSIS COMPLETE</span>
-                        <span className="labs-results-player">{result.username}</span>
+                        <a className="labs-results-player" href={`/stats/${result.username}`}>{result.username}</a>
                     </div>
                     <div className="labs-rec-list">
                         {result.recommendations
@@ -154,10 +159,10 @@ function ClassRecommender() {
             <div className="labs-tech-details">
                 <span className="labs-tech-label">How It Works</span>
                 <ul className="labs-tech-list">
-                    <li><span>Model</span>A Random Forest classifier with 200 decision trees. Balanced class weights ensure that rarely-played classes still get fair representation in predictions.</li>
-                    <li><span>Features</span>Each player is represented by six stats: K/D ratio, win rate, flawless win rate, MVP rate, level, and best winstreak. These capture both how aggressive and how successful a player tends to be.</li>
-                    <li><span>Training data</span>Only players with at least 10 matches are included, and only classes with at least 5 games played are considered as valid targets. This filters out noise from players or classes with too little data.</li>
-                    <li><span>Refresh</span>The model retrains on all current server data once a day, so recommendations stay accurate as the player base grows.</li>
+                    <li><span>Your class history</span>We start by looking at every class you've played at least 5 games on and calculating your win rate for each one.</li>
+                    <li><span>Comparing against similar players</span>We compare your stats (K/D ratio, win rate, flawless win rate, MVP rate, level, and best winstreak) against other players on the server and see which classes players with a similar profile tend to win with most.</li>
+                    <li><span>How the score is calculated</span>Each class gets a score combining both signals equally: 50% from how well you personally do with it, 50% from how well players with a similar profile tend to do with it. A class only ranks near the top if both agree.</li>
+                    <li><span>Not enough class history?</span>If you haven't played many classes yet, recommendations are based entirely on the comparison against similar players until you build up more data.</li>
                 </ul>
             </div>
         </div>
@@ -165,19 +170,19 @@ function ClassRecommender() {
 }
 
 const ARCHETYPE_META = {
-    slayer:     { icon: <FaSkull />,     color: '#ef4444', tagline: 'High K/D ratio and kills per game' },
-    tactician:  { icon: <FaChartLine />, color: '#3b82f6', tagline: 'High win rate and flawless win rate' },
-    clutch:     { icon: <FaCrown />,     color: '#f59e0b', tagline: 'High MVP rate and best winstreak' },
-    veteran:    { icon: <FaShieldAlt />, color: '#10b981', tagline: 'High level and total games played' },
-    allrounder: { icon: <FaStar />,      color: '#8b5cf6', tagline: 'Balanced K/D, win rate, MVP, and level' },
+    regular:    { icon: <FaUser />,  color: '#6b7280', tagline: 'High game count, low output' },
+    phantom:    { icon: <FaBolt />,  color: '#8b5cf6', tagline: 'Wins without dying. High flawless rate.' },
+    ace:        { icon: <FaCrown />, color: '#f59e0b', tagline: 'High MVP rate and first blood rate' },
+    slayer:     { icon: <FaSkull />, color: '#ef4444', tagline: 'High K/D ratio and kills per game' },
+    allrounder: { icon: <FaStar />,  color: '#3b82f6', tagline: 'Balanced across all stats' },
 };
 
 const RADAR_LABELS = {
-    kdr:           'K/D',
-    wlr:           'Win Rate',
-    flawless_rate: 'Flawless',
-    mvp_rate:      'MVP',
-    level:         'Level',
+    kdr:              'K/D',
+    wlr:              'Win Rate',
+    flawless_rate:    'Flawless',
+    mvp_rate:         'MVP',
+    first_blood_rate: 'First Blood',
 };
 
 function ArchetypePanel() {
@@ -219,7 +224,7 @@ function ArchetypePanel() {
                 <div className="labs-feature-icon-wrap">
                     <FaUser />
                 </div>
-                <div>
+                <div className="labs-feature-text">
                     <h2 className="labs-feature-title">Player Archetype</h2>
                     <p className="labs-feature-desc">
                         Enter a username to see what kind of player they are. Based on their full
@@ -264,7 +269,7 @@ function ArchetypePanel() {
                 <div className="labs-archetype-result">
                     <div className="labs-results-meta">
                         <span className="labs-results-tag">ANALYSIS COMPLETE</span>
-                        <span className="labs-results-player">{result.username}</span>
+                        <a className="labs-results-player" href={`/stats/${result.username}`}>{result.username}</a>
                     </div>
 
                     <div className="labs-archetype-body">
@@ -325,10 +330,682 @@ function ArchetypePanel() {
             <div className="labs-tech-details">
                 <span className="labs-tech-label">How It Works</span>
                 <ul className="labs-tech-list">
-                    <li><span>Archetypes</span>Five distinct playstyle profiles: Slayer, Tactician, Clutch, Veteran, and All-Rounder. Each is defined by a different combination of stats.</li>
-                    <li><span>Scoring</span>Each player's stats are converted to server-wide percentile ranks, then scored against each archetype's stat profile. The best match wins.</li>
-                    <li><span>Game data</span>Where available, per-game data from recorded matches is used to improve kills-per-game accuracy.</li>
-                    <li><span>Refresh</span>Percentile distributions retrain daily as new players and matches are added.</li>
+                    <li><span>Archetypes</span>Five playstyle profiles: Slayer (high K/D and kills per game), Phantom (high flawless win rate), Ace (high MVP rate and first bloods), All-Rounder (balanced across all stats), and Regular (high game count with below-average performance).</li>
+                    <li><span>Scoring</span>Each stat is converted to a server-wide percentile rank, then scored against each archetype's profile. The archetype with the highest score wins.</li>
+                    <li><span>Game data</span>Where available, per-game kill data from recorded matches is used instead of the lifetime kills stat for better accuracy.</li>
+                </ul>
+            </div>
+        </div>
+    );
+}
+
+function WinGauge({ pct }) {
+    const arcRef = useRef(null);
+    const radius = 54;
+    const circ = 2 * Math.PI * radius;
+    const targetOffset = circ - (pct / 100) * circ;
+    const color = '#f59e0b';
+
+    useEffect(() => {
+        const el = arcRef.current;
+        if (!el) return;
+        el.style.strokeDashoffset = circ;
+        const raf = requestAnimationFrame(() => {
+            el.style.transition = 'stroke-dashoffset 1.2s cubic-bezier(0.22, 1, 0.36, 1)';
+            el.style.strokeDashoffset = targetOffset;
+        });
+        return () => cancelAnimationFrame(raf);
+    }, [pct, circ, targetOffset]);
+
+    return (
+        <svg viewBox="0 0 120 120" className="win-gauge-svg">
+            <circle cx="60" cy="60" r={radius} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="8" />
+            <circle
+                ref={arcRef}
+                cx="60" cy="60" r={radius}
+                fill="none"
+                stroke={color}
+                strokeWidth="8"
+                strokeLinecap="round"
+                strokeDasharray={circ}
+                strokeDashoffset={circ}
+                transform="rotate(-90 60 60)"
+            />
+            <text x="60" y="56" textAnchor="middle" className="win-gauge-pct" fill={color}>{pct}%</text>
+            <text x="60" y="72" textAnchor="middle" className="win-gauge-sub">WIN PROBABILITY</text>
+        </svg>
+    );
+}
+
+function WinPredictor() {
+    const [username, setUsername] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [result, setResult] = useState(null);
+    const [error, setError] = useState(null);
+    const [notFound, setNotFound] = useState(false);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!username.trim()) return;
+        setLoading(true);
+        setResult(null);
+        setError(null);
+        setNotFound(false);
+        try {
+            setResult(await fetchWinPrediction(username.trim()));
+        } catch (err) {
+            if (err.status === 404) setNotFound(true);
+            else setError('The ML service is unavailable. Make sure it is running.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const pct = result?.win_probability;
+    const actual = result?.actual_win_rate;
+    const delta = pct != null && actual != null ? Math.round((pct - actual) * 10) / 10 : null;
+
+    return (
+        <div className="labs-feature">
+            <div className="labs-feature-header">
+                <div className="labs-feature-icon-wrap">
+                    <FaChartLine />
+                </div>
+                <div className="labs-feature-text">
+                    <h2 className="labs-feature-title">Win Predictor</h2>
+                    <p className="labs-feature-desc">
+                        See the win rate a player's stats predict, and how it compares to how
+                        they're actually performing. If the numbers differ, it means they're either
+                        over or underperforming relative to players with a similar profile.
+                    </p>
+                </div>
+            </div>
+
+            <form className="labs-form" onSubmit={handleSubmit}>
+                <div className="labs-input-wrap">
+                    <FaSearch className="labs-input-icon" />
+                    <input
+                        className="labs-input"
+                        type="text"
+                        placeholder="Minecraft username..."
+                        value={username}
+                        onChange={e => setUsername(e.target.value)}
+                        autoComplete="off"
+                        spellCheck={false}
+                    />
+                </div>
+                <button className="labs-btn" type="submit" disabled={loading || !username.trim()}>
+                    {loading ? <><span className="labs-spinner" />Analyzing</> : 'Predict'}
+                </button>
+            </form>
+
+            {loading && (
+                <div className="labs-scanning">
+                    <div className="labs-scan-line" />
+                    <span className="labs-scan-text">Processing player data<span className="labs-scan-dots" /></span>
+                </div>
+            )}
+
+            {notFound && !loading && (
+                <div className="labs-error labs-error-notfound">No player found with that username.</div>
+            )}
+            {error && !loading && (
+                <div className="labs-error">{error}</div>
+            )}
+
+            {result && !loading && (
+                <div className="labs-predict-result">
+                    <div className="labs-results-meta">
+                        <span className="labs-results-tag">ANALYSIS COMPLETE</span>
+                        <a className="labs-results-player" href={`/stats/${result.username}`}>{result.username}</a>
+                    </div>
+
+                    <div className="labs-predict-body">
+                        <div className="labs-predict-gauge-wrap">
+                            <WinGauge pct={pct} />
+                        </div>
+
+                        <div className="labs-predict-compare">
+                            <div className="labs-predict-compare-row">
+                                <span className="labs-predict-compare-label">
+                                    Career win rate
+                                    <span className="labs-predict-sublabel">matches what shows on their stats page</span>
+                                </span>
+                                <span className="labs-predict-compare-val">{actual}%</span>
+                            </div>
+                            <div className="labs-predict-compare-divider" />
+                            <div className="labs-predict-compare-row">
+                                <span className="labs-predict-compare-label">
+                                    Expected win rate
+                                    <span className="labs-predict-sublabel">what players with similar stats typically win</span>
+                                </span>
+                                <span className="labs-predict-compare-val" style={{ color: '#f59e0b' }}>
+                                    {pct}%
+                                    {delta !== null && delta !== 0 && (
+                                        <span className="labs-predict-delta" style={{ color: delta > 0 ? '#22c55e' : '#ef4444' }}>
+                                            {delta > 0 ? ` +${delta}%` : ` ${delta}%`}
+                                        </span>
+                                    )}
+                                </span>
+                            </div>
+                            {delta !== null && (
+                                <p className="labs-predict-insight">
+                                    {delta > 5
+                                        ? `${result.username}'s stats predict a higher win rate than their career record shows.`
+                                        : delta < -5
+                                        ? `${result.username} is winning more than players with similar stats typically do.`
+                                        : `${result.username}'s career win rate lines up with what their stats predict.`
+                                    }
+                                </p>
+                            )}
+                        </div>
+
+                        {result.key_factors?.length > 0 && (
+                            <div className="labs-predict-factors">
+                                <span className="labs-tech-label" style={{ marginBottom: '10px' }}>What's driving this prediction</span>
+                                {result.key_factors.map(f => (
+                                    <div key={f.stat} className="labs-predict-factor-row">
+                                        <span className={`labs-predict-factor-arrow ${f.direction}`}>
+                                            {f.direction === 'up' ? '↑' : '↓'}
+                                        </span>
+                                        <div className="labs-predict-factor-body">
+                                            <span className="labs-predict-factor-stat">{f.stat}</span>
+                                            <span className="labs-predict-factor-effect">
+                                                {f.above_avg ? 'Above the server average.' : 'Below the server average.'}
+                                                {' '}
+                                                {f.direction === 'up' ? 'Predicts more wins.' : 'Predicts fewer wins.'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            <div className="labs-tech-details">
+                <span className="labs-tech-label">How It Works</span>
+                <ul className="labs-tech-list">
+                    <li><span>What is the expected win rate?</span>The model is trained on thousands of recorded games across the server. It learns what win rate players with a given stat profile tend to achieve. The expected win rate is what it predicts for this player based on their K/D, flawless rate, MVP rate, and other stats.</li>
+                    <li><span>Why does it differ from their career win rate?</span>The prediction is based on a player's stats profile compared against the full server. It may not match their career win rate exactly, since career win rate is a raw count while the prediction weighs how their stats compare to other players.</li>
+                    <li><span>What are the driving factors?</span>The three stats that had the most influence on this prediction. Each one is flagged as above or below the server average, and whether being on that side of average pushes the prediction up or down.</li>
+                </ul>
+            </div>
+        </div>
+    );
+}
+
+function buildChartData(games) {
+    const W = 5;
+    return games.map((_, i) => {
+        const slice = games.slice(Math.max(0, i - W + 1), i + 1);
+        const wins = slice.filter(g => g.won).length;
+        return {
+            game: i + 1,
+            winRate: Math.round(wins / slice.length * 100),
+            kills: parseFloat((slice.reduce((s, g) => s + g.kills, 0) / slice.length).toFixed(1)),
+        };
+    });
+}
+
+function getTrend(data) {
+    if (data.length < 3) return 'consistent';
+    const n = data.length;
+    const xMean = (n - 1) / 2;
+    const yMean = data.reduce((s, d) => s + d.winRate, 0) / n;
+    let num = 0, den = 0;
+    data.forEach((d, i) => {
+        num += (i - xMean) * (d.winRate - yMean);
+        den += (i - xMean) ** 2;
+    });
+    const slope = den === 0 ? 0 : num / den;
+    if (slope >  1) return 'improving';
+    if (slope < -1) return 'declining';
+    return 'consistent';
+}
+
+const TREND_META = {
+    improving:  { label: 'Improving',  color: '#22c55e' },
+    declining:  { label: 'Declining',  color: '#ef4444' },
+    consistent: { label: 'Consistent', color: '#f59e0b' },
+};
+
+function TrendPanel() {
+    const [username, setUsername] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [result, setResult] = useState(null);
+    const [baseResult, setBaseResult] = useState(null);
+    const [error, setError] = useState(null);
+    const [notFound, setNotFound] = useState(false);
+    const [classFilter, setClassFilter] = useState('');
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const dropdownRef = useRef(null);
+
+    useEffect(() => {
+        if (!dropdownOpen) return;
+        const handler = e => {
+            if (dropdownRef.current && !dropdownRef.current.contains(e.target))
+                setDropdownOpen(false);
+        };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, [dropdownOpen]);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!username.trim()) return;
+        setLoading(true);
+        setResult(null);
+        setBaseResult(null);
+        setError(null);
+        setNotFound(false);
+        setClassFilter('');
+        try {
+            const data = await fetchTrend(username.trim());
+            setResult(data);
+            setBaseResult(data);
+        } catch (err) {
+            if (err.status === 404) setNotFound(true);
+            else setError('Failed to load trend data.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleClassChange = async (classId) => {
+        setClassFilter(classId);
+        setDropdownOpen(false);
+        if (!classId) {
+            setResult(baseResult);
+            return;
+        }
+        setLoading(true);
+        try {
+            setResult(await fetchTrend(result.username, classId));
+        } catch {
+            setError('Failed to load class trend data.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const playedClasses = baseResult
+        ? [...new Map(
+            baseResult.games
+                .filter(g => g.class_id != null)
+                .map(g => [g.class_id, g.class_id])
+          ).values()]
+            .map(id => ({ id, name: getClassName(id), count: baseResult.games.filter(g => g.class_id === id).length }))
+            .filter(c => c.count >= 5)
+            .sort((a, b) => b.count - a.count)
+        : [];
+
+    const activeGames = result?.games ?? [];
+
+    const chartData  = buildChartData(activeGames);
+    const trend      = getTrend(chartData);
+    const trendMeta  = TREND_META[trend];
+    const hasEnough  = activeGames.length >= 5;
+
+    const recentGames    = activeGames.slice(-10);
+    const recentWinRate  = recentGames.length
+        ? Math.round(recentGames.filter(g => g.won).length / recentGames.length * 100)
+        : null;
+    const recentKills    = recentGames.length
+        ? (recentGames.reduce((s, g) => s + g.kills, 0) / recentGames.length).toFixed(1)
+        : null;
+    const overallWinRate = activeGames.length
+        ? Math.round(activeGames.filter(g => g.won).length / activeGames.length * 100)
+        : null;
+    const overallKills   = activeGames.length
+        ? (activeGames.reduce((s, g) => s + g.kills, 0) / activeGames.length).toFixed(1)
+        : null;
+
+    return (
+        <div className="labs-feature">
+            <div className="labs-feature-header">
+                <div className="labs-feature-icon-wrap">
+                    <FaChartArea />
+                </div>
+                <div className="labs-feature-text">
+                    <h2 className="labs-feature-title">Performance Trend</h2>
+                    <p className="labs-feature-desc">
+                        See how a player's win rate has shifted over their last 100 recorded games
+                        and whether they're on an upward or downward trajectory.
+                    </p>
+                </div>
+            </div>
+
+            <form className="labs-form" onSubmit={handleSubmit}>
+                <div className="labs-input-wrap">
+                    <FaSearch className="labs-input-icon" />
+                    <input
+                        className="labs-input"
+                        type="text"
+                        placeholder="Minecraft username..."
+                        value={username}
+                        onChange={e => setUsername(e.target.value)}
+                        autoComplete="off"
+                        spellCheck={false}
+                    />
+                </div>
+                <button className="labs-btn" type="submit" disabled={loading || !username.trim()}>
+                    {loading ? <><span className="labs-spinner" />Loading</> : 'Analyze'}
+                </button>
+            </form>
+
+            {loading && (
+                <div className="labs-scanning">
+                    <div className="labs-scan-line" />
+                    <span className="labs-scan-text">Loading match history<span className="labs-scan-dots" /></span>
+                </div>
+            )}
+
+            {notFound && !loading && (
+                <div className="labs-error labs-error-notfound">No player found with that username.</div>
+            )}
+            {error && !loading && (
+                <div className="labs-error">{error}</div>
+            )}
+
+            {result && !loading && !hasEnough && (
+                <div className="labs-error labs-error-notfound">
+                    {classFilter
+                        ? `Not enough recorded games with ${getClassName(Number(classFilter))} to show a trend. At least 5 are required.`
+                        : 'Not enough recorded games to show a trend. At least 5 are required.'
+                    }
+                </div>
+            )}
+
+            {result && !loading && hasEnough && (
+                <div className="labs-trend-result">
+                    <div className="labs-results-meta">
+                        <span className="labs-results-tag">ANALYSIS COMPLETE</span>
+                        <a className="labs-results-player" href={`/stats/${result.username}`}>{result.username}</a>
+                        {hasEnough && (
+                            <span className="labs-trend-badge" style={{ color: trendMeta.color, borderColor: trendMeta.color }}>
+                                {trendMeta.label}
+                            </span>
+                        )}
+                    </div>
+
+                    {baseResult && (
+                        <div className="labs-trend-dropdown" ref={dropdownRef}>
+                            <button
+                                type="button"
+                                className="labs-trend-dropdown-btn"
+                                onClick={() => setDropdownOpen(o => !o)}
+                            >
+                                <span className="labs-trend-dropdown-selected">
+                                    {classFilter ? getClassName(Number(classFilter)) : 'All classes'}
+                                </span>
+                                <span className="labs-trend-dropdown-count">
+                                    {result.games.length} game{result.games.length !== 1 ? 's' : ''}
+                                </span>
+                                <FaChevronDown className={`labs-trend-dropdown-arrow${dropdownOpen ? ' open' : ''}`} />
+                            </button>
+                            {dropdownOpen && (
+                                <div className="labs-trend-dropdown-menu">
+                                    <button
+                                        type="button"
+                                        className={`labs-trend-dropdown-item${!classFilter ? ' active' : ''}`}
+                                        onClick={() => handleClassChange('')}
+                                    >
+                                        <span>All classes</span>
+                                        <span className="labs-trend-dropdown-item-count">{baseResult.games.length}</span>
+                                    </button>
+                                    {playedClasses.map(c => (
+                                        <button
+                                            key={c.id}
+                                            type="button"
+                                            className={`labs-trend-dropdown-item${classFilter === String(c.id) ? ' active' : ''}`}
+                                            onClick={() => handleClassChange(String(c.id))}
+                                        >
+                                            <span>{c.name}</span>
+                                            <span className="labs-trend-dropdown-item-count">{c.count}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    <div className="labs-trend-chart">
+                        <ResponsiveContainer width="100%" height={200}>
+                            <AreaChart data={chartData} margin={{ top: 8, right: 8, left: 4, bottom: 24 }}>
+                                <defs>
+                                    <linearGradient id="trendGrad" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%"  stopColor={trendMeta.color} stopOpacity={0.25} />
+                                        <stop offset="95%" stopColor={trendMeta.color} stopOpacity={0} />
+                                    </linearGradient>
+                                </defs>
+                                <CartesianGrid stroke="rgba(255,255,255,0.04)" vertical={false} />
+                                <XAxis dataKey="game" ticks={Array.from({ length: Math.floor(chartData.length / 10) }, (_, i) => (i + 1) * 10)} tick={{ fill: '#8a7860', fontSize: 11 }} axisLine={false} tickLine={false} label={{ value: 'Game', fill: '#8a7860', fontSize: 11, position: 'insideBottom', offset: -10, style: { textAnchor: 'middle' } }} />
+                                <YAxis domain={[0, 100]} tick={{ fill: '#8a7860', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `${v}%`} label={{ value: 'Win Rate', angle: -90, fill: '#8a7860', fontSize: 11, position: 'insideLeft', offset: 0, style: { textAnchor: 'middle' } }} />
+                                <Tooltip
+                                    contentStyle={{ background: '#1a1200', border: '1px solid rgba(245,159,11,0.2)', borderRadius: 8, fontSize: '0.85rem' }}
+                                    labelFormatter={v => `Game ${v}`}
+                                    formatter={v => [`${v}%`, 'Win rate (5-game avg)']}
+                                    cursor={{ stroke: 'rgba(255,255,255,0.1)' }}
+                                />
+                                <Area
+                                    type="monotone"
+                                    dataKey="winRate"
+                                    stroke={trendMeta.color}
+                                    strokeWidth={2}
+                                    fill="url(#trendGrad)"
+                                    dot={false}
+                                    activeDot={{ r: 4, fill: trendMeta.color }}
+                                />
+                            </AreaChart>
+                        </ResponsiveContainer>
+                    </div>
+
+                    <div className="labs-trend-stats">
+                        <div className="labs-trend-stat">
+                            <span className="labs-trend-stat-label">Recent win rate</span>
+                            <span className="labs-trend-stat-val">{recentWinRate}%</span>
+                            <span className="labs-trend-stat-sub">last 10 games</span>
+                        </div>
+                        <div className="labs-trend-stat">
+                            <span className="labs-trend-stat-label">Overall win rate</span>
+                            <span className="labs-trend-stat-val">{overallWinRate}%</span>
+                            <span className="labs-trend-stat-sub">all tracked games</span>
+                        </div>
+                        <div className="labs-trend-stat">
+                            <span className="labs-trend-stat-label">Recent kills/game</span>
+                            <span className="labs-trend-stat-val">{recentKills}</span>
+                            <span className="labs-trend-stat-sub">last 10 games</span>
+                        </div>
+                        <div className="labs-trend-stat">
+                            <span className="labs-trend-stat-label">Overall kills/game</span>
+                            <span className="labs-trend-stat-val">{overallKills}</span>
+                            <span className="labs-trend-stat-sub">all tracked games</span>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            <div className="labs-tech-details">
+                <span className="labs-tech-label">How It Works</span>
+                <ul className="labs-tech-list">
+                    <li><span>Rolling average</span>The chart shows a 5-game rolling win rate across your last 100 recorded games. Each point reflects how often you won in the 5 games leading up to it.</li>
+                    <li><span>Trend direction</span>Improving means your recent win rate is at least 10 points higher than your earlier games in this window. Declining is the reverse. Consistent means the two halves are within 10 points of each other.</li>
+                </ul>
+            </div>
+        </div>
+    );
+}
+
+function MatchCard({ prediction, rank }) {
+    return (
+        <div
+            className={`labs-rec-card labs-rec-rank-${Math.min(rank, 3)}`}
+            style={{ animationDelay: `${(rank - 1) * 0.08}s` }}
+        >
+            <span className="labs-rec-rank-num">{rank < 10 ? `0${rank}` : rank}</span>
+            <div className="labs-rec-body">
+                <a className="labs-rec-class" href={`/stats/${prediction.username}`}>
+                    {prediction.username}
+                </a>
+                <div className="labs-rec-bar-track">
+                    <div
+                        className="labs-rec-bar"
+                        style={{
+                            '--pct': `${prediction.win_probability}%`,
+                            animationDelay: `${(rank - 1) * 0.08 + 0.15}s`,
+                        }}
+                    />
+                </div>
+            </div>
+            <span className="labs-rec-confidence">{prediction.win_probability}%</span>
+        </div>
+    );
+}
+
+function MatchPredictor() {
+    const [inputVal, setInputVal] = useState('');
+    const [players, setPlayers] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [result, setResult] = useState(null);
+    const [error, setError] = useState(null);
+
+    const addPlayer = () => {
+        const names = inputVal.trim().split(/\s+/).filter(Boolean);
+        if (!names.length) return;
+        setPlayers(prev => {
+            const existing = new Set(prev.map(p => p.toLowerCase()));
+            const toAdd = names.filter(n => !existing.has(n.toLowerCase()));
+            return [...prev, ...toAdd].slice(0, 8);
+        });
+        setInputVal('');
+        setResult(null);
+        setError(null);
+    };
+
+    const removePlayer = (name) => {
+        setPlayers(prev => prev.filter(p => p !== name));
+        setResult(null);
+        setError(null);
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (players.length < 2) return;
+        setLoading(true);
+        setResult(null);
+        setError(null);
+        try {
+            setResult(await fetchGamePrediction(players));
+        } catch (err) {
+            setError(err.message || 'The ML service is unavailable. Make sure it is running.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="labs-feature">
+            <div className="labs-feature-header">
+                <div className="labs-feature-icon-wrap">
+                    <FaTrophy />
+                </div>
+                <div className="labs-feature-text">
+                    <h2 className="labs-feature-title">Match Predictor</h2>
+                    <p className="labs-feature-desc">
+                        Add 2 to 8 players and see who the model predicts will win.
+                        Trained on historical match outcomes using each player's stats profile.
+                    </p>
+                </div>
+            </div>
+
+            <form className="labs-match-form" onSubmit={handleSubmit}>
+                <div className="labs-match-input-row">
+                    <div className="labs-input-wrap">
+                        <FaSearch className="labs-input-icon" />
+                        <input
+                            className="labs-input"
+                            type="text"
+                            placeholder={players.length >= 8 ? 'Maximum 8 players' : 'Add a player...'}
+                            value={inputVal}
+                            onChange={e => setInputVal(e.target.value.replace(/[^a-zA-Z0-9_ ]/g, ''))}
+                            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addPlayer(); } }}
+                            autoComplete="off"
+                            spellCheck={false}
+                            disabled={players.length >= 8}
+                        />
+                    </div>
+                    <button
+                        type="button"
+                        className="labs-btn"
+                        onClick={addPlayer}
+                        disabled={!inputVal.trim() || players.length >= 8}
+                    >
+                        Add
+                    </button>
+                </div>
+
+                {players.length > 0 && (
+                    <div className="labs-match-chips">
+                        {players.map(name => (
+                            <span key={name} className="labs-match-chip">
+                                {name}
+                                <button
+                                    type="button"
+                                    className="labs-match-chip-remove"
+                                    onClick={() => removePlayer(name)}
+                                >
+                                    ×
+                                </button>
+                            </span>
+                        ))}
+                    </div>
+                )}
+
+                <button
+                    className="labs-btn"
+                    type="submit"
+                    disabled={loading || players.length < 2}
+                >
+                    {loading
+                        ? <><span className="labs-spinner" />Predicting</>
+                        : players.length >= 2
+                            ? `Predict (${players.length} players)`
+                            : 'Add at least 2 players'
+                    }
+                </button>
+            </form>
+
+            {loading && (
+                <div className="labs-scanning">
+                    <div className="labs-scan-line" />
+                    <span className="labs-scan-text">Analyzing matchup<span className="labs-scan-dots" /></span>
+                </div>
+            )}
+
+            {error && !loading && (
+                <div className="labs-error labs-error-notfound">{error}</div>
+            )}
+
+            {result && !loading && (
+                <div className="labs-results">
+                    <div className="labs-results-meta">
+                        <span className="labs-results-tag">PREDICTION COMPLETE</span>
+                    </div>
+                    <div className="labs-rec-list">
+                        {result.predictions.map((p, i) => (
+                            <MatchCard key={p.username} prediction={p} rank={i + 1} />
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            <div className="labs-tech-details">
+                <span className="labs-tech-label">How It Works</span>
+                <ul className="labs-tech-list">
+                    <li><span>Training</span>The model trains on historical matches. For each game, it learns which stat patterns most reliably predict who finishes first.</li>
+                    <li><span>Scoring</span>Each player gets a score based on their stats profile. Win probabilities are derived from those scores relative to the other players in the pool, so they always sum to 100%.</li>
                 </ul>
             </div>
         </div>
@@ -479,14 +1156,30 @@ export function Labs() {
                         </div>
 
                         <p className="labs-sidebar-about">
-                            AI-powered tools built on Minezone player data. Features are experimental
-                            and updated as we collect more data.
+                            Experimental features built on Minezone player data. Prediction tools retrain
+                            daily as new matches are recorded.
                         </p>
 
-                        <p className="labs-sidebar-section-label">Features</p>
+                        <p className="labs-sidebar-section-label">Predictions</p>
 
                         <nav className="labs-sidebar-nav">
-                            {FEATURES.map(f => (
+                            {ML_FEATURES.map(f => (
+                                <button
+                                    key={f.id}
+                                    className={`labs-sidebar-item${active === f.id ? ' active' : ''}${f.available ? '' : ' locked'}`}
+                                    onClick={() => f.available && setActive(f.id)}
+                                >
+                                    <span className="labs-sidebar-item-icon">{f.icon}</span>
+                                    <span className="labs-sidebar-item-label">{f.label}</span>
+                                    {!f.available && <FaLock className="labs-sidebar-lock" />}
+                                </button>
+                            ))}
+                        </nav>
+
+                        <p className="labs-sidebar-section-label" style={{ marginTop: '20px' }}>Tools</p>
+
+                        <nav className="labs-sidebar-nav">
+                            {TOOL_FEATURES.map(f => (
                                 <button
                                     key={f.id}
                                     className={`labs-sidebar-item${active === f.id ? ' active' : ''}${f.available ? '' : ' locked'}`}
@@ -505,6 +1198,9 @@ export function Labs() {
                 <main className="labs-content">
                     {active === 'recommender' && <ClassRecommender />}
                     {active === 'archetype'   && <ArchetypePanel />}
+                    {active === 'predictor'   && <WinPredictor />}
+                    {active === 'match'       && <MatchPredictor />}
+                    {active === 'trend'       && <TrendPanel />}
                 </main>
             </div>
             <Footer />

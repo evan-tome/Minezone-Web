@@ -2,12 +2,12 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     ResponsiveContainer, BarChart, Bar, XAxis, YAxis,
-    Tooltip, Cell, CartesianGrid, Legend,
+    Tooltip, Cell, CartesianGrid, Legend, PieChart, Pie,
 } from 'recharts';
 import { FaUsers, FaGamepad, FaMedal, FaSkull, FaFish, FaFire } from 'react-icons/fa';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
-import { fetchOverview, fetchLevelDistribution, fetchTopByStat, fetchTopClasses, fetchWinRates, fetchAllClassStats } from '../../api/analytics.js';
+import { fetchOverview, fetchLevelDistribution, fetchTopByStat, fetchTopClasses, fetchBottomClasses, fetchWinRates, fetchAllClassStats } from '../../api/analytics.js';
 import { CLASSES } from '../../utils/classes.js';
 import '../../App.css';
 import './Analytics.css';
@@ -169,6 +169,56 @@ function CategoryChart({ data }) {
     );
 }
 
+function CategoryPieChart({ data }) {
+    const total = data.reduce((s, d) => s + d.won, 0);
+    const RADIAN = Math.PI / 180;
+    const renderLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, won }) => {
+        const r = innerRadius + (outerRadius - innerRadius) * 0.5;
+        const x = cx + r * Math.cos(-midAngle * RADIAN);
+        const y = cy + r * Math.sin(-midAngle * RADIAN);
+        const pct = total > 0 ? ((won / total) * 100).toFixed(1) : '0';
+        return (
+            <text x={x} y={y} fill="#fff" textAnchor="middle" dominantBaseline="central" fontSize={13} fontWeight={700}>
+                {pct}%
+            </text>
+        );
+    };
+    return (
+        <ResponsiveContainer width="100%" height={280}>
+            <PieChart>
+                <Pie
+                    data={data}
+                    dataKey="won"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    labelLine={false}
+                    label={renderLabel}
+                >
+                    {data.map(entry => (
+                        <Cell key={entry.name} fill={CATEGORY_COLORS[entry.name] ?? '#888'} />
+                    ))}
+                </Pie>
+                <Tooltip content={({ active, payload }) => {
+                    if (!active || !payload?.length) return null;
+                    const d = payload[0].payload;
+                    const pct = total > 0 ? ((d.won / total) * 100).toFixed(1) : '0.0';
+                    const color = CATEGORY_COLORS[d.name] ?? '#888';
+                    return (
+                        <div className="chart-tooltip">
+                            <p className="chart-tooltip-name" style={{ color, fontWeight: 700 }}>{d.name}</p>
+                            <p className="chart-tooltip-value" style={{ color }}>{pct}% of wins</p>
+                            <p className="chart-tooltip-name">{d.won.toLocaleString()} total wins</p>
+                        </div>
+                    );
+                }} />
+                <Legend wrapperStyle={{ fontSize: '0.85rem', color: 'var(--muted)', paddingTop: '8px' }} />
+            </PieChart>
+        </ResponsiveContainer>
+    );
+}
+
 function WinRateTooltip({ active, payload, label }) {
     if (!active || !payload?.length) return null;
     const d = payload[0].payload;
@@ -199,7 +249,7 @@ function WinRateChart({ data }) {
 
 function ClassesChart({ data }) {
     return (
-        <ResponsiveContainer width="100%" height={420}>
+        <ResponsiveContainer width="100%" height={560}>
             <BarChart layout="vertical" data={data} margin={{ left: 8, right: 24, top: 4, bottom: 4 }}>
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--border)" />
                 <XAxis type="number" tick={{ fill: 'var(--muted)', fontSize: 12 }} axisLine={false} tickLine={false} />
@@ -220,8 +270,10 @@ export function Analytics() {
     const [topStreak, setTopStreak]   = useState([]);
     const [topFish, setTopFish]       = useState([]);
     const [levels, setLevels]         = useState([]);
-    const [classes, setClasses]       = useState([]);
-    const [classSort, setClassSort]   = useState('played');
+    const [classes, setClasses]           = useState([]);
+    const [classSort, setClassSort]       = useState('played');
+    const [bottomClasses, setBottomClasses] = useState([]);
+    const [bottomClassSort, setBottomClassSort] = useState('won');
     const [winRates, setWinRates]         = useState([]);
     const [classCategories, setClassCategories] = useState([]);
 
@@ -250,6 +302,14 @@ export function Analytics() {
 
         fetchTopClasses().then(d =>
             setClasses(d.map(c => ({
+                name: getClassName(c.ClassID),
+                played: Number(c.totalPlayed),
+                won: Number(c.totalWon ?? 0),
+            })))
+        ).catch(() => {});
+
+        fetchBottomClasses().then(d =>
+            setBottomClasses(d.map(c => ({
                 name: getClassName(c.ClassID),
                 played: Number(c.totalPlayed),
                 won: Number(c.totalWon ?? 0),
@@ -329,6 +389,12 @@ export function Analytics() {
                         </ChartCard>
                     )}
 
+                    {classCategories.length > 0 && (
+                        <ChartCard title="% of Total Wins by Category">
+                            <CategoryPieChart data={classCategories} />
+                        </ChartCard>
+                    )}
+
                     {winRates.length > 0 && (
                         <ChartCard title="Top Win Rates (min. 20 games)" full>
                             <WinRateChart data={winRates} />
@@ -337,8 +403,7 @@ export function Analytics() {
 
                     {classes.length > 0 && (
                         <ChartCard
-                            title="Top Classes — Games Played vs Won"
-                            full
+                            title="Most Wins by Class"
                             action={
                                 <div className="chart-sort-toggle">
                                     <button
@@ -358,6 +423,32 @@ export function Analytics() {
                         >
                             <ClassesChart
                                 data={[...classes].sort((a, b) => b[classSort] - a[classSort])}
+                            />
+                        </ChartCard>
+                    )}
+
+                    {bottomClasses.length > 0 && (
+                        <ChartCard
+                            title="Least Wins by Class"
+                            action={
+                                <div className="chart-sort-toggle">
+                                    <button
+                                        className={bottomClassSort === 'won' ? 'active' : ''}
+                                        onClick={() => setBottomClassSort('won')}
+                                    >
+                                        By Won
+                                    </button>
+                                    <button
+                                        className={bottomClassSort === 'played' ? 'active' : ''}
+                                        onClick={() => setBottomClassSort('played')}
+                                    >
+                                        By Played
+                                    </button>
+                                </div>
+                            }
+                        >
+                            <ClassesChart
+                                data={[...bottomClasses].sort((a, b) => a[bottomClassSort] - b[bottomClassSort])}
                             />
                         </ChartCard>
                     )}
