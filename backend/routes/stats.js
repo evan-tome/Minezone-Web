@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const con = require('../db');
+const { getPlayerProfile } = require('../cache');
+const db = con.promise();
 
 router.get('/', (req, res) => {
-    const limit = Number.parseInt(req.query.limit) || 10;
+    const limit = Math.min(Number.parseInt(req.query.limit) || 10, 5000);
     const offset = Number.parseInt(req.query.offset) || 0;
 
     const sql = `
@@ -89,8 +91,115 @@ router.get('/recent-matches', (req, res) => {
             });
         }
 
+        res.setHeader('Cache-Control', 'public, max-age=30');
         res.json({ matches: Array.from(gamesMap.values()) });
     });
+});
+
+router.get('/match/:id', (req, res) => {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) return res.status(400).json({ error: 'Invalid match ID' });
+
+    const sql = `
+        SELECT g.game_id, g.game_type, g.map_name, g.end_time, g.game_duration_minutes,
+               gp.class_id, gp.placement, gp.kills, gp.deaths, gp.lives, gp.firstblood, gp.winner,
+               pd.LastPlayerName, pd.UUID, pd.Level, pd.RoleID
+        FROM scb_games g
+        JOIN scb_game_players gp ON g.game_id = gp.game_id
+        JOIN PlayerData pd ON gp.uuid = pd.UUID
+        WHERE g.game_id = ?
+        ORDER BY gp.placement ASC
+    `;
+    con.query(sql, [id], (err, rows) => {
+        if (err) return res.status(500).json({ error: 'Database error' });
+        if (rows.length === 0) return res.status(404).json({ error: 'Match not found' });
+
+        const first = rows[0];
+        const match = {
+            game_id: first.game_id,
+            game_type: first.game_type,
+            map_name: first.map_name,
+            end_time: first.end_time,
+            game_duration_minutes: first.game_duration_minutes,
+            players: rows.map(row => ({
+                uuid: row.UUID,
+                username: row.LastPlayerName,
+                class_id: row.class_id,
+                placement: row.placement,
+                kills: row.kills,
+                deaths: row.deaths,
+                lives: row.lives,
+                first_blood: row.firstblood === 1 || row.firstblood === true,
+                winner: row.winner === 1 || row.winner === true,
+                level: row.Level,
+                role_id: row.RoleID,
+            })),
+        };
+
+        res.setHeader('Cache-Control', 'public, max-age=3600');
+        res.json(match);
+    });
+});
+
+router.get('/:username/profile', async (req, res) => {
+    const { username } = req.params;
+    try {
+        const data = await getPlayerProfile(username, async () => {
+            const playerSql = `
+                SELECT
+                    pd.UUID, pd.LastPlayerName, pd.RoleID, pd.Tokens, pd.Wins, pd.Kills,
+                    pd.Deaths, pd.FlawlessWins, pd.Losses, pd.Winstreak, pd.BestWinstreak,
+                    pd.Exp, pd.Level, pd.MatchMvps, pd.TotalCaught,
+                    COUNT(DISTINCT pf.UUID) AS UniqueCaught,
+                    (SELECT pc.ClassID FROM PlayerClasses pc WHERE pc.UUID = pd.UUID ORDER BY pc.GamesPlayed DESC LIMIT 1) AS FavClassID
+                FROM PlayerData pd
+                LEFT JOIN PlayerFishing pf ON pd.UUID = pf.UUID
+                WHERE pd.LastPlayerName = ?
+                GROUP BY pd.UUID
+            `;
+            const [playerRows] = await db.query(playerSql, [username]);
+            if (!playerRows.length) {
+                const err = new Error('Player not found');
+                err.status = 404;
+                throw err;
+            }
+            const { FavClassID, ...player } = playerRows[0];
+            const { UUID } = player;
+
+            // Use UUID directly — no PlayerData JOIN needed
+            const [[parkourRows], [gameRows]] = await Promise.all([
+                db.query(
+                    `SELECT pp.ParkourID, pp.TotalTime
+                     FROM PlayerParkour pp
+                     WHERE pp.UUID = ?
+                     ORDER BY pp.TotalTime ASC`,
+                    [UUID]
+                ),
+                db.query(
+                    `SELECT g.game_id, g.game_type, g.map_name, g.end_time, g.game_duration_minutes,
+                            gp.class_id, gp.placement, gp.kills, gp.deaths, gp.lives, gp.firstblood, gp.winner
+                     FROM scb_game_players gp
+                     JOIN scb_games g ON gp.game_id = g.game_id
+                     WHERE gp.uuid = ?
+                     ORDER BY g.game_id DESC
+                     LIMIT 3`,
+                    [UUID]
+                ),
+            ]);
+
+            return {
+                player,
+                favclass: { ClassID: FavClassID ?? null },
+                parkour: parkourRows,
+                games: gameRows,
+            };
+        });
+        res.setHeader('Cache-Control', 'public, max-age=60');
+        res.json(data);
+    } catch (err) {
+        if (err.status === 404) return res.status(404).json({ error: 'Player not found' });
+        res.status(500).json({ error: 'Database error' });
+    }
 });
 
 router.get('/:username', (req, res) => {
@@ -212,6 +321,57 @@ router.get('/:username/archetype', async (req, res) => {
     const { username } = req.params;
     try {
         const r = await fetch(`${ML_URL}/archetype/${encodeURIComponent(username)}`);
+        const data = await r.json();
+        if (!r.ok) return res.status(r.status).json(data);
+        res.json(data);
+    } catch {
+        res.status(503).json({ error: 'ML service unavailable' });
+    }
+});
+
+router.get('/:username/predict-win', async (req, res) => {
+    const { username } = req.params;
+    try {
+        const r = await fetch(`${ML_URL}/predict-win/${encodeURIComponent(username)}`);
+        const data = await r.json();
+        if (!r.ok) return res.status(r.status).json(data);
+        res.json(data);
+    } catch {
+        res.status(503).json({ error: 'ML service unavailable' });
+    }
+});
+
+router.get('/:username/trend', async (req, res) => {
+    const { username } = req.params;
+    const classId = req.query.class_id ? parseInt(req.query.class_id) : null;
+    try {
+        const [players] = await db.query(
+            'SELECT UUID, LastPlayerName FROM PlayerData WHERE LastPlayerName = ? LIMIT 1',
+            [username]
+        );
+        if (!players.length) return res.status(404).json({ error: 'Player not found' });
+        const player = players[0];
+        const sql = classId
+            ? `SELECT game_id, IF(placement = 1, 1, 0) AS won, kills, class_id
+               FROM scb_game_players WHERE uuid = ? AND class_id = ?
+               ORDER BY game_id DESC LIMIT 100`
+            : `SELECT game_id, IF(placement = 1, 1, 0) AS won, kills, class_id
+               FROM scb_game_players WHERE uuid = ?
+               ORDER BY game_id DESC LIMIT 100`;
+        const [games] = await db.query(sql, classId ? [player.UUID, classId] : [player.UUID]);
+        res.json({ username: player.LastPlayerName, games: games.reverse() });
+    } catch {
+        res.status(500).json({ error: 'Database error' });
+    }
+});
+
+router.post('/predict-game', async (req, res) => {
+    try {
+        const r = await fetch(`${ML_URL}/predict-game`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(req.body),
+        });
         const data = await r.json();
         if (!r.ok) return res.status(r.status).json(data);
         res.json(data);

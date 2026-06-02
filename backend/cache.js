@@ -28,7 +28,7 @@ function getLeaderboard(category) {
 
     pending[category] = new Promise((resolve, reject) => {
         const sql = `
-            SELECT UUID, LastPlayerName, Wins, FlawlessWins, Kills, BestWinstreak, TotalCaught, Level
+            SELECT UUID, LastPlayerName, RoleID, Wins, FlawlessWins, Kills, BestWinstreak, TotalCaught, Level
             FROM PlayerData
             WHERE ${column} > 0
             ORDER BY ${column} DESC
@@ -50,4 +50,32 @@ function getLeaderboard(category) {
     return pending[category];
 }
 
-module.exports = { CATEGORY_MAP, getLeaderboard };
+const PLAYER_TTL = 60 * 1000;
+const playerCache = {};
+const playerFetch = {};
+const playerPending = {};
+
+function getPlayerProfile(username, fetcher) {
+    const key = username.toLowerCase();
+    const now = Date.now();
+    if (playerCache[key] && (now - playerFetch[key] < PLAYER_TTL)) {
+        return Promise.resolve(playerCache[key]);
+    }
+    if (playerPending[key]) return playerPending[key];
+
+    playerPending[key] = fetcher()
+        .then(data => {
+            playerCache[key] = data;
+            playerFetch[key] = Date.now();
+            playerPending[key] = null;
+            return data;
+        })
+        .catch(err => {
+            playerPending[key] = null;
+            throw err;
+        });
+
+    return playerPending[key];
+}
+
+module.exports = { CATEGORY_MAP, getLeaderboard, getPlayerProfile };

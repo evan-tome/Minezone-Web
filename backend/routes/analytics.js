@@ -9,14 +9,11 @@ function makeCache(query) {
     let lastFetch = 0;
     let pending = null;
 
-    return function get(res) {
+    return function get() {
         const now = Date.now();
-        if (cached && now - lastFetch < CACHE_TTL) {
-            return res.json(cached);
-        }
-        if (pending) {
-            return pending.then(data => res.json(data)).catch(() => res.status(500).json({ error: 'Database error' }));
-        }
+        if (cached && now - lastFetch < CACHE_TTL) return Promise.resolve(cached);
+        if (pending) return pending;
+
         pending = new Promise((resolve, reject) => {
             con.query(query, (err, result) => {
                 pending = null;
@@ -27,7 +24,8 @@ function makeCache(query) {
                 resolve(data);
             });
         });
-        pending.then(data => res.json(data)).catch(() => res.status(500).json({ error: 'Database error' }));
+
+        return pending;
     };
 }
 
@@ -59,7 +57,19 @@ const getTopClasses = makeCache(`
     FROM PlayerClasses
     GROUP BY ClassID
     ORDER BY totalPlayed DESC
-    LIMIT 15
+    LIMIT 20
+`);
+
+const getBottomClasses = makeCache(`
+    SELECT
+        ClassID,
+        SUM(GamesPlayed) AS totalPlayed,
+        SUM(GamesWon)    AS totalWon
+    FROM PlayerClasses
+    GROUP BY ClassID
+    HAVING totalPlayed > 0
+    ORDER BY totalWon ASC
+    LIMIT 20
 `);
 
 const getAllClassStats = makeCache(`
@@ -84,10 +94,20 @@ const getWinRates = makeCache(`
     LIMIT 15
 `);
 
-router.get('/overview',             (req, res) => getOverview(res));
-router.get('/distribution/levels',  (req, res) => getLevelDistribution(res));
-router.get('/top-classes',          (req, res) => getTopClasses(res));
-router.get('/winrates',             (req, res) => getWinRates(res));
-router.get('/all-class-stats',      (req, res) => getAllClassStats(res));
+function send(getter, req, res) {
+    getter()
+        .then(data => {
+            res.setHeader('Cache-Control', 'public, max-age=300');
+            res.json(data);
+        })
+        .catch(() => res.status(500).json({ error: 'Database error' }));
+}
+
+router.get('/overview',             (req, res) => send(getOverview, req, res));
+router.get('/distribution/levels',  (req, res) => send(getLevelDistribution, req, res));
+router.get('/top-classes',          (req, res) => send(getTopClasses, req, res));
+router.get('/bottom-classes',       (req, res) => send(getBottomClasses, req, res));
+router.get('/winrates',             (req, res) => send(getWinRates, req, res));
+router.get('/all-class-stats',      (req, res) => send(getAllClassStats, req, res));
 
 module.exports = router;

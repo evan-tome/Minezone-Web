@@ -60,4 +60,29 @@ router.get('/status', (req, res) => {
         .catch(() => res.status(500).json({ error: 'Failed to reach server' }));
 });
 
+const sseClients = new Set();
+
+function broadcast(data) {
+    const msg = `data: ${JSON.stringify(data)}\n\n`;
+    for (const res of sseClients) res.write(msg);
+}
+
+setInterval(() => {
+    fetchStatus().then(broadcast).catch(() => {});
+}, CACHE_TTL);
+
+router.get('/status/stream', (req, res) => {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders();
+
+    fetchStatus()
+        .then(data => res.write(`data: ${JSON.stringify(data)}\n\n`))
+        .catch(() => {});
+
+    sseClients.add(res);
+    req.on('close', () => sseClients.delete(res));
+});
+
 module.exports = router;

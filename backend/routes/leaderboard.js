@@ -10,7 +10,10 @@ router.get('/', (req, res) => {
     }
 
     getLeaderboard(category)
-        .then(data => res.status(200).json(data))
+        .then(data => {
+            res.setHeader('Cache-Control', 'public, max-age=60');
+            res.status(200).json(data);
+        })
         .catch(err => res.status(500).json({ error: err.message }));
 });
 
