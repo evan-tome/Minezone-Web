@@ -5,7 +5,7 @@ import { fetchRecommendation, fetchArchetype, fetchWinPrediction, fetchGamePredi
 import { CLASSES } from '../../utils/classes.js';
 import './Labs.css';
 import {
-    FaFlask, FaLightbulb, FaUser, FaChartLine,
+    FaFlask, FaLightbulb, FaUser, FaChartLine, FaCloud,
     FaFire, FaLock, FaSearch, FaSkull, FaCrown, FaBolt, FaStar, FaTrophy, FaChartArea, FaChevronDown,
 } from 'react-icons/fa';
 import {
@@ -170,7 +170,7 @@ function ClassRecommender() {
 }
 
 const ARCHETYPE_META = {
-    regular:    { icon: <FaUser />,  color: '#6b7280', tagline: 'High game count, low output' },
+    regular:    { icon: <FaCloud />, color: '#6b7280', tagline: 'High game count, low output' },
     phantom:    { icon: <FaBolt />,  color: '#8b5cf6', tagline: 'Wins without dying. High flawless rate.' },
     ace:        { icon: <FaCrown />, color: '#f59e0b', tagline: 'High MVP rate and first blood rate' },
     slayer:     { icon: <FaSkull />, color: '#ef4444', tagline: 'High K/D ratio and kills per game' },
@@ -330,7 +330,7 @@ function ArchetypePanel() {
             <div className="labs-tech-details">
                 <span className="labs-tech-label">How It Works</span>
                 <ul className="labs-tech-list">
-                    <li><span>Archetypes</span>Five playstyle profiles: Slayer (high K/D and kills per game), Phantom (high flawless win rate), Ace (high MVP rate and first bloods), All-Rounder (balanced across all stats), and Regular (high game count with below-average performance).</li>
+                    <li><span>Archetypes</span>Five playstyle profiles: Slayer (high K/D and kills per game), Phantom (high flawless win rate), Ace (high MVP rate and first bloods), All-Rounder (balanced across all stats), and Coaster (high game count with below-average performance).</li>
                     <li><span>Scoring</span>Each stat is converted to a server-wide percentile rank, then scored against each archetype's profile. The archetype with the highest score wins.</li>
                     <li><span>Game data</span>Where available, per-game kill data from recorded matches is used instead of the lifetime kills stat for better accuracy.</li>
                 </ul>

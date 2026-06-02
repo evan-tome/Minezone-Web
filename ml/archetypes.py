@@ -3,7 +3,7 @@ import numpy as np
 ARCHETYPES = [
     {
         'id':    'regular',
-        'name':  'Regular',
+        'name':  'Coaster',
         'desc':  'Always in the lobby. Clocks more games than most. The wins and kills will come.',
         'weights': None,  # custom scoring: games_pct × (1 - avg_performance)
     },

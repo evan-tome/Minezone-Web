@@ -831,13 +831,13 @@
 .labs-arch-row-name {
     font-size: 0.85rem;
     font-weight: 600;
-    color: #94a3b8;
+    color: var(--labs-text-2);
     line-height: 1;
 }
 
 .labs-arch-row-tagline {
     font-size: 0.9rem;
-    color: #8a7860;
+    color: var(--labs-text-3);
     line-height: 1;
 }
 
