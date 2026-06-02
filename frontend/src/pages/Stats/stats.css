@@ -130,7 +130,7 @@
 
 .stats-labs-callout-inner p {
     font-size: 1rem;
-    color: #999;
+    color: var(--text);
     margin: 0;
     max-width: 400px;
     line-height: 1.6;
