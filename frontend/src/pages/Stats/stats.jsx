@@ -1,6 +1,6 @@
 import '../../App.css';
 import './Stats.css'
-import { FaFlask } from 'react-icons/fa';
+import { FaFlask, FaUsers, FaGamepad } from 'react-icons/fa';
 import Navbar from "../../components/Navbar";
 import Searchbar from './Searchbar';
 import PlayerStats from './PlayerStats';
@@ -10,6 +10,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
 import Footer from '../../components/Footer';
 import { fetchProfile, fetchRecentMatches } from '../../api/stats.js';
+import { fetchOverview } from '../../api/analytics.js';
 
 export function Stats() {
     const [tab, setTab] = useState('players');
@@ -18,10 +19,12 @@ export function Stats() {
     const [recentMatches, setRecentMatches] = useState([]);
     const [matchesLoading, setMatchesLoading] = useState(true);
     const [matchesError, setMatchesError] = useState(null);
+    const [overview, setOverview] = useState(null);
 
     const navigate = useNavigate();
     const { username } = useParams();
     useEffect(() => {
+        fetchOverview().then(setOverview).catch(() => {});
         fetchRecentMatches()
             .then(data => {
                 setRecentMatches(data?.matches ?? []);
@@ -89,14 +92,30 @@ export function Stats() {
                         {playerData && <PlayerStats player={playerData} />}
                     </div>
                     {!playerData && !error && (
-                        <div className="stats-labs-callout">
-                            <div className="stats-labs-callout-inner">
-                                <FaFlask className="stats-labs-callout-icon" />
-                                <h2>Want deeper insights?</h2>
-                                <p>Explore AI tools that analyze real match data to help you understand how you play and make recommendations.</p>
-                                <a href="/labs" className="stats-labs-callout-btn">Try Labs</a>
+                        <>
+                            {overview && (
+                                <div className="stats-overview-grid">
+                                    <div className="stat-card">
+                                        <span className="stat-card-icon"><FaUsers /></span>
+                                        <span className="stat-card-value">{Number(overview.totalPlayers).toLocaleString()}</span>
+                                        <span className="stat-card-label">Total Players</span>
+                                    </div>
+                                    <div className="stat-card">
+                                        <span className="stat-card-icon"><FaGamepad /></span>
+                                        <span className="stat-card-value">{Number(overview.totalGames).toLocaleString()}</span>
+                                        <span className="stat-card-label">Games Played</span>
+                                    </div>
+                                </div>
+                            )}
+                            <div className="stats-labs-callout">
+                                <div className="stats-labs-callout-inner">
+                                    <FaFlask className="stats-labs-callout-icon" />
+                                    <h2>Want deeper insights?</h2>
+                                    <p>Explore AI tools that analyze real match data to help you understand how you play and make recommendations.</p>
+                                    <a href="/labs" className="stats-labs-callout-btn">Try Labs</a>
+                                </div>
                             </div>
-                        </div>
+                        </>
                     )}
                 </>}
 
