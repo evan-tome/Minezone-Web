@@ -2,49 +2,51 @@ import numpy as np
 
 ARCHETYPES = [
     {
+        'id':    'regular',
+        'name':  'Regular',
+        'desc':  'Always in the lobby. Clocks more games than most. The wins and kills will come.',
+        'weights': None,  # custom scoring: games_pct × (1 - avg_performance)
+    },
+    {
+        'id':    'phantom',
+        'name':  'Phantom',
+        'desc':  'Wins without dying. Slips through matches clean and is nearly impossible to pin down.',
+        'weights': {'flawless_rate': 4.0},
+    },
+    {
+        'id':    'ace',
+        'name':  'Ace',
+        'desc':  'Always the standout player. Gets first blood, earns the MVP, and does it consistently.',
+        'weights': {'mvp_rate': 2.5, 'first_blood_rate': 1.5},
+    },
+    {
         'id':    'slayer',
         'name':  'Slayer',
-        'desc':  'Racks up kills every match. Aggressive, hard to ignore in a fight, and always in the action.',
+        'desc':  'Racks up kills every game. Aggressive, relentless, and always in the thick of the fight.',
         'weights': {'kdr': 2.0, 'kills_pg': 2.0},
-    },
-    {
-        'id':    'tactician',
-        'name':  'Tactician',
-        'desc':  'Wins more than raw stats suggest. Smart positioning and class reads over brute force.',
-        'weights': {'wlr': 2.0, 'flawless_rate': 1.5, 'mvp_rate': 0.5},
-    },
-    {
-        'id':    'clutch',
-        'name':  'Clutch',
-        'desc':  'Performs when it counts. Known for standout games, long streaks, and MVP moments.',
-        'weights': {'mvp_rate': 2.0, 'streak_ratio': 1.5, 'flawless_rate': 0.5},
-    },
-    {
-        'id':    'veteran',
-        'name':  'Veteran',
-        'desc':  'High level with plenty of games behind them. Has seen most situations and knows how to handle them.',
-        'weights': {'level': 2.5, 'games': 1.5},
     },
     {
         'id':    'allrounder',
         'name':  'All-Rounder',
-        'desc':  'No glaring weaknesses. Comfortable in any situation and adapts to whatever the match demands.',
-        'weights': None,
+        'desc':  'No obvious weakness. Holds their own across every stat that matters.',
+        'weights': None,  # custom scoring: avg_pct × balance
     },
 ]
 
 STAT_LABELS = {
-    'kdr':           'K/D Ratio',
-    'wlr':           'Win Rate',
-    'flawless_rate': 'Flawless Rate',
-    'mvp_rate':      'MVP Rate',
-    'kills_pg':      'Kills Per Game',
-    'streak_ratio':  'Winstreak Ratio',
-    'level':         'Level',
-    'games':         'Games Played',
+    'kdr':              'K/D Ratio',
+    'wlr':              'Win Rate',
+    'flawless_rate':    'Flawless Rate',
+    'mvp_rate':         'MVP Rate',
+    'kills_pg':         'Kills Per Game',
+    'first_blood_rate': 'First Blood Rate',
+    'games':            'Games Played',
 }
 
 WEIGHT_TOTAL = 4.0
+
+# Stats used to measure "performance" for the Regular archetype check
+_PERF_KEYS = ['kdr', 'wlr', 'mvp_rate', 'first_blood_rate']
 
 
 class ArchetypeClassifier:
@@ -57,18 +59,17 @@ class ArchetypeClassifier:
         return self._trained
 
     def _compute_stats(self, wins, losses, kills, deaths,
-                       flawless_wins, match_mvps, level, best_winstreak,
-                       avg_kills_pg=None):
+                       flawless_wins, match_mvps,
+                       avg_kills_pg=None, first_bloods=None):
         total = wins + losses
         return {
-            'kdr':           kills / max(deaths, 1),
-            'wlr':           wins / max(total, 1),
-            'flawless_rate': flawless_wins / max(wins, 1),
-            'mvp_rate':      match_mvps / max(total, 1),
-            'kills_pg':      avg_kills_pg if avg_kills_pg is not None else kills / max(total, 1),
-            'streak_ratio':  best_winstreak / max(wins, 1),
-            'level':         float(level),
-            'games':         float(total),
+            'kdr':              kills / max(deaths, 1),
+            'wlr':              wins / max(total, 1),
+            'flawless_rate':    flawless_wins / max(wins, 1),
+            'mvp_rate':         match_mvps / max(total, 1),
+            'kills_pg':         avg_kills_pg if avg_kills_pg is not None else kills / max(total, 1),
+            'first_blood_rate': (first_bloods or 0) / max(total, 1),
+            'games':            float(total),
         }
 
     def train(self, conn):
@@ -77,8 +78,9 @@ class ArchetypeClassifier:
             SELECT
                 pd.UUID,
                 pd.Wins, pd.Losses, pd.Kills, pd.Deaths,
-                pd.FlawlessWins, pd.MatchMvps, pd.Level, pd.BestWinstreak,
-                AVG(gp.kills) AS avg_kills_pg
+                pd.FlawlessWins, pd.MatchMvps,
+                AVG(gp.kills) AS avg_kills_pg,
+                SUM(gp.firstblood) AS first_bloods
             FROM PlayerData pd
             LEFT JOIN scb_game_players gp ON gp.uuid = pd.UUID
             WHERE (pd.Wins + pd.Losses) >= 10
@@ -94,8 +96,9 @@ class ArchetypeClassifier:
         all_stats = [
             self._compute_stats(
                 r['Wins'], r['Losses'], r['Kills'], r['Deaths'],
-                r['FlawlessWins'], r['MatchMvps'], r['Level'], r['BestWinstreak'],
+                r['FlawlessWins'], r['MatchMvps'],
                 float(r['avg_kills_pg']) if r['avg_kills_pg'] is not None else None,
+                int(r['first_bloods']) if r['first_bloods'] is not None else 0,
             )
             for r in rows
         ]
@@ -121,23 +124,30 @@ class ArchetypeClassifier:
         return lo / len(dist)
 
     def classify(self, wins, losses, kills, deaths,
-                 flawless_wins, match_mvps, level, best_winstreak,
-                 avg_kills_pg=None):
+                 flawless_wins, match_mvps,
+                 avg_kills_pg=None, first_bloods=None):
         if not self.ready:
             return None
 
         stats = self._compute_stats(wins, losses, kills, deaths,
-                                    flawless_wins, match_mvps, level, best_winstreak,
-                                    avg_kills_pg)
+                                    flawless_wins, match_mvps,
+                                    avg_kills_pg, first_bloods)
         pct = {k: self._percentile(k, v) for k, v in stats.items()}
 
-        radar_keys = ['kdr', 'wlr', 'flawless_rate', 'mvp_rate', 'level']
+        radar_keys = ['kdr', 'wlr', 'flawless_rate', 'mvp_rate', 'first_blood_rate']
 
         raw = {}
         for arch in ARCHETYPES:
-            if arch['id'] == 'allrounder':
+            if arch['id'] == 'regular':
+                # High only when game count is elite AND performance is below average.
+                # Good players are pulled away by their performance archetypes.
+                avg_perf = float(np.mean([pct.get(k, 0.5) for k in _PERF_KEYS]))
+                raw['regular'] = pct.get('games', 0.5) * WEIGHT_TOTAL * max(0.0, 1.0 - avg_perf)
+            elif arch['id'] == 'allrounder':
+                # Weight by avg performance so uniformly-bad players don't qualify.
+                avg_pct = float(np.mean([pct[k] for k in radar_keys]))
                 variance = float(np.var([pct[k] for k in radar_keys]))
-                raw['allrounder'] = WEIGHT_TOTAL * max(0.0, 1.0 - 4.0 * variance)
+                raw['allrounder'] = WEIGHT_TOTAL * avg_pct * max(0.0, 1.0 - 6.0 * variance)
             else:
                 raw[arch['id']] = sum(pct.get(s, 0.5) * w for s, w in arch['weights'].items())
 

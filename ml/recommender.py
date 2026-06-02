@@ -1,33 +1,35 @@
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
-from collections import Counter
+
+EXCLUDED_CLASSES = {25, 37, 38, 42, 43, 65, 69, 101, 102, 103, 104, 105}
+BAYESIAN_ALPHA = 5
+
+# Non-vaulted class IDs — must match frontend classes.js
+VALID_CLASS_IDS = {
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+    21, 22, 23, 24, 26, 28, 29, 30, 31, 32, 33, 34, 35, 36, 41, 44, 45, 46,
+    47, 48, 49, 50, 51, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 66,
+    67, 68, 70, 71, 72,
+}
 
 
 class ClassRecommender:
     def __init__(self):
-        self._model = None
+        self._model = None        # RF — used to suggest unexplored classes
         self._scaler = None
-        self._feature_names = [
-            "kd_ratio",
-            "win_ratio",
-            "flawless_ratio",
-            "mvp_rate",
-            "level",
-            "winstreak_per_win"
-        ]
+        self._class_avg_wr = {}   # ClassID → avg win rate across all players (Bayesian prior)
 
     @property
     def ready(self):
-        return self._model is not None
+        return self._model is not None and bool(self._class_avg_wr)
 
     # -----------------------------
-    # FEATURE ENGINEERING
+    # HELPERS
     # -----------------------------
-    def _feature_vec(self, wins, losses, kills, deaths,
-                     flawless_wins, match_mvps,
-                     level, best_winstreak):
 
+    def _player_features(self, wins, losses, kills, deaths,
+                         flawless_wins, match_mvps, level, best_winstreak):
         wins = wins or 0
         losses = losses or 0
         kills = kills or 0
@@ -36,67 +38,86 @@ class ClassRecommender:
         match_mvps = match_mvps or 0
         level = level or 0
         best_winstreak = best_winstreak or 0
-
         total = wins + losses
-
         return [
-            kills / max(deaths, 1),              # kd_ratio
-            wins / max(total, 1),                # win_ratio
-            flawless_wins / max(wins, 1),        # flawless_ratio
-            match_mvps / max(total, 1),          # mvp_rate
-            float(level),                        # level
-            best_winstreak / max(wins, 1),       # winstreak_per_win
+            kills / max(deaths, 1),
+            wins / max(total, 1),
+            flawless_wins / max(wins, 1),
+            match_mvps / max(total, 1),
+            float(level),
+            best_winstreak / max(wins, 1),
         ]
+
+    def _bayesian_wr(self, class_id, games_played, games_won):
+        avg = self._class_avg_wr.get(class_id, 0.5)
+        return (games_won + BAYESIAN_ALPHA * avg) / (games_played + BAYESIAN_ALPHA)
 
     # -----------------------------
     # TRAINING
     # -----------------------------
+
     def train(self, conn):
         cursor = conn.cursor(dictionary=True)
 
-        # IMPORTANT: compute best class per player properly
         cursor.execute("""
-            SELECT
-                pd.UUID,
-                pd.Wins,
-                pd.Losses,
-                pd.Kills,
-                pd.Deaths,
-                pd.FlawlessWins,
-                pd.MatchMvps,
-                pd.Level,
-                pd.BestWinstreak,
-                (
-                    SELECT pc.ClassID
-                    FROM PlayerClasses pc
-                    WHERE pc.UUID = pd.UUID
-                      AND pc.GamesPlayed >= 5
-                      AND pc.ClassID NOT IN (25, 37, 38, 42, 43, 65, 69, 101, 102, 103, 104, 105)
-                    ORDER BY (pc.GamesWon / NULLIF(pc.GamesPlayed, 0)) DESC
-                    LIMIT 1
-                ) AS BestClass
-            FROM PlayerData pd
-            WHERE (pd.Wins + pd.Losses) >= 10
+            SELECT UUID, ClassID, GamesPlayed, GamesWon
+            FROM PlayerClasses
+            WHERE ClassID NOT IN (25, 37, 38, 42, 43, 65, 69, 101, 102, 103, 104, 105)
+              AND GamesPlayed >= 5
         """)
+        all_class_rows = cursor.fetchall()
 
-        rows = cursor.fetchall()
+        if not all_class_rows:
+            print("No class data found for training")
+            return
+
+        # Compute per-class average win rates, restricted to valid IDs
+        wr_sums, wr_counts = {}, {}
+        for row in all_class_rows:
+            cid = int(row['ClassID'])
+            if cid not in VALID_CLASS_IDS:
+                continue
+            wr = row['GamesWon'] / row['GamesPlayed']
+            wr_sums[cid] = wr_sums.get(cid, 0.0) + wr
+            wr_counts[cid] = wr_counts.get(cid, 0) + 1
+
+        self._class_avg_wr = {cid: wr_sums[cid] / wr_counts[cid] for cid in wr_sums}
+
+        # Group class rows by player, keeping only valid class IDs
+        player_classes = {}
+        for row in all_class_rows:
+            cid = int(row['ClassID'])
+            if cid in VALID_CLASS_IDS:
+                player_classes.setdefault(row['UUID'], []).append(row)
+
+        uuids = list(player_classes.keys())
+        fmt = ','.join(['%s'] * len(uuids))
+        cursor.execute(
+            f"""
+            SELECT UUID, Wins, Losses, Kills, Deaths, FlawlessWins, MatchMvps, Level, BestWinstreak
+            FROM PlayerData
+            WHERE UUID IN ({fmt}) AND (Wins + Losses) >= 10
+            """,
+            uuids,
+        )
+        players = {row['UUID']: row for row in cursor.fetchall()}
         cursor.close()
 
-        X = []
-        y = []
-
-        for row in rows:
-            if row["BestClass"] is None:
+        X, y = [], []
+        for uuid, classes in player_classes.items():
+            if uuid not in players:
                 continue
+            p = players[uuid]
 
-            X.append(self._feature_vec(
-                row['Wins'], row['Losses'],
-                row['Kills'], row['Deaths'],
-                row['FlawlessWins'], row['MatchMvps'],
-                row['Level'], row['BestWinstreak']
+            # Label = Bayesian best class (more reliable than raw win rate for small samples)
+            best = max(classes, key=lambda c: self._bayesian_wr(int(c['ClassID']), c['GamesPlayed'], c['GamesWon']))
+            best_cid = int(best['ClassID'])
+
+            X.append(self._player_features(
+                p['Wins'], p['Losses'], p['Kills'], p['Deaths'],
+                p['FlawlessWins'], p['MatchMvps'], p['Level'], p['BestWinstreak'],
             ))
-
-            y.append(int(row["BestClass"]))
+            y.append(best_cid)
 
         if len(X) < 10:
             print(f"Not enough training data: {len(X)} samples")
@@ -105,53 +126,71 @@ class ClassRecommender:
         X = np.array(X, dtype=float)
         y = np.array(y)
 
-        # optional scaling (RandomForest doesn't require it but helps consistency)
         self._scaler = StandardScaler()
         X_scaled = self._scaler.fit_transform(X)
 
         self._model = RandomForestClassifier(
             n_estimators=200,
             max_depth=12,
+            class_weight='balanced',
             random_state=42,
-            class_weight="balanced"
         )
-
         self._model.fit(X_scaled, y)
-
-        print(f"Model trained on {len(X)} samples")
+        print(f"Model trained on {len(X)} samples, {len(set(y))} classes")
 
     # -----------------------------
     # PREDICTION
     # -----------------------------
+
     def recommend(self, wins, losses, kills, deaths,
-                  flawless_wins, match_mvps,
-                  level, best_winstreak,
-                  top_n=3):
+                  flawless_wins, match_mvps, level, best_winstreak,
+                  class_stats=None, top_n=3):
 
         if not self.ready:
             return None
 
-        x = self._feature_vec(
+        # RF archetype signal: how well does each class fit this player's style?
+        player_feats = self._player_features(
             wins, losses, kills, deaths,
-            flawless_wins, match_mvps,
-            level, best_winstreak
+            flawless_wins, match_mvps, level, best_winstreak,
         )
-
-        X = self._scaler.transform([x])
-
+        X = self._scaler.transform([player_feats])
         probs = self._model.predict_proba(X)[0]
-        classes = self._model.classes_
+        prob_map = {int(cls): float(p) for cls, p in zip(self._model.classes_, probs)}
+        max_prob = max(probs) or 1e-9
 
-        ranked = sorted(
-            zip(classes, probs),
-            key=lambda x: x[1],
-            reverse=True
-        )
+        # Score played classes: 50% archetype fit (RF) + 50% personal win rate.
+        # RF probability is normalized relative to the highest-predicted class so
+        # the two signals are on the same 0–1 scale.
+        played_scored = []
+        for c in (class_stats or []):
+            cid = int(c['ClassID'])
+            if cid not in VALID_CLASS_IDS or c['GamesPlayed'] < 5:
+                continue
+            rf_norm = prob_map.get(cid, 0.0) / max_prob
+            win_rate = min(c['GamesWon'] / c['GamesPlayed'], 1.0)
+            score = 0.5 * rf_norm + 0.5 * win_rate
+            played_scored.append((score, cid))
 
-        return [
-            {
-                "classId": int(cls),
-                "confidence": round(float(prob) * 100, 1)
-            }
-            for cls, prob in ranked[:top_n]
+        played_scored.sort(reverse=True)
+        results = [
+            {"classId": cid, "confidence": round(score * 100, 1)}
+            for score, cid in played_scored[:top_n]
         ]
+
+        if len(results) >= top_n:
+            return results
+
+        # Not enough played history — pad with RF explore suggestions
+        played_ids = {cid for _, cid in played_scored}
+        n_needed = top_n - len(results)
+
+        explore = []
+        for cls, prob in sorted(zip(self._model.classes_, probs), key=lambda t: t[1], reverse=True):
+            cid = int(cls)
+            if cid in VALID_CLASS_IDS and cid not in played_ids:
+                explore.append({"classId": cid, "confidence": round(float(prob) / max_prob * 100, 1)})
+                if len(explore) >= n_needed:
+                    break
+
+        return results + explore
