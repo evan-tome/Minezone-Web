@@ -16,15 +16,16 @@ const features = [
     { icon: <FaBolt />,   title: "Updates",             desc: "Regular content drops and improvements" },
 ];
 
+const newsPosts = [
+    {
+        title: "Welcome to Our Website!",
+        date: "May 8, 2026",
+        content: "We're thrilled to announce the official launch of the Minezone website!",
+        image: "../src/assets/cosmetics.png"
+    }
+];
+
 export function Home() {
-    const newsPosts = [
-        {
-            title: "Welcome to Our Website!",
-            date: "May 8, 2026",
-            content: "We're thrilled to announce the official launch of the Minezone website!",
-            image: "../src/assets/cosmetics.png"
-        }
-    ];
 
     return (
         <div className="app">
@@ -47,11 +48,11 @@ export function Home() {
                         </p>
                         <p className="about-socials-label">Follow us on social media</p>
                         <div className="about-socials">
-                            <a href="https://discord.com/invite/3J32tT9Zhp" target="_blank" rel="noopener noreferrer"><FaDiscord /></a>
-                            <a href="https://youtube.com" target="_blank" rel="noopener noreferrer"><FaYoutube /></a>
-                            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer"><FaInstagram /></a>
-                            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer"><FaTwitter /></a>
-                            <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer"><FaTiktok /></a>
+                            <a href="https://discord.com/invite/3J32tT9Zhp" target="_blank" rel="noopener noreferrer" aria-label="Join our Discord"><FaDiscord aria-hidden="true" /></a>
+                            <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><FaYoutube aria-hidden="true" /></a>
+                            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><FaInstagram aria-hidden="true" /></a>
+                            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter / X"><FaTwitter aria-hidden="true" /></a>
+                            <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" aria-label="TikTok"><FaTiktok aria-hidden="true" /></a>
                         </div>
                     </div>
                     <div className="trailer-wrapper">
@@ -86,19 +87,17 @@ export function Home() {
 
             {/* === Games Section === */}
             <section id="games" className="page-section">
-                <section className="gamemodes-section">
-                    <div className="section-header">
-                        <h2>Games</h2>
-                        <p>Jump into one of our exciting game modes</p>
-                    </div>
-                    <div className="gamemode-cards">
-                        <Games />
-                    </div>
-                </section>
+                <div className="section-header">
+                    <h2>Games</h2>
+                    <p>Jump into one of our exciting game modes</p>
+                </div>
+                <div className="gamemode-cards">
+                    <Games />
+                </div>
             </section>
 
             {/* === Community CTA === */}
-            <section className="page-section">
+            <section className="page-section cta-section">
                 <div className="community-cta">
                     <div className="cta-text">
                         <h3>Join the Community</h3>
