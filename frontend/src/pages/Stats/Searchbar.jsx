@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { FaTimes } from "react-icons/fa"
+import { FaTimes, FaSearch } from "react-icons/fa"
 import './Searchbar.css'
 
 const Searchbar = ({ onSearch }) => {
@@ -7,14 +7,16 @@ const Searchbar = ({ onSearch }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (input.trim() !== "")
-            onSearch(input.trim());
+        const trimmed = input.trim();
+        if (trimmed) onSearch(trimmed);
     };
 
     return (
         <form onSubmit={handleSubmit} className="search-bar">
             <div className="search-input-wrapper">
+                <label htmlFor="player-search" className="sr-only">Search player username</label>
                 <input
+                    id="player-search"
                     type="text"
                     placeholder="Enter username"
                     value={input}
@@ -31,6 +33,9 @@ const Searchbar = ({ onSearch }) => {
                     </button>
                 )}
             </div>
+            <button type="submit" className="search-submit" aria-label="Search">
+                <FaSearch />
+            </button>
         </form>
     );
 };

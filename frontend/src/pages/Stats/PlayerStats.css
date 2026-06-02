@@ -55,6 +55,47 @@
     margin-top: 5px;
 }
 
+.ps-copy-btn {
+    position: relative;
+    margin-left: auto;
+    align-self: flex-start;
+    background: none;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    font-size: 0.82rem;
+    padding: 6px 10px;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+}
+
+.ps-copy-btn:hover {
+    border-color: var(--accent);
+    color: var(--text);
+}
+
+.ps-copy-btn::after {
+    content: 'Copied!';
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #111;
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+.ps-copy-btn.copied::after {
+    opacity: 1;
+}
+
 /* PROGRESSION */
 .ps-progression {
     display: grid;
@@ -214,6 +255,14 @@
     flex-direction: column;
     gap: 8px;
     border-left-width: 3px;
+    text-decoration: none;
+    color: inherit;
+    transition: opacity 0.15s;
+}
+
+.game-card:hover {
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 5%, var(--bg));
 }
 
 .game-card-win  { border-left-color: #4caf79; }
@@ -287,4 +336,28 @@
     font-size: 0.9rem;
     font-weight: 700;
     color: var(--text);
+}
+
+@media (min-width: 1440px) {
+    .ps-card {
+        max-width: 760px;
+        padding: 24px;
+    }
+
+    .ps-avatar {
+        width: 64px;
+        height: 64px;
+    }
+
+    .ps-username {
+        font-size: 1.45rem;
+    }
+
+    .ps-prog-value {
+        font-size: 1.1rem;
+    }
+
+    .stat-cell-value {
+        font-size: 1.15rem;
+    }
 }

@@ -1,16 +1,12 @@
 import './RecentMatches.css';
 import { CLASSES } from '../../utils/classes.js';
 import { RANKS } from '../../utils/ranks.js';
-import { FaCrown, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { FaCrown, FaChevronLeft, FaChevronRight, FaStar, FaBolt, FaClock, FaLink } from 'react-icons/fa';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import ErrorScreen from '../../components/ErrorScreen';
 
 const PAGE_SIZE = 5;
-
-function getClassName(id) {
-    const name = CLASSES.get(id)?.name || 'Unknown';
-    return name.replace(/([A-Z])/g, ' $1').trim();
-}
 
 function getRank(id) {
     return RANKS.get(id) || { label: 'Default', color: '#aaa' };
@@ -36,6 +32,31 @@ function formatMode(raw) {
         .replace(/\b\w/g, c => c.toUpperCase());
 }
 
+
+function getMvp(players) {
+    let mvp = null;
+    for (const p of players) {
+        if (!mvp || p.kills > mvp.kills) {
+            mvp = p;
+        } else if (p.kills === mvp.kills) {
+            if (p.winner || p.deaths < mvp.deaths) mvp = p;
+        }
+    }
+    return mvp?.kills > 0 ? mvp : null;
+}
+
+function isMvp(player, players) {
+    return getMvp(players) === player;
+}
+
+function StatBadge({ icon, label, variant }) {
+    return (
+        <span className={`rm-stat-badge rm-badge-${variant}`} data-tooltip={label}>
+            {icon}
+        </span>
+    );
+}
+
 function formatDate(iso) {
     const d = new Date(iso);
     return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
@@ -43,19 +64,22 @@ function formatDate(iso) {
         + d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
 }
 
-function MatchCard({ match }) {
-    const navigate = useNavigate();
-
+export function MatchCard({ match, linked = true }) {
     return (
         <div className="rm-card">
             <div className="rm-card-header">
                 <div className="rm-card-header-left">
-                    <span className="rm-mode-badge">{formatMode(match.game_type)}</span>
+                    <span className="rm-mode-label">{match.game_type.toUpperCase()}</span>
                     <span className="rm-map">{match.map_name}</span>
                 </div>
                 <div className="rm-card-header-right">
+                    {linked && (
+                        <Link to={`/match/${match.game_id}`} className="rm-permalink" aria-label={`Permalink for match ${match.game_id}`}>
+                            <FaLink aria-hidden="true" />
+                        </Link>
+                    )}
                     <span className="rm-meta">{formatDate(match.end_time)}</span>
-                    <span className="rm-meta rm-duration">{match.game_duration_minutes} min</span>
+                    <span className="rm-meta rm-duration"><FaClock className="rm-duration-icon" />{match.game_duration_minutes} min</span>
                 </div>
             </div>
 
@@ -82,14 +106,17 @@ function MatchCard({ match }) {
                                 {rank.label !== 'Default' && (
                                     <span className="rm-rank-tag" style={{ color: rank.color, borderColor: rank.color, background: hexToRgba(rank.color, 0.06) }}>{rank.label}</span>
                                 )}
-                                <button className="rm-name-btn" onClick={() => navigate(`/stats/${p.username}`)}>
+                                <Link className="rm-name-btn" to={`/stats/${p.username}`}>
                                     {p.username}
-                                </button>
-                                {p.first_blood && (
-                                    <span className="rm-firstblood-tag">First Blood</span>
+                                </Link>
+                                {(isMvp(p, match.players) || p.first_blood) && (
+                                    <span className="rm-badge-group">
+                                        {isMvp(p, match.players) && <StatBadge icon={<FaStar />} label="Match MVP" variant="mvp" />}
+                                        {p.first_blood && <StatBadge icon={<FaBolt />} label="First Blood" variant="firstblood" />}
+                                    </span>
                                 )}
                             </span>
-                            <span className="rm-col-class rm-class">{getClassName(p.class_id)}</span>
+                            <span className="rm-col-class rm-class">{CLASSES.get(p.class_id)?.name || 'Unknown'}</span>
                             <span className="rm-col-stat rm-kills">{p.kills}</span>
                             <span className="rm-col-stat rm-deaths">{p.deaths}</span>
                             <span className="rm-col-stat rm-lives">{p.lives}</span>
@@ -101,43 +128,71 @@ function MatchCard({ match }) {
     );
 }
 
+const MODES = ['', 'classic', 'frenzy', 'duel'];
+
 function RecentMatches({ matches, loading, error }) {
     const [page, setPage] = useState(0);
+    const [modeFilter, setModeFilter] = useState('');
 
-    const totalPages = Math.ceil((matches?.length ?? 0) / PAGE_SIZE);
-    const paginated = matches?.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE) ?? [];
+    const allMatches = matches ?? [];
+    const filtered = modeFilter
+        ? allMatches.filter(m => m.game_type?.toLowerCase() === modeFilter)
+        : allMatches;
 
-    const body = () => {
-        if (loading) return <p className="rm-status">Loading recent matches...</p>;
-        if (error)   return <p className="rm-status rm-status-error">Failed to load matches: {error}</p>;
-        if (!matches?.length) return <p className="rm-status">No matches recorded yet.</p>;
-        return (
-            <>
-                <div className="rm-list">
-                    {paginated.map(m => <MatchCard key={m.game_id} match={m} />)}
-                </div>
-                {totalPages > 1 && (
-                    <div className="rm-pagination">
-                        <button className="rm-page-btn" onClick={() => setPage(p => p - 1)} disabled={page === 0}>
-                            <FaChevronLeft />
-                        </button>
-                        <span className="rm-page-info">{page + 1} / {totalPages}</span>
-                        <button className="rm-page-btn" onClick={() => setPage(p => p + 1)} disabled={page >= totalPages - 1}>
-                            <FaChevronRight />
-                        </button>
-                    </div>
-                )}
-            </>
-        );
+    const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+    const paginated = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+
+    const handleMode = (mode) => {
+        setModeFilter(mode);
+        setPage(0);
     };
 
     return (
         <div className="rm-section">
             <div className="rm-section-header">
                 <h2>Recent Matches</h2>
-                {matches?.length > 0 && <span className="rm-section-sub">Last {matches.length} games</span>}
+                {allMatches.length > 0 && <span className="rm-section-sub">Last {allMatches.length} games</span>}
+                <div className="rm-mode-filters">
+                    {MODES.map(mode => {
+                        const count = mode
+                            ? allMatches.filter(m => m.game_type?.toLowerCase() === mode).length
+                            : allMatches.length;
+                        return (
+                            <button
+                                key={mode || 'all'}
+                                type="button"
+                                className={`rm-mode-btn${modeFilter === mode ? ' active' : ''}`}
+                                onClick={() => handleMode(mode)}
+                                disabled={mode !== '' && count === 0}
+                            >
+                                {mode ? mode.charAt(0).toUpperCase() + mode.slice(1) : 'All'}
+                                <span className="rm-mode-count">{count}</span>
+                            </button>
+                        );
+                    })}
+                </div>
             </div>
-            {body()}
+            {loading && <p className="rm-status">Loading recent matches...</p>}
+            {error && <ErrorScreen title="Failed to load matches" message={error} />}
+            {!loading && !error && !matches?.length && <p className="rm-status">No matches recorded yet.</p>}
+            {!loading && !error && matches?.length > 0 && (
+                <>
+                    <div className="rm-list">
+                        {paginated.map(m => <MatchCard key={m.game_id} match={m} />)}
+                    </div>
+                    {totalPages > 1 && (
+                        <div className="rm-pagination">
+                            <button className="rm-page-btn" onClick={() => setPage(p => p - 1)} disabled={page === 0}>
+                                <FaChevronLeft />
+                            </button>
+                            <span className="rm-page-info">{page + 1} / {totalPages}</span>
+                            <button className="rm-page-btn" onClick={() => setPage(p => p + 1)} disabled={page >= totalPages - 1}>
+                                <FaChevronRight />
+                            </button>
+                        </div>
+                    )}
+                </>
+            )}
         </div>
     );
 }

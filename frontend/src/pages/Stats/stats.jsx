@@ -1,5 +1,6 @@
 import '../../App.css';
 import './Stats.css'
+import { FaFlask } from 'react-icons/fa';
 import Navbar from "../../components/Navbar";
 import Searchbar from './Searchbar';
 import PlayerStats from './PlayerStats';
@@ -8,7 +9,7 @@ import ErrorScreen from '../../components/ErrorScreen';
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
 import Footer from '../../components/Footer';
-import { fetchPlayer, fetchFavClass, fetchParkour, fetchRecentGames, fetchRecentMatches } from '../../api/stats.js';
+import { fetchProfile, fetchRecentMatches } from '../../api/stats.js';
 
 export function Stats() {
     const [tab, setTab] = useState('players');
@@ -20,7 +21,6 @@ export function Stats() {
 
     const navigate = useNavigate();
     const { username } = useParams();
-
     useEffect(() => {
         fetchRecentMatches()
             .then(data => {
@@ -35,25 +35,17 @@ export function Stats() {
     }, []);
 
     const loadPlayer = async (name) => {
+        setPlayerData(null);
+        setError(null);
         try {
-            const player = await fetchPlayer(name);
-            setPlayerData(player);
-            setError(null);
-
-            const [favClassData, parkourData, gamesData] = await Promise.all([
-                fetchFavClass(name),
-                fetchParkour(name),
-                fetchRecentGames(name),
-            ]);
-
-            setPlayerData(prev => ({
-                ...prev,
-                FavClass: favClassData?.ClassID ?? null,
-                TotalTime: parkourData.parkour?.[0]?.TotalTime ?? null,
-                RecentGames: gamesData?.games ?? [],
-            }));
+            const { player, favclass, parkour, games } = await fetchProfile(name);
+            setPlayerData({
+                ...player,
+                FavClass: favclass?.ClassID ?? null,
+                TotalTime: parkour?.[0]?.TotalTime ?? null,
+                RecentGames: games ?? [],
+            });
         } catch (err) {
-            setPlayerData(null);
             setError(err.message);
         }
     };
@@ -62,6 +54,9 @@ export function Stats() {
         if (username) {
             setTab('players');
             loadPlayer(username);
+        } else {
+            setPlayerData(null);
+            setError(null);
         }
     }, [username]);
 
@@ -72,7 +67,7 @@ export function Stats() {
     return(
         <div className="app dark-page">
             <Navbar />
-            <div className="main stats-main">
+            <main className="main stats-main">
                 <div className="stats-tabs">
                     <button className={`stats-tab-btn${tab === 'players' ? ' active' : ''}`} onClick={() => setTab('players')}>
                         Player Stats
@@ -89,13 +84,25 @@ export function Stats() {
 
                 {tab === 'players' && <>
                     <Searchbar onSearch={handleSearch}/>
-                    {error && <ErrorScreen title="Player not found" message={error} />}
-                    {playerData && <PlayerStats player={playerData} />}
+                    <div>
+                        {error && <ErrorScreen title="Player not found" message={error} />}
+                        {playerData && <PlayerStats player={playerData} />}
+                    </div>
+                    {!playerData && !error && (
+                        <div className="stats-labs-callout">
+                            <div className="stats-labs-callout-inner">
+                                <FaFlask className="stats-labs-callout-icon" />
+                                <h2>Want deeper insights?</h2>
+                                <p>Explore AI tools that analyze real match data to help you understand how you play and make recommendations.</p>
+                                <a href="/labs" className="stats-labs-callout-btn">Try Labs</a>
+                            </div>
+                        </div>
+                    )}
                 </>}
 
                 {tab === 'games' && <RecentMatches matches={recentMatches} loading={matchesLoading} error={matchesError} />}
-            </div>
-            <Footer></Footer>
+            </main>
+            <Footer />
         </div>
     );
 }

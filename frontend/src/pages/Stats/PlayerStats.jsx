@@ -1,9 +1,11 @@
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import './PlayerStats.css'
 import { RANKS } from '../../utils/ranks.js';
 import { CLASSES } from '../../utils/classes.js';
 import { FaTrophy, FaFish, FaBolt, FaMedal, FaCoins, FaStar,
          FaSkull, FaShieldAlt, FaChartLine, FaUsers, FaClock,
-         FaTimes, FaFire, FaCrown, FaList, FaHistory, FaUser } from 'react-icons/fa';
+         FaTimes, FaFire, FaCrown, FaList, FaHistory, FaUser, FaCopy } from 'react-icons/fa';
 import { IoSparkles } from 'react-icons/io5';
 
 
@@ -57,7 +59,7 @@ function GameCard({ game }) {
     const date = new Date(game.end_time).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 
     return (
-        <div className={`game-card ${won ? 'game-card-win' : 'game-card-loss'}`}>
+        <Link to={`/match/${game.game_id}`} className={`game-card ${won ? 'game-card-win' : 'game-card-loss'}`}>
             <div className="game-card-header">
                 <span className={`game-card-result ${won ? 'win' : 'loss'}`}>{won ? 'Win' : 'Loss'}</span>
                 {game.first_blood && <span className="gc-firstblood-tag">First Blood</span>}
@@ -82,13 +84,21 @@ function GameCard({ game }) {
                     <span className="game-card-stat-value">{getClassName(game.class_id)}</span>
                 </div>
             </div>
-        </div>
+        </Link>
     );
 }
 
 function PlayerStats({ player }) {
+    const [copied, setCopied] = useState(false);
     const headUrl = `https://minotar.net/helm/${player.UUID}/128.png`;
     const rank = player.RoleID !== 0 ? RANKS.get(player.RoleID) : undefined;
+
+    const handleCopy = () => {
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        });
+    };
     const expPct = Math.min((player.Exp / 2500) * 100, 100).toFixed(1);
     const wlr = player.Losses > 0 ? (player.Wins / player.Losses).toFixed(2) : player.Wins;
     const kdr = player.Deaths > 0 ? (player.Kills / player.Deaths).toFixed(2) : player.Kills;
@@ -106,6 +116,9 @@ function PlayerStats({ player }) {
                         {rank.label}
                     </span>}
                 </div>
+                <button className={`ps-copy-btn${copied ? ' copied' : ''}`} onClick={handleCopy} aria-label="Copy player profile link">
+                    <FaCopy aria-hidden="true" />
+                </button>
             </div>
 
             {/* General Profile */}
