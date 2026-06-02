@@ -9,6 +9,7 @@ const Navbar = () => {
     const navigate = useNavigate();
 
     const isHomePage = location.pathname === "/";
+    const ariaCurrent = (path) => location.pathname === path ? 'page' : undefined;
 
     const scrollToGames = () => {
         const el = document.getElementById("games");
@@ -55,21 +56,19 @@ const Navbar = () => {
             <div className="navbar-center">
                 <ul className="nav-links">
                     <li>
-                        <a href="/">Home</a>
+                        <a href="/" aria-current={ariaCurrent('/')}>Home</a>
                     </li>
 
                     <li>
-                        <a href="/#games" onClick={handleGamesClick}>
-                            Games
-                        </a>
+                        <a href="/#games" onClick={handleGamesClick}>Games</a>
                     </li>
 
                     <li>
-                        <a href="/leaderboards">Leaderboards</a>
+                        <a href="/leaderboards" aria-current={ariaCurrent('/leaderboards')}>Leaderboards</a>
                     </li>
 
                     <li>
-                        <a href="/stats">Stats</a>
+                        <a href="/stats" aria-current={ariaCurrent('/stats')}>Stats</a>
                     </li>
 
                     <li>
@@ -82,10 +81,6 @@ const Navbar = () => {
                         </a>
                     </li>
 
-                    {/* <li>
-                        <a href="/support">Support</a>
-                    </li> */}
-
                     <li>
                         <a
                             href="https://minezone.tebex.io"
@@ -96,11 +91,6 @@ const Navbar = () => {
                         </a>
                     </li>
 
-                    <li>
-                        <a href="/labs" className="labs-nav-link">
-                            Labs <span className="labs-nav-tag">AI</span>
-                        </a>
-                    </li>
                 </ul>
             </div>
 

@@ -52,10 +52,12 @@ export function Store() {
                             <h2>{rank.name} Rank</h2>
                             <p className="rank-desc">{rank.desc}</p>
                             <p className="rank-price">{rank.price} USD</p>
-                            <a 
-                                href={rank.link} 
-                                target="_blank" 
+                            <a
+                                href={rank.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
                                 className="buy-button"
+                                aria-label={`Buy ${rank.name} rank`}
                             >
                                 Buy
                             </a>
@@ -71,9 +73,9 @@ export function Store() {
                     <table>
                         <thead>
                             <tr>
-                                <th>Perk</th>
+                                <th scope="col">Perk</th>
                                 {ranks.map((rank, idx) => (
-                                    <th key={idx}>
+                                    <th key={idx} scope="col">
                                         {rank.name}<br />
                                     </th>
                                 ))}
@@ -95,9 +97,10 @@ export function Store() {
                 </div>
 
                 <div className="store-button">
-                    <a 
-                        href="https://minezone.tebex.io" 
-                        target="_blank" 
+                    <a
+                        href="https://minezone.tebex.io"
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="buy-button"
                     >
                         Visit Store

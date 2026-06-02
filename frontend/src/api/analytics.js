@@ -24,6 +24,12 @@ export async function fetchTopClasses() {
     return res.json();
 }
 
+export async function fetchBottomClasses() {
+    const res = await fetch(`${API_URL}/analytics/bottom-classes`);
+    if (!res.ok) throw new Error('Failed to fetch bottom class stats');
+    return res.json();
+}
+
 export async function fetchWinRates() {
     const res = await fetch(`${API_URL}/analytics/winrates`);
     if (!res.ok) throw new Error('Failed to fetch win rates');

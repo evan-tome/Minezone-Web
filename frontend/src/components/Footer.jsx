@@ -1,4 +1,3 @@
-import React from "react";
 import "./Footer.css";
 import { FaDiscord, FaYoutube, FaInstagram, FaTwitter, FaTiktok, FaShoppingCart } from "react-icons/fa";
 
@@ -30,7 +29,7 @@ export default function Footer() {
             <ul>
               <li><a href="/">Home</a></li>
               <li><a href="/games">Games</a></li>
-              <li><a href="/leaderboard">Leaderboard</a></li>
+              <li><a href="/leaderboards">Leaderboards</a></li>
               <li><a href="/stats">Stats</a></li>
               <li><a href="/analytics">Analytics</a></li>
               <li><a href="/support">Support</a></li>
@@ -45,11 +44,11 @@ export default function Footer() {
                 Follow our social medias to stay up to date!
             </p>
             <div className="social-icons">
-              <a href="#"><FaDiscord /></a>
-              <a href="#"><FaYoutube /></a>
-              <a href="#"><FaInstagram /></a>
-              <a href="#"><FaTwitter /></a>
-              <a href="#"><FaTiktok /></a>
+              <a href="https://discord.com/invite/3J32tT9Zhp" target="_blank" rel="noopener noreferrer" aria-label="Join our Discord"><FaDiscord aria-hidden="true" /></a>
+              <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><FaYoutube aria-hidden="true" /></a>
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><FaInstagram aria-hidden="true" /></a>
+              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter / X"><FaTwitter aria-hidden="true" /></a>
+              <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" aria-label="TikTok"><FaTiktok aria-hidden="true" /></a>
             </div>
           </div>
 

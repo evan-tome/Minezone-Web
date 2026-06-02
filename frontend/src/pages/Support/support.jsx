@@ -48,7 +48,7 @@ function FaqItem({ question, answer }) {
     const [open, setOpen] = useState(false);
     return (
         <div className={`faq-item ${open ? 'open' : ''}`}>
-            <button className="faq-question" onClick={() => setOpen(o => !o)}>
+            <button className="faq-question" onClick={() => setOpen(o => !o)} aria-expanded={open}>
                 <span>{question}</span>
                 {open ? <FaChevronUp className="faq-chevron" /> : <FaChevronDown className="faq-chevron" />}
             </button>
@@ -61,7 +61,7 @@ export function Support() {
     return (
         <div className="app dark-page">
             <Navbar />
-            <div className="main support-main">
+            <main className="main support-main">
 
                 <div className="support-header">
                     <h1>Support</h1>
@@ -92,7 +92,7 @@ export function Support() {
                     </section>
                 </div>
 
-            </div>
+            </main>
             <Footer />
         </div>
     );

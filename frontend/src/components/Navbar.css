@@ -6,7 +6,7 @@
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    padding: 8px 100px;
+    padding: 8px clamp(16px, 5vw, 80px);
     box-sizing: border-box;
     background: var(--accent);
 }
@@ -52,19 +52,3 @@
     transition: color 0.15s;
 }
 
-.navbar-right a:hover {
-    color: #fff;
-}
-
-.labs-nav-tag {
-    font-size: 0.58rem;
-    font-weight: 800;
-    letter-spacing: 1.5px;
-    background: rgba(255, 255, 255, 0.22);
-    border-radius: 4px;
-    padding: 1px 5px;
-    vertical-align: middle;
-    margin-left: 5px;
-    position: relative;
-    top: -1px;
-}

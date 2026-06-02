@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import './OnlineIndicator.css';
-import { fetchServerStatus } from '../api/server.js';
+import { SERVER_STATUS_STREAM } from '../api/server.js';
 import { RANKS } from '../utils/ranks.js';
 
 const OnlineIndicator = () => {
@@ -8,13 +8,12 @@ const OnlineIndicator = () => {
     const [hovered, setHovered] = useState(false);
 
     useEffect(() => {
-        const load = () => fetchServerStatus()
-            .then(data => setStatus(data))
-            .catch(() => setStatus(null));
-
-        load();
-        const id = setInterval(load, 30_000);
-        return () => clearInterval(id);
+        const source = new EventSource(SERVER_STATUS_STREAM);
+        source.onmessage = (e) => {
+            try { setStatus(JSON.parse(e.data)); } catch { /* ignore malformed */ }
+        };
+        source.onerror = () => setStatus(null);
+        return () => source.close();
     }, []);
 
     if (!status) return null;
@@ -24,13 +23,15 @@ const OnlineIndicator = () => {
     return (
         <div
             className="online-indicator"
+            role="status"
+            aria-label={status.offline ? 'Server offline' : `${status.online} players online`}
             tabIndex={0}
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
             onFocus={() => setHovered(true)}
             onBlur={() => setHovered(false)}
         >
-            <span className={`online-dot ${status.offline ? 'offline' : ''}`} />
+            <span className={`online-dot ${status.offline ? 'offline' : ''}`} aria-hidden="true" />
             <span className="online-count">
                 {status.offline ? 'Offline' : `${status.online} online`}
             </span>
@@ -39,7 +40,7 @@ const OnlineIndicator = () => {
                 <div className="online-tooltip">
                     <div className="online-tooltip-header">Online Players</div>
                     <ul className="online-tooltip-list">
-                        {players.map((p) => {
+                        {[...players].sort((a, b) => b.level - a.level).map((p) => {
                             const rank = p.roleId !== 0 ? RANKS.get(p.roleId) : undefined;
                             return (
                                 <li key={p.name} className="online-tooltip-player">
