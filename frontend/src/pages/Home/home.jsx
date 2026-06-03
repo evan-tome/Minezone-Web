@@ -8,12 +8,12 @@ import { Games } from './Games';
 import { FaDiscord, FaYoutube, FaInstagram, FaTwitter, FaTiktok, FaMap, FaUser, FaMedal, FaTrophy, FaStar, FaBolt } from 'react-icons/fa';
 
 const features = [
-    { icon: <FaMap />,    title: "60+ Classes & Maps",  desc: "Dozens of unique kits and battle arenas to master" },
-    { icon: <FaMedal />,  title: "Progression",         desc: "Level up, earn rewards, and track your growth over time" },
-    { icon: <FaTrophy />, title: "Leaderboards",        desc: "Compete for the top spot in every game mode" },
-    { icon: <FaStar />,   title: "Cosmetics",           desc: "Unlock skins, effects, and more to stand out" },
+    { icon: <FaMap />,    title: "60+ Classes & Maps",  desc: "Various different playstyles available with each class & map" },
+    { icon: <FaMedal />,  title: "Progression",         desc: "Level up, unlock classes, and earn rewards" },
+    { icon: <FaTrophy />, title: "Leaderboards",        desc: "Compete for the top spot in our modes with daily/weekly/monthly/lifetime leaderboards" },
+    { icon: <FaStar />,   title: "Cosmetics",           desc: "Unlock gadgets, win effects, titles, and more to stand out" },
     { icon: <FaUser />,   title: "Singleplayer Modes",  desc: "Reel in rare catches while fishing or race through parkour courses" },
-    { icon: <FaBolt />,   title: "Updates",             desc: "Regular content drops and improvements" },
+    { icon: <FaBolt />,   title: "Updates",             desc: "Frequent and consistent updates providing a fresh, fun & smooth experience" },
 ];
 
 const newsPosts = [
@@ -42,9 +42,9 @@ export function Home() {
             <section className="page-section about-section">
                 <div className="about-container">
                     <div className="about-description">
-                        <h2>About Us</h2>
+                        <h2>Welcome to Minezone</h2>
                         <p>
-                            Minezone is a Minecraft server recreating the classic Super Craft Bros experience, along with new minigames, events, and a friendly player community. Join us and be part of something awesome!
+                            Minezone is home to Super Craft Bros, one of Minecraft's most unique and fast-paced PvP experiences. With over 60 classes and maps, there's always a new challenge waiting. We also offer singleplayer modes where you can take a break from the action with activities like fishing and parkour. Whether you're a longtime fan of Super Craft Bros or discovering it for the first time, join the community and start playing today!
                         </p>
                         <p className="about-socials-label">Follow us on social media</p>
                         <div className="about-socials">
@@ -72,7 +72,7 @@ export function Home() {
             <section className="page-section">
                 <div className="section-header">
                     <h2>What We Offer</h2>
-                    <p>Everything you need for a great Minecraft experience</p>
+                    <p>Everything available on Minezone</p>
                 </div>
                 <div className="features-grid">
                     {features.map((f) => (
