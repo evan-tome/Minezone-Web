@@ -148,6 +148,13 @@ class ArchetypeClassifier:
                 avg_pct = float(np.mean([pct[k] for k in radar_keys]))
                 variance = float(np.var([pct[k] for k in radar_keys]))
                 raw['allrounder'] = WEIGHT_TOTAL * avg_pct * max(0.0, 1.0 - 6.0 * variance)
+            elif arch['id'] == 'phantom':
+                # flawless_rate is zero-inflated: most players have 0 flawless wins, so even
+                # 1 flawless win yields a deceptively high percentile. Multiply by the raw
+                # rate so the absolute value gates the score, not just the rank.
+                flawless_pct = pct.get('flawless_rate', 0.0)
+                flawless_val = stats.get('flawless_rate', 0.0)
+                raw['phantom'] = flawless_pct * flawless_val * arch['weights']['flawless_rate']
             else:
                 raw[arch['id']] = sum(pct.get(s, 0.5) * w for s, w in arch['weights'].items())
 
