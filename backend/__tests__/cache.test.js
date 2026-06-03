@@ -84,8 +84,8 @@ describe('getLeaderboard', () => {
         con.query.mockImplementation((sql, cb) => cb(null, []));
 
         await getLeaderboard('Wins');
-        await getLeaderboard('Wins'); // hit — no extra query
-        await getLeaderboard('Level'); // different category — new query
+        await getLeaderboard('Wins'); // hit, no extra query
+        await getLeaderboard('Level'); // different category, new query
 
         expect(con.query).toHaveBeenCalledTimes(2);
     });

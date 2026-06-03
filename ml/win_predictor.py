@@ -5,12 +5,12 @@ from sklearn.preprocessing import StandardScaler
 _FEATURE_KEYS = ['kdr', 'wlr', 'flawless_rate', 'mvp_rate', 'kills_pg', 'first_blood_rate']
 
 STAT_DISPLAY = {
-    'kdr':              'K/D Ratio',
-    'wlr':              'Win Rate',
-    'flawless_rate':    'Flawless Rate',
-    'mvp_rate':         'MVP Rate',
-    'kills_pg':         'Kills Per Game',
-    'first_blood_rate': 'First Blood Rate',
+    'kdr':              'K/D ratio',
+    'wlr':              'win rate',
+    'flawless_rate':    'flawless rate',
+    'mvp_rate':         'MVP rate',
+    'kills_pg':         'kills per game',
+    'first_blood_rate': 'first blood rate',
 }
 
 
@@ -100,7 +100,7 @@ class WinPredictor:
         X_scaled = self._scaler.transform(np.array([feats], dtype=float))
         prob = float(self._model.predict_proba(X_scaled)[0][1])
 
-        # (original_index, display_name, contribution) — index preserved so above_avg is correct
+        # (original_index, display_name, contribution), index preserved so above_avg is correct
         coefs = self._model.coef_[0]
         indexed = sorted(
             [

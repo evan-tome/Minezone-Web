@@ -88,7 +88,7 @@ class GamePredictor:
 
         # Pairwise training: winner features minus each loser's features
         # P(winner beats loser) = sigmoid(β · (feat_winner - feat_loser))
-        # No intercept — constant shifts cancel in the softmax at inference
+        # No intercept: constant shifts cancel in the softmax at inference
         X, y = [], []
         for gid, players in valid_games.items():
             winner = next(p for p in players if p['placement'] == 1)
@@ -111,7 +111,7 @@ class GamePredictor:
 
     def predict(self, players):
         """
-        players: list of dicts — username, wins, losses, kills, deaths,
+        players: list of dicts with keys username, wins, losses, kills, deaths,
                  flawless_wins, match_mvps, avg_kills_pg (opt), first_bloods (opt)
         Returns list sorted by win_probability descending.
         """

@@ -5,7 +5,7 @@ from sklearn.preprocessing import StandardScaler
 EXCLUDED_CLASSES = {25, 37, 38, 42, 43, 65, 69, 101, 102, 103, 104, 105}
 BAYESIAN_ALPHA = 5
 
-# Non-vaulted class IDs — must match frontend classes.js
+# Non-vaulted class IDs, must match frontend classes.js
 VALID_CLASS_IDS = {
     1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
     21, 22, 23, 24, 26, 28, 29, 30, 31, 32, 33, 34, 35, 36, 41, 44, 45, 46,
@@ -16,7 +16,7 @@ VALID_CLASS_IDS = {
 
 class ClassRecommender:
     def __init__(self):
-        self._model = None        # RF — used to suggest unexplored classes
+        self._model = None        # RF: used to suggest unexplored classes
         self._scaler = None
         self._class_avg_wr = {}   # ClassID → avg win rate across all players (Bayesian prior)
 
@@ -181,7 +181,7 @@ class ClassRecommender:
         if len(results) >= top_n:
             return results
 
-        # Not enough played history — pad with RF explore suggestions
+        # Not enough played history, pad with RF explore suggestions
         played_ids = {cid for _, cid in played_scored}
         n_needed = top_n - len(results)
 

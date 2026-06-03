@@ -16,11 +16,11 @@ function logQuery(sql, ms, err) {
     const preview = (typeof sql === 'string' ? sql : sql?.sql ?? '')
         .replace(/\s+/g, ' ').trim().slice(0, 120);
     if (err) {
-        console.error(`[DB] ${ms}ms ERROR — ${preview}`);
+        console.error(`[DB] ${ms}ms ERROR: ${preview}`);
     } else if (ms >= SLOW_MS) {
-        console.warn(`[DB] ${ms}ms SLOW — ${preview}`);
+        console.warn(`[DB] ${ms}ms SLOW: ${preview}`);
     } else {
-        console.log(`[DB] ${ms}ms — ${preview}`);
+        console.log(`[DB] ${ms}ms: ${preview}`);
     }
 }
 
