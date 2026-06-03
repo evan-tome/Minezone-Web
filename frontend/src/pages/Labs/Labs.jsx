@@ -1,28 +1,31 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
-import { fetchRecommendation, fetchArchetype, fetchWinPrediction, fetchGamePrediction, fetchTrend } from '../../api/stats.js';
+import { fetchRecommendation, fetchArchetype, fetchWinPrediction, fetchGamePrediction, fetchTrend, fetchPlayerCluster, fetchClusterMap } from '../../api/stats.js';
 import { CLASSES } from '../../utils/classes.js';
 import './Labs.css';
 import {
     FaFlask, FaLightbulb, FaUser, FaChartLine, FaCloud,
-    FaFire, FaLock, FaSearch, FaSkull, FaCrown, FaBolt, FaStar, FaTrophy, FaChartArea, FaChevronDown,
+    FaFire, FaLock, FaSearch, FaSkull, FaCrown, FaBolt, FaStar, FaTrophy, FaChartArea, FaChevronDown, FaBrain,
 } from 'react-icons/fa';
 import {
     RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
+    ScatterChart, Scatter,
     ResponsiveContainer,
 } from 'recharts';
 
 const ML_FEATURES = [
     { id: 'recommender', label: 'Class Recommender', icon: <FaLightbulb />, available: true },
-    { id: 'archetype',   label: 'Player Archetype',  icon: <FaUser />,      available: true },
     { id: 'predictor',   label: 'Win Predictor',     icon: <FaChartLine />, available: true },
     { id: 'match',       label: 'Match Predictor',   icon: <FaTrophy />,    available: true },
+    { id: 'clusters',    label: 'Clusters',  icon: <FaCloud />,     available: true },
 ];
 
 const TOOL_FEATURES = [
-    { id: 'trend', label: 'Performance Trend', icon: <FaChartArea />, available: true },
+    { id: 'trend',     label: 'Performance Trend', icon: <FaChartArea />, available: true },
+    { id: 'archetype', label: 'Player Archetype',  icon: <FaUser />,      available: true },
 ];
 
 function getClassName(id) {
@@ -159,10 +162,9 @@ function ClassRecommender() {
             <div className="labs-tech-details">
                 <span className="labs-tech-label">How It Works</span>
                 <ul className="labs-tech-list">
-                    <li><span>Your class history</span>We start by looking at every class you've played at least 5 games on and calculating your win rate for each one.</li>
-                    <li><span>Comparing against similar players</span>We compare your stats (K/D ratio, win rate, flawless win rate, MVP rate, level, and best winstreak) against other players on the server and see which classes players with a similar profile tend to win with most.</li>
-                    <li><span>How the score is calculated</span>Each class gets a score combining both signals equally: 50% from how well you personally do with it, 50% from how well players with a similar profile tend to do with it. A class only ranks near the top if both agree.</li>
-                    <li><span>Not enough class history?</span>If you haven't played many classes yet, recommendations are based entirely on the comparison against similar players until you build up more data.</li>
+                    <li><span>Class history</span>Your win rate per class is calculated from every class you've played 5+ games on.</li>
+                    <li><span>Similar players</span>Your stats are matched against the server to find players with a similar profile, then we look at which classes they win with most.</li>
+                    <li><span>Score</span>Each class is scored 50% from your own performance with it and 50% from what similar players tend to win with. Both signals need to agree for a class to rank highly.</li>
                 </ul>
             </div>
         </div>
@@ -330,9 +332,8 @@ function ArchetypePanel() {
             <div className="labs-tech-details">
                 <span className="labs-tech-label">How It Works</span>
                 <ul className="labs-tech-list">
-                    <li><span>Archetypes</span>Five playstyle profiles: Slayer (high K/D and kills per game), Phantom (high flawless win rate), Ace (high MVP rate and first bloods), All-Rounder (balanced across all stats), and Coaster (high game count with below-average performance).</li>
-                    <li><span>Scoring</span>Each stat is converted to a server-wide percentile rank, then scored against each archetype's profile. The archetype with the highest score wins.</li>
-                    <li><span>Game data</span>Where available, per-game kill data from recorded matches is used instead of the lifetime kills stat for better accuracy.</li>
+                    <li><span>Archetypes</span>Five profiles: Slayer (K/D + kills), Phantom (flawless wins), Ace (MVPs + first bloods), All-Rounder (balanced), Coaster (high game count, low output).</li>
+                    <li><span>Scoring</span>Each stat is ranked as a server-wide percentile and scored against each archetype's profile. The closest match wins.</li>
                 </ul>
             </div>
         </div>
@@ -527,9 +528,8 @@ function WinPredictor() {
             <div className="labs-tech-details">
                 <span className="labs-tech-label">How It Works</span>
                 <ul className="labs-tech-list">
-                    <li><span>What is the expected win rate?</span>The model is trained on thousands of recorded games across the server. It learns what win rate players with a given stat profile tend to achieve. The expected win rate is what it predicts for this player based on their K/D, flawless rate, MVP rate, and other stats.</li>
-                    <li><span>Why does it differ from their career win rate?</span>The prediction is based on a player's stats profile compared against the full server. It may not match their career win rate exactly, since career win rate is a raw count while the prediction weighs how their stats compare to other players.</li>
-                    <li><span>What are the driving factors?</span>The three stats that had the most influence on this prediction. Each one is flagged as above or below the server average, and whether being on that side of average pushes the prediction up or down.</li>
+                    <li><span>Expected win rate</span>Trained on server match history to predict what win rate a player's stat profile typically produces. May differ from their actual career rate since it's based on how players with similar stats tend to perform.</li>
+                    <li><span>Driving factors</span>The three stats with the most influence on the prediction, each showing whether it's above or below the server average and whether that pushes the number up or down.</li>
                 </ul>
             </div>
         </div>
@@ -830,8 +830,8 @@ function TrendPanel() {
             <div className="labs-tech-details">
                 <span className="labs-tech-label">How It Works</span>
                 <ul className="labs-tech-list">
-                    <li><span>Rolling average</span>The chart shows a 5-game rolling win rate across your last 100 recorded games. Each point reflects how often you won in the 5 games leading up to it.</li>
-                    <li><span>Trend direction</span>Improving means your recent win rate is at least 10 points higher than your earlier games in this window. Declining is the reverse. Consistent means the two halves are within 10 points of each other.</li>
+                    <li><span>Rolling average</span>Each point on the chart is the win rate across the 5 games leading up to it, smoothing out individual results to show the overall shape.</li>
+                    <li><span>Trend direction</span>Determined by comparing the first and second halves of the window. Improving or declining if they differ by more than 10 points, otherwise consistent.</li>
                 </ul>
             </div>
         </div>
@@ -1004,8 +1004,228 @@ function MatchPredictor() {
             <div className="labs-tech-details">
                 <span className="labs-tech-label">How It Works</span>
                 <ul className="labs-tech-list">
-                    <li><span>Training</span>The model trains on historical matches. For each game, it learns which stat patterns most reliably predict who finishes first.</li>
-                    <li><span>Scoring</span>Each player gets a score based on their stats profile. Win probabilities are derived from those scores relative to the other players in the pool, so they always sum to 100%.</li>
+                    <li><span>Model</span>Trained on historical matches to learn which stat patterns predict who places first. Each player is scored from their profile and probabilities are scaled relative to the pool, so they always sum to 100%.</li>
+                </ul>
+            </div>
+        </div>
+    );
+}
+
+const KMEANS_STAT_NAMES = {
+    kdr:      'K/D ratio',
+    wlr:      'win rate',
+    mvp_rate: 'MVP rate',
+    kills_pg: 'kills per game',
+};
+
+const CLUSTER_PALETTE = ['#f59e0b', '#3b82f6', '#22c55e', '#8b5cf6', '#ef4444', '#ec4899', '#14b8a6', '#6b7280'];
+
+
+function KMeansPanel() {
+    const [username, setUsername] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [result, setResult] = useState(null);
+    const [mapData, setMapData] = useState(null);
+    const [error, setError] = useState(null);
+    const [notFound, setNotFound] = useState(false);
+
+    useEffect(() => {
+        fetchClusterMap().then(setMapData).catch(() => {});
+    }, []);
+
+    // Recolor dots by 2D nearest centroid so they always match the group assignment.
+    // Recolor by nearest centroid in 2D; stored p.c labels may be from an older model.
+    const groupedPoints = useMemo(() => {
+        if (!mapData) return Array(CLUSTER_PALETTE.length).fill([]);
+        const centroids = mapData.centroid_2d;
+        const groups = Array.from({ length: CLUSTER_PALETTE.length }, () => []);
+        for (const p of mapData.map_points) {
+            let nearest = 0, minDist = Infinity;
+            for (const c of centroids) {
+                const d = (p.x - c.x) ** 2 + (p.y - c.y) ** 2;
+                if (d < minDist) { minDist = d; nearest = c.id; }
+            }
+            groups[nearest].push(p);
+        }
+        return groups;
+    }, [mapData]);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!username.trim()) return;
+        setLoading(true);
+        setResult(null);
+        setError(null);
+        setNotFound(false);
+        try {
+            setResult(await fetchPlayerCluster(username.trim()));
+        } catch (err) {
+            if (err.status === 404) setNotFound(true);
+            else setError('The ML service is unavailable. Make sure it is running.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="labs-feature">
+            <div className="labs-feature-header">
+                <div className="labs-feature-icon-wrap">
+                    <FaCloud />
+                </div>
+                <div className="labs-feature-text">
+                    <h2 className="labs-feature-title">Clusters</h2>
+                    <p className="labs-feature-desc">
+                        Enter a username to place them into a playstyle group,
+                        each shaped by how players cluster across K/D, win rate, MVP rate,
+                        and kills per game. Shows who else in the server plays the same way.
+                    </p>
+                </div>
+            </div>
+
+            <form className="labs-form" onSubmit={handleSubmit}>
+                <div className="labs-input-wrap">
+                    <FaSearch className="labs-input-icon" />
+                    <input
+                        className="labs-input"
+                        type="text"
+                        placeholder="Minecraft username..."
+                        value={username}
+                        onChange={e => setUsername(e.target.value)}
+                        autoComplete="off"
+                        spellCheck={false}
+                    />
+                </div>
+                <button className="labs-btn" type="submit" disabled={loading || !username.trim()}>
+                    {loading ? <><span className="labs-spinner" />Analyzing</> : 'Analyze'}
+                </button>
+            </form>
+
+            {loading && (
+                <div className="labs-scanning">
+                    <div className="labs-scan-line" />
+                    <span className="labs-scan-text">Placing player in cluster<span className="labs-scan-dots" /></span>
+                </div>
+            )}
+            {notFound && !loading && (
+                <div className="labs-error labs-error-notfound">No player found with that username.</div>
+            )}
+            {error && !loading && <div className="labs-error">{error}</div>}
+
+            {result && !loading && (
+                <div className="labs-results-meta">
+                    <span className="labs-results-tag">ANALYSIS COMPLETE</span>
+                    <a className="labs-results-player" href={`/stats/${result.username}`}>{result.username}</a>
+                </div>
+            )}
+
+            {mapData && (
+                <>
+                    <div className="labs-cluster-axis-info">
+                        <span>Based on {Object.values(KMEANS_STAT_NAMES).join(', ')}</span>
+                    </div>
+                    <div className="labs-cluster-map">
+                        <ResponsiveContainer width="100%" height={440}>
+                            <ScatterChart margin={{ top: 16, right: 16, bottom: 16, left: 16 }}>
+                                <XAxis type="number" dataKey="x" hide domain={['dataMin - 0.05', 'dataMax + 0.05']} />
+                                <YAxis type="number" dataKey="y" hide domain={['dataMin - 0.05', 'dataMax + 0.05']} />
+                                <Tooltip
+                                    cursor={false}
+                                    content={({ active, payload }) => {
+                                        if (!active || !payload?.length) return null;
+                                        const d = payload[0].payload;
+                                        if (d._type === 'player') return (
+                                            <div className="chart-tooltip">
+                                                <p className="chart-tooltip-name">{result?.username}</p>
+                                                <p className="chart-tooltip-value" style={{ color: CLUSTER_PALETTE[result?.cluster_id] }}>Group {result?.cluster_id + 1}</p>
+                                            </div>
+                                        );
+                                        if (d._type === 'centroid') return (
+                                            <div className="chart-tooltip">
+                                                <p className="chart-tooltip-name">Group {d.id + 1}</p>
+                                                <p className="chart-tooltip-value" style={{ color: CLUSTER_PALETTE[d.id] }}>Center</p>
+                                            </div>
+                                        );
+                                        return (
+                                            <div className="chart-tooltip">
+                                                <p className="chart-tooltip-name">{d.n}</p>
+                                                <p className="chart-tooltip-value" style={{ color: CLUSTER_PALETTE[d.c] }}>Group {d.c + 1}</p>
+                                            </div>
+                                        );
+                                    }}
+                                />
+                                {groupedPoints.map((pts, i) => (
+                                    <Scatter key={i} name={`group-${i}`} data={pts} fill={CLUSTER_PALETTE[i]} fillOpacity={0.35} isAnimationActive={false} r={3} />
+                                ))}
+                                <Scatter
+                                    name="centroid"
+                                    data={mapData.centroid_2d.map(p => ({ ...p, _type: 'centroid' }))}
+                                    isAnimationActive={false}
+                                    shape={({ cx, cy, payload }) => (
+                                        <g key={payload.id}>
+                                            <circle cx={cx} cy={cy} r={7} fill={CLUSTER_PALETTE[payload.id]} fillOpacity={0.9} />
+                                            <text x={cx} y={cy - 11} textAnchor="middle" fill={CLUSTER_PALETTE[payload.id]} fontSize={10} fontWeight={700}>G{payload.id + 1}</text>
+                                        </g>
+                                    )}
+                                />
+                                {result && (
+                                    <Scatter
+                                        name="player"
+                                        data={[{ ...result.player_pos, _type: 'player' }]}
+                                        isAnimationActive={false}
+                                        shape={({ cx, cy }) => (
+                                            <g>
+                                                <circle cx={cx} cy={cy} r={9} fill="white" stroke={CLUSTER_PALETTE[result.cluster_id]} strokeWidth={3} />
+                                            </g>
+                                        )}
+                                    />
+                                )}
+                            </ScatterChart>
+                        </ResponsiveContainer>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', marginBottom: '8px' }}>
+                        {mapData.centroid_2d.map(c => (
+                            <span key={c.id} style={{ fontSize: '0.78rem', color: CLUSTER_PALETTE[c.id], display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                <span style={{ width: 8, height: 8, borderRadius: '50%', background: CLUSTER_PALETTE[c.id], display: 'inline-block' }} />
+                                Group {c.id + 1}
+                            </span>
+                        ))}
+                        {result && (
+                            <span style={{ fontSize: '0.78rem', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'white', display: 'inline-block' }} />
+                                {result.username}
+                            </span>
+                        )}
+                    </div>
+                </>
+            )}
+
+            {result && !loading && (
+                <div>
+                    <div style={{ marginTop: '16px' }}>
+                        <p className="labs-tech-label" style={{ marginBottom: '4px' }}>
+                            Nearby Players
+                            <span style={{ fontWeight: 400, letterSpacing: 0, textTransform: 'none', fontSize: '0.78rem', color: 'var(--muted)', marginLeft: '8px' }}>
+                                most similar to {result.username} in Group {result.cluster_id + 1} ({result.cluster_size.toLocaleString()} players)
+                            </span>
+                        </p>
+                        <div className="labs-cluster-player-list">
+                            {result.similar_players.map(name => (
+                                <a key={name} href={`/stats/${name}`} className="labs-cluster-player">{name}</a>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            <div className="labs-tech-details">
+                <span className="labs-tech-label">How It Works</span>
+                <ul className="labs-tech-list">
+                    <li><span>Grouping</span>Players are clustered by K/D ratio, win rate, MVP rate, and kills per game, each converted to a server-wide percentile so no single stat dominates.</li>
+                    <li><span>Number of groups</span>Chosen automatically by testing K=2 through K=8 and picking the point where adding more groups stops meaningfully improving the fit.</li>
+                    <li><span>Placement</span>Your stats are converted to the same percentile scale and you're placed in whichever group's center is closest.</li>
+                    <li><span>Nearby players</span>The members of your group with the most similar stat profile to yours.</li>
                 </ul>
             </div>
         </div>
@@ -1133,7 +1353,9 @@ function PointField() {
 }
 
 export function Labs() {
-    const [active, setActive] = useState('recommender');
+    const { module } = useParams();
+    const navigate = useNavigate();
+    const active = module || 'recommender';
 
     return (
         <div className="labs-page">
@@ -1167,7 +1389,7 @@ export function Labs() {
                                 <button
                                     key={f.id}
                                     className={`labs-sidebar-item${active === f.id ? ' active' : ''}${f.available ? '' : ' locked'}`}
-                                    onClick={() => f.available && setActive(f.id)}
+                                    onClick={() => f.available && navigate(`/labs/${f.id}`)}
                                 >
                                     <span className="labs-sidebar-item-icon">{f.icon}</span>
                                     <span className="labs-sidebar-item-label">{f.label}</span>
@@ -1183,7 +1405,7 @@ export function Labs() {
                                 <button
                                     key={f.id}
                                     className={`labs-sidebar-item${active === f.id ? ' active' : ''}${f.available ? '' : ' locked'}`}
-                                    onClick={() => f.available && setActive(f.id)}
+                                    onClick={() => f.available && navigate(`/labs/${f.id}`)}
                                 >
                                     <span className="labs-sidebar-item-icon">{f.icon}</span>
                                     <span className="labs-sidebar-item-label">{f.label}</span>
@@ -1201,6 +1423,7 @@ export function Labs() {
                     {active === 'predictor'   && <WinPredictor />}
                     {active === 'match'       && <MatchPredictor />}
                     {active === 'trend'       && <TrendPanel />}
+                    {active === 'clusters'     && <KMeansPanel />}
                 </main>
             </div>
             <Footer />

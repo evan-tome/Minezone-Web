@@ -19,7 +19,7 @@ function App() {
         <Route path="/store" element={<Store />}/>
         <Route path="/support" element={<Support />}/>
         <Route path="/analytics" element={<Analytics />}/>
-        <Route path="/labs" element={<Labs />}/>
+        <Route path="/labs/:module?" element={<Labs />}/>
         <Route path="/match/:id" element={<Match />}/>
       </Routes>
     </Router>

@@ -8,6 +8,7 @@ from recommender import ClassRecommender
 from archetypes import ArchetypeClassifier
 from win_predictor import WinPredictor
 from game_predictor import GamePredictor
+from kmeans import KMeansClusterer
 
 _ml_dir = Path(__file__).parent
 if not load_dotenv(_ml_dir / '.env'):
@@ -20,6 +21,7 @@ recommender = None
 archetype_clf = None
 win_predictor = None
 game_predictor = None
+kmeans_clf = None
 
 
 def make_pool():
@@ -41,6 +43,7 @@ def train_model():
         archetype_clf.train(conn)
         win_predictor.train(conn)
         game_predictor.train(conn)
+        kmeans_clf.train(conn)
     finally:
         conn.close()
 
@@ -56,10 +59,71 @@ def _retrain_loop():
     t.start()
 
 
+@app.route('/cluster-map', methods=['GET'])
+def cluster_map():
+    result = kmeans_clf.get_map_data()
+    if result is None:
+        return jsonify(error='K-means not ready: not enough player data'), 503
+    return jsonify(**result)
+
+
+@app.route('/cluster/<username>', methods=['GET'])
+def cluster(username):
+    if not kmeans_clf.ready:
+        return jsonify(error='K-means not ready: not enough player data'), 503
+
+    conn = _pool.get_connection()
+    try:
+        with conn.cursor(dictionary=True) as cursor:
+            cursor.execute(
+                """
+                SELECT pd.LastPlayerName, pd.Wins, pd.Losses, pd.Kills, pd.Deaths,
+                       pd.MatchMvps,
+                       AVG(gp.kills) AS avg_kills
+                FROM PlayerData pd
+                LEFT JOIN scb_game_players gp ON gp.uuid = pd.UUID
+                WHERE pd.LastPlayerName = %s
+                  AND (pd.Wins + pd.Losses) >= 1
+                GROUP BY pd.UUID, pd.LastPlayerName, pd.Wins, pd.Losses, pd.Kills, pd.Deaths,
+                         pd.MatchMvps
+                LIMIT 1
+                """,
+                (username,),
+            )
+            player = cursor.fetchone()
+    finally:
+        conn.close()
+
+    if not player:
+        return jsonify(error='Player not found'), 404
+
+    result = kmeans_clf.classify(
+        wins=player['Wins'],
+        losses=player['Losses'],
+        kills=player['Kills'],
+        deaths=player['Deaths'],
+        match_mvps=player['MatchMvps'],
+        avg_kills_pg=float(player['avg_kills']) if player['avg_kills'] is not None else None,
+    )
+
+    if result is None:
+        return jsonify(error='Classifier not available'), 503
+
+    similar = [p for p in result['similar_players'] if p.lower() != player['LastPlayerName'].lower()][:8]
+
+    return jsonify(
+        username=player['LastPlayerName'],
+        cluster_id=result['cluster_id'],
+        cluster_size=result['cluster_size'],
+        similar_players=similar,
+        player_pos=result['player_pos'],
+    )
+
+
 @app.route('/recommend/<username>', methods=['GET'])
 def recommend(username):
     if not recommender.ready:
-        return jsonify(error="Model not ready — not enough player data yet"), 503
+        return jsonify(error="Model not ready: not enough player data yet"), 503
 
     conn = _pool.get_connection()
     try:
@@ -278,6 +342,7 @@ if __name__ == "__main__":
     archetype_clf = ArchetypeClassifier()
     win_predictor = WinPredictor()
     game_predictor = GamePredictor()
+    kmeans_clf = KMeansClusterer()  # K is chosen automatically by elbow method at train time
 
     train_model()
 

@@ -166,7 +166,7 @@ router.get('/:username/profile', async (req, res) => {
             const { FavClassID, ...player } = playerRows[0];
             const { UUID } = player;
 
-            // Use UUID directly — no PlayerData JOIN needed
+            // Use UUID directly, no PlayerData JOIN needed
             const [[parkourRows], [gameRows]] = await Promise.all([
                 db.query(
                     `SELECT pp.ParkourID, pp.TotalTime
@@ -199,6 +199,31 @@ router.get('/:username/profile', async (req, res) => {
     } catch (err) {
         if (err.status === 404) return res.status(404).json({ error: 'Player not found' });
         res.status(500).json({ error: 'Database error' });
+    }
+});
+
+const ML_URL = process.env.ML_URL || 'http://localhost:8000';
+
+router.get('/cluster-map', async (req, res) => {
+    try {
+        const r = await fetch(`${ML_URL}/cluster-map`);
+        const data = await r.json();
+        if (!r.ok) return res.status(r.status).json(data);
+        res.json(data);
+    } catch {
+        res.status(503).json({ error: 'ML service unavailable' });
+    }
+});
+
+router.get('/:username/cluster', async (req, res) => {
+    const { username } = req.params;
+    try {
+        const r = await fetch(`${ML_URL}/cluster/${encodeURIComponent(username)}`);
+        const data = await r.json();
+        if (!r.ok) return res.status(r.status).json(data);
+        res.json(data);
+    } catch {
+        res.status(503).json({ error: 'ML service unavailable' });
     }
 });
 
@@ -302,8 +327,6 @@ router.get('/:username/games', (req, res) => {
         res.json({ games: result });
     });
 });
-
-const ML_URL = process.env.ML_URL || 'http://localhost:8000';
 
 router.get('/:username/recommend', async (req, res) => {
     const { username } = req.params;

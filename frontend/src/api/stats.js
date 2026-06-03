@@ -108,6 +108,22 @@ export async function fetchGamePrediction(players) {
     return res.json();
 }
 
+export async function fetchClusterMap() {
+    const res = await fetch(`${BASE}/stats/cluster-map`);
+    if (!res.ok) throw new Error('Failed to fetch cluster map');
+    return res.json();
+}
+
+export async function fetchPlayerCluster(name) {
+    const res = await fetch(`${BASE}/stats/${encodeURIComponent(name)}/cluster`);
+    if (!res.ok) {
+        const err = new Error(res.statusText || String(res.status));
+        err.status = res.status;
+        throw err;
+    }
+    return res.json();
+}
+
 export async function fetchWinPrediction(name) {
     const res = await fetch(`${BASE}/stats/${name}/predict-win`);
     if (!res.ok) {
