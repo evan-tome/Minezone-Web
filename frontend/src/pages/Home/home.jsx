@@ -14,7 +14,7 @@ const features = [
     { icon: <FaTrophy />, title: "Leaderboards",        desc: "Compete for the top spot in our modes with daily/weekly/monthly/lifetime leaderboards" },
     { icon: <FaStar />,   title: "Cosmetics",           desc: "Unlock gadgets, win effects, titles, and more to stand out" },
     { icon: <FaUser />,   title: "Singleplayer Modes",  desc: "Reel in rare catches while fishing or race through parkour courses" },
-    { icon: <FaBolt />,   title: "Updates",             desc: "Frequent and consistent updates providing a fresh, fun & smooth experience" },
+    { icon: <FaBolt />,   title: "Updates",             desc: "Frequent and consistent updates providing a fresh, fun & seamless experience" },
 ];
 
 const newsPosts = [
