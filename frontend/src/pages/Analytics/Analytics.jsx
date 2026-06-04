@@ -21,6 +21,7 @@ function getClassName(id) {
     return CLASSES.get(id)?.name ?? `Class ${id}`;
 }
 
+// Classifies a class by how it's unlocked: donor rank beats level unlock beats token cost beats free.
 function getCategory(id) {
     const c = CLASSES.get(id);
     if (!c) return null;
@@ -292,6 +293,7 @@ function GamesOverTimeChart({ data }) {
     );
 }
 
+// Highlights only the busiest hour in accent color; all others render at reduced opacity.
 function PeakHoursChart({ data }) {
     const peak = data.reduce((m, d) => d.games > m.games ? d : m, { games: 0 });
     return (
@@ -474,6 +476,7 @@ export function Analytics() {
         fetchPeakHours().then(d => {
             const byHour = {};
             d.forEach(r => { byHour[Number(r.hour)] = Number(r.games); });
+            // Fill all 24 hours so the chart has no gaps for hours with zero games.
             setPeakHours(
                 Array.from({ length: 24 }, (_, h) => ({
                     hour: formatHour(h),

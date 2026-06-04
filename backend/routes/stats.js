@@ -38,6 +38,9 @@ router.get('/', (req, res) => {
     });
 });
 
+// Fetches the 20 most recent multiplayer games. The inner subquery filters to games
+// with more than one player, then the outer join pulls all their rows at once so we
+// can group them into game objects in JS without a second query.
 router.get('/recent-matches', (req, res) => {
     const sql = `
         SELECT g.game_id, g.game_type, g.map_name, g.end_time, g.game_duration_minutes,
@@ -64,6 +67,7 @@ router.get('/recent-matches', (req, res) => {
             return res.status(500).json({ error: err.message });
         }
 
+        // Group the flat SQL rows (one per player) into game objects with a players array.
         const gamesMap = new Map();
         for (const row of rows) {
             if (!gamesMap.has(row.game_id)) {
@@ -389,6 +393,7 @@ router.get('/:username/trend', async (req, res) => {
                ORDER BY game_id DESC LIMIT 100`;
         const [games] = await db.query(sql, classId ? [player.UUID, classId] : [player.UUID]);
 
+        // Only fetch per-class game counts when no class filter is active; the chart doesn't need them otherwise.
         let classCounts = null;
         if (!classId) {
             const [countRows] = await db.query(

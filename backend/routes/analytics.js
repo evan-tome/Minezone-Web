@@ -4,6 +4,8 @@ const con = require('../db');
 
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
+// Wraps a static SQL query with a simple in-memory cache. The `pending` promise is shared
+// so concurrent requests during a cache miss don't each fire their own DB query.
 function makeCache(query) {
     let cached = null;
     let lastFetch = 0;
@@ -18,6 +20,7 @@ function makeCache(query) {
             con.query(query, (err, result) => {
                 pending = null;
                 if (err) return reject(err);
+                // Unwrap single-row results so callers don't have to index into an array.
                 const data = Array.isArray(result) && result.length === 1 ? result[0] : result;
                 cached = data;
                 lastFetch = Date.now();
@@ -121,6 +124,7 @@ const getPeakHours = makeCache(`
     ORDER BY hour ASC
 `);
 
+// Runs a cached getter and sends the result as JSON, with a 5-minute browser cache hint.
 function send(getter, req, res) {
     getter()
         .then(data => {

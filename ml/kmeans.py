@@ -29,6 +29,8 @@ class KMeansClusterer:
         return self._trained
 
     def _player_vector(self, row):
+        # Converts a raw DB row into the four stat ratios we cluster on.
+        # avg_kills_pg can be NULL for players who joined before per-game logging was added.
         wins   = row['Wins']
         losses = row['Losses']
         kills  = row['Kills']
@@ -42,6 +44,8 @@ class KMeansClusterer:
         }
 
     def _to_percentile_vec(self, stats):
+        # Returns a [0,1] percentile rank for each stat against the training distribution.
+        # Binary search gives fractional position so tied values still get spread out.
         def rank(dist, value):
             lo, hi = 0, len(dist)
             while lo < hi:
@@ -54,6 +58,7 @@ class KMeansClusterer:
         return np.array([rank(self._stat_dists[k], stats[k]) for k in STAT_KEYS])
 
     def _project_2d(self, x):
+        # Applies the stored PCA transform and normalizes to roughly [-1, 1] using the training scale.
         raw = (x - self._pca_mean) @ self._pca_comps.T
         return (raw - self._pca_offset) / self._pca_scale
 
@@ -90,6 +95,8 @@ class KMeansClusterer:
         return int(ks[np.argmax(dists)])
 
     def train(self, conn):
+        # Fetches all players with >= 10 games, builds percentile vectors, runs PCA,
+        # picks K via the elbow method, then runs K-means N_INIT times and keeps the best run.
         cursor = conn.cursor(dictionary=True)
         cursor.execute("""
             SELECT pd.UUID, pd.LastPlayerName,
@@ -220,6 +227,7 @@ class KMeansClusterer:
         print(f"K-means trained on {len(rows)} players, {self.k} clusters.")
 
     def classify(self, wins, losses, kills, deaths, match_mvps, avg_kills_pg=None):
+        # Returns the player's cluster, the 10 most similar players, and their 2D map position.
         if not self._trained:
             return None
 
@@ -248,6 +256,7 @@ class KMeansClusterer:
         }
 
     def get_map_data(self):
+        # Returns a sampled set of player points and centroid positions for the cluster map visualization.
         if not self._trained:
             return None
         return {'map_points': self._map_points, 'centroid_2d': self._centroid_2d}

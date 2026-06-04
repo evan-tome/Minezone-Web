@@ -20,6 +20,7 @@ function getClassName(id) {
     return CLASSES.get(id)?.name || "Unknown";
 }
 
+// Parkour times are stored as nanoseconds by the Java plugin.
 function formatTime(nanoseconds) {
     const totalSeconds = Math.floor(nanoseconds / 1e9);
     const minutes = Math.floor(totalSeconds / 60);
@@ -48,6 +49,7 @@ function SectionTitle({ icon, children }) {
     );
 }
 
+// Returns a number with its English ordinal suffix (1st, 2nd, 3rd, 4th...).
 function ordinal(n) {
     const s = ["th", "st", "nd", "rd"];
     const v = n % 100;

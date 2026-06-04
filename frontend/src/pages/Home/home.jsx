@@ -1,6 +1,7 @@
 import '../../App.css';
 import './home.css'
 import cosmeticsImg from '../../assets/cosmetics.png';
+import homeImg from '../../assets/homepage.png';
 import Navbar from "../../components/Navbar";
 import CopyLinkButton from './CopyLinkButton';
 import NewsCard from './NewsCard';
@@ -21,9 +22,9 @@ const features = [
 const newsPosts = [
     {
         title: "Welcome to Our Website!",
-        date: "May 8, 2026",
-        content: "We're thrilled to announce the official launch of the Minezone website!",
-        image: cosmeticsImg
+        date: "June 5, 2026",
+        content: "Welcome to the official Minezone website! Explore our gamemodes, track your progress with detailed stats and leaderboards, and stay up to date with the latest news and updates. More features are coming soon, so join the community and start playing today.",
+        image: homeImg
     }
 ];
 
@@ -53,11 +54,11 @@ export function Home() {
                         </p>
                         <p className="about-socials-label">Follow us on social media</p>
                         <div className="about-socials">
-                            <a href="https://discord.com/invite/3J32tT9Zhp" target="_blank" rel="noopener noreferrer" aria-label="Join our Discord"><FaDiscord aria-hidden="true" /></a>
-                            <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><FaYoutube aria-hidden="true" /></a>
-                            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><FaInstagram aria-hidden="true" /></a>
-                            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter / X"><FaTwitter aria-hidden="true" /></a>
-                            <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" aria-label="TikTok"><FaTiktok aria-hidden="true" /></a>
+                            <a href="https://discord.gg/FS2pmY9FZB" target="_blank" rel="noopener noreferrer" aria-label="Join our Discord"><FaDiscord aria-hidden="true" /></a>
+                            <a href="https://www.youtube.com/@minezone6480" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><FaYoutube aria-hidden="true" /></a>
+                            <a href="https://www.instagram.com/minezonemc" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><FaInstagram aria-hidden="true" /></a>
+                            <a href="https://www.twitter.com/MinezoneMC" target="_blank" rel="noopener noreferrer" aria-label="Twitter / X"><FaTwitter aria-hidden="true" /></a>
+                            <a href="https://www.tiktok.com/@minezonenc" target="_blank" rel="noopener noreferrer" aria-label="TikTok"><FaTiktok aria-hidden="true" /></a>
                         </div>
                     </div>
                     <div className="trailer-wrapper">
