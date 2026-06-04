@@ -1317,43 +1317,86 @@
    RESPONSIVE
 ============================================ */
 
+/* Mobile toggle — hidden on desktop */
+.labs-mobile-nav-toggle { display: none; }
+
 @media (max-width: 800px) {
     .labs-layout {
         flex-direction: column;
     }
 
     .labs-sidebar {
-        position: static;
+        position: sticky;
+        top: 0;
         width: 100%;
         height: auto;
         border-right: none;
-        border-bottom: 1px solid rgba(245, 159, 11, 0.09);
+        border-bottom: 1px solid rgba(245, 159, 11, 0.12);
+        z-index: 10;
+        background: rgba(10, 8, 0, 0.95);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
     }
 
-    .labs-sidebar-nav {
-        flex-direction: row;
-        flex-wrap: wrap;
-        padding: 6px 10px 10px;
+    .labs-sidebar-sticky {
+        position: static;
+        height: auto;
+        overflow: visible;
     }
 
-    .labs-sidebar-item {
-        flex: 1 1 auto;
-        border-left: none;
-        border-bottom: 2px solid transparent;
-        border-radius: 8px;
-        justify-content: center;
-        padding: 10px 12px;
+    .labs-sidebar-brand,
+    .labs-sidebar-about {
+        display: none;
     }
 
-    .labs-sidebar-item.active {
-        border-bottom-color: #f59e0b;
-        background: rgba(245, 159, 11, 0.09);
+    .labs-mobile-nav-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 14px 16px;
+        background: none;
+        border: none;
+        color: var(--labs-text);
+        font-family: inherit;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        box-sizing: border-box;
+    }
+
+    .labs-mobile-nav-current {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #f59e0b;
+    }
+
+    .labs-mobile-nav-chevron {
+        font-size: 0.8rem;
+        color: var(--labs-text-3);
+        transition: transform 0.2s;
+        flex-shrink: 0;
+    }
+
+    .labs-mobile-nav-chevron.open {
+        transform: rotate(180deg);
+    }
+
+    .labs-sidebar-nav-wrap {
+        display: none;
+        padding: 0 8px 10px;
+        border-top: 1px solid rgba(245, 159, 11, 0.07);
+    }
+
+    .labs-sidebar-nav-wrap.open {
+        display: block;
     }
 
     .labs-sidebar-footer { display: none; }
 
     .labs-content {
-        padding: 32px 20px;
+        padding: 24px 16px;
     }
 
     .labs-form {

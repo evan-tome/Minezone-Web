@@ -21,6 +21,7 @@
   text-align: center;
   justify-items: center;
   align-items: start;
+  box-sizing: border-box;
 }
 
 .footer-column h2 {
@@ -114,11 +115,20 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 640px) {
   .footer-container {
     grid-template-columns: 1fr;
     gap: 1.5rem;
-    padding: 0 1rem;
+    padding: 0 1.25rem;
+  }
+
+  .footer-column h2 {
+    font-size: 1.2rem;
+  }
+
+  .footer-column p,
+  .footer-column ul li a {
+    font-size: 0.95rem;
   }
 
   .social-icons {

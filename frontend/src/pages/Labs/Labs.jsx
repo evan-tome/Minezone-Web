@@ -1348,10 +1348,21 @@ function PointField() {
     return <canvas ref={canvasRef} className="labs-point-field" />;
 }
 
+const ALL_FEATURES = [...ML_FEATURES, ...TOOL_FEATURES];
+
 export function Labs() {
     const { module } = useParams();
     const navigate = useNavigate();
     const active = module || 'recommender';
+    const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
+    const activeFeature = ALL_FEATURES.find(f => f.id === active);
+
+    const handleNav = (f) => {
+        if (!f.available) return;
+        navigate(`/labs/${f.id}`);
+        setMobileNavOpen(false);
+    };
 
     return (
         <div className="labs-page">
@@ -1378,37 +1389,50 @@ export function Labs() {
                             daily as new matches are recorded.
                         </p>
 
-                        <p className="labs-sidebar-section-label">Predictions</p>
+                        {/* Mobile: collapsible toggle */}
+                        <button
+                            className="labs-mobile-nav-toggle"
+                            onClick={() => setMobileNavOpen(o => !o)}
+                        >
+                            <span className="labs-mobile-nav-current">
+                                <span className="labs-sidebar-item-icon">{activeFeature?.icon}</span>
+                                {activeFeature?.label}
+                            </span>
+                            <FaChevronDown className={`labs-mobile-nav-chevron${mobileNavOpen ? ' open' : ''}`} />
+                        </button>
 
-                        <nav className="labs-sidebar-nav">
-                            {ML_FEATURES.map(f => (
-                                <button
-                                    key={f.id}
-                                    className={`labs-sidebar-item${active === f.id ? ' active' : ''}${f.available ? '' : ' locked'}`}
-                                    onClick={() => f.available && navigate(`/labs/${f.id}`)}
-                                >
-                                    <span className="labs-sidebar-item-icon">{f.icon}</span>
-                                    <span className="labs-sidebar-item-label">{f.label}</span>
-                                    {!f.available && <FaLock className="labs-sidebar-lock" />}
-                                </button>
-                            ))}
-                        </nav>
+                        {/* Desktop nav / mobile expanded nav */}
+                        <div className={`labs-sidebar-nav-wrap${mobileNavOpen ? ' open' : ''}`}>
+                            <p className="labs-sidebar-section-label">Predictions</p>
+                            <nav className="labs-sidebar-nav">
+                                {ML_FEATURES.map(f => (
+                                    <button
+                                        key={f.id}
+                                        className={`labs-sidebar-item${active === f.id ? ' active' : ''}${f.available ? '' : ' locked'}`}
+                                        onClick={() => handleNav(f)}
+                                    >
+                                        <span className="labs-sidebar-item-icon">{f.icon}</span>
+                                        <span className="labs-sidebar-item-label">{f.label}</span>
+                                        {!f.available && <FaLock className="labs-sidebar-lock" />}
+                                    </button>
+                                ))}
+                            </nav>
 
-                        <p className="labs-sidebar-section-label" style={{ marginTop: '20px' }}>Tools</p>
-
-                        <nav className="labs-sidebar-nav">
-                            {TOOL_FEATURES.map(f => (
-                                <button
-                                    key={f.id}
-                                    className={`labs-sidebar-item${active === f.id ? ' active' : ''}${f.available ? '' : ' locked'}`}
-                                    onClick={() => f.available && navigate(`/labs/${f.id}`)}
-                                >
-                                    <span className="labs-sidebar-item-icon">{f.icon}</span>
-                                    <span className="labs-sidebar-item-label">{f.label}</span>
-                                    {!f.available && <FaLock className="labs-sidebar-lock" />}
-                                </button>
-                            ))}
-                        </nav>
+                            <p className="labs-sidebar-section-label" style={{ marginTop: '20px' }}>Tools</p>
+                            <nav className="labs-sidebar-nav">
+                                {TOOL_FEATURES.map(f => (
+                                    <button
+                                        key={f.id}
+                                        className={`labs-sidebar-item${active === f.id ? ' active' : ''}${f.available ? '' : ' locked'}`}
+                                        onClick={() => handleNav(f)}
+                                    >
+                                        <span className="labs-sidebar-item-icon">{f.icon}</span>
+                                        <span className="labs-sidebar-item-label">{f.label}</span>
+                                        {!f.available && <FaLock className="labs-sidebar-lock" />}
+                                    </button>
+                                ))}
+                            </nav>
+                        </div>
 
                     </div>
                 </aside>

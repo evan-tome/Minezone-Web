@@ -12,7 +12,7 @@ const OnlineIndicator = () => {
         source.onmessage = (e) => {
             try { setStatus(JSON.parse(e.data)); } catch { /* ignore malformed */ }
         };
-        source.onerror = () => setStatus(null);
+        source.onerror = () => setStatus({ offline: true });
         return () => source.close();
     }, []);
 
