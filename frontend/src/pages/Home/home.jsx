@@ -1,5 +1,5 @@
 import '../../App.css';
-import './Home.css'
+import './home.css'
 import Navbar from "../../components/Navbar";
 import CopyLinkButton from './CopyLinkButton';
 import NewsCard from './NewsCard';

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import '../../App.css';
-import "./Leaderboards.css";
+import "./leaderboards.css";
 import Navbar from "../../components/Navbar";
 import Leaderboard from "./Leaderboard";
 import Footer from "../../components/Footer";

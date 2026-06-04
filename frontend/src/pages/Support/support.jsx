@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { FaChevronDown, FaChevronUp, FaDiscord } from 'react-icons/fa';
 import '../../App.css';
-import './Support.css';
+import './support.css';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 
