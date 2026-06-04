@@ -3,7 +3,9 @@ import './home.css';
 const NewsCard = ({ title, date, content, image, reverse }) => {
   return (
     <li className={reverse ? "reverse" : ""}>
-      <img src={image} alt={title} />
+      <div className="news-img-wrapper">
+        <img src={image} alt={title} />
+      </div>
       <div className="news-content">
         <h2>{title}</h2>
         <p className="date">{date}</p>
