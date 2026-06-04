@@ -531,11 +531,7 @@ p.about-socials-label {
 
 .news-cards img {
     width: 360px;
-<<<<<<< HEAD
-    min-height: 200px;
-=======
     height: 100%;
->>>>>>> 116af79642a2debb7aaf555be69bcafcdb100939
     object-fit: cover;
     flex-shrink: 0;
     align-self: stretch;
