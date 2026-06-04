@@ -422,11 +422,13 @@ export function Analytics() {
         ).catch(() => {});
 
         fetchAllClassStats().then(rows => {
-            const mapped = rows.map(c => ({
-                name: getClassName(c.ClassID),
-                played: Number(c.totalPlayed),
-                won: Number(c.totalWon ?? 0),
-            }));
+            const mapped = rows
+                .filter(c => CLASSES.has(c.ClassID))
+                .map(c => ({
+                    name: getClassName(c.ClassID),
+                    played: Number(c.totalPlayed),
+                    won: Number(c.totalWon ?? 0),
+                }));
             setAllClasses(mapped);
 
             const totals = { Free: { played: 0, won: 0 }, Token: { played: 0, won: 0 }, Level: { played: 0, won: 0 }, Donor: { played: 0, won: 0 } };
