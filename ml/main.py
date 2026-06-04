@@ -1,5 +1,5 @@
 import os
-import threading
+import joblib
 import mysql.connector.pooling
 from flask import Flask, jsonify, request
 from pathlib import Path
@@ -13,6 +13,8 @@ from kmeans import KMeansClusterer
 _ml_dir = Path(__file__).parent
 if not load_dotenv(_ml_dir / '.env'):
     load_dotenv(_ml_dir.parent / 'backend' / '.env')
+
+MODELS_DIR = _ml_dir / 'models'
 
 app = Flask(__name__)
 
@@ -36,27 +38,18 @@ def make_pool():
     )
 
 
-def train_model():
-    conn = _pool.get_connection()
-    try:
-        recommender.train(conn)
-        archetype_clf.train(conn)
-        win_predictor.train(conn)
-        game_predictor.train(conn)
-        kmeans_clf.train(conn)
-    finally:
-        conn.close()
-
-
-def _retrain_loop():
-    try:
-        train_model()
-    except Exception as e:
-        print("Retrain failed:", e)
-
-    t = threading.Timer(86400, _retrain_loop)
-    t.daemon = True
-    t.start()
+def _load(filename, fallback_cls):
+    path = MODELS_DIR / filename
+    if path.exists():
+        try:
+            obj = joblib.load(path)
+            print(f"Loaded {filename}")
+            return obj
+        except Exception as e:
+            print(f"Failed to load {filename}: {e}")
+    else:
+        print(f"Model not found: {filename} (run train.py first)")
+    return fallback_cls()
 
 
 @app.route('/cluster-map', methods=['GET'])
@@ -315,15 +308,15 @@ def predict_game():
 
     player_inputs = [
         {
-            'username':     p['LastPlayerName'],
-            'wins':         p['Wins'],
-            'losses':       p['Losses'],
-            'kills':        p['Kills'],
-            'deaths':       p['Deaths'],
+            'username':      p['LastPlayerName'],
+            'wins':          p['Wins'],
+            'losses':        p['Losses'],
+            'kills':         p['Kills'],
+            'deaths':        p['Deaths'],
             'flawless_wins': p['FlawlessWins'],
-            'match_mvps':   p['MatchMvps'],
-            'avg_kills_pg': float(p['avg_kills']) if p['avg_kills'] is not None else None,
-            'first_bloods': int(p['first_bloods']) if p['first_bloods'] is not None else 0,
+            'match_mvps':    p['MatchMvps'],
+            'avg_kills_pg':  float(p['avg_kills']) if p['avg_kills'] is not None else None,
+            'first_bloods':  int(p['first_bloods']) if p['first_bloods'] is not None else 0,
         }
         for p in players
     ]
@@ -338,16 +331,10 @@ def predict_game():
 
 if __name__ == "__main__":
     _pool = make_pool()
-    recommender = ClassRecommender()
-    archetype_clf = ArchetypeClassifier()
-    win_predictor = WinPredictor()
-    game_predictor = GamePredictor()
-    kmeans_clf = KMeansClusterer()  # K is chosen automatically by elbow method at train time
-
-    train_model()
-
-    retrain_timer = threading.Timer(86400, _retrain_loop)
-    retrain_timer.daemon = True
-    retrain_timer.start()
+    recommender    = _load('recommender.joblib',    ClassRecommender)
+    archetype_clf  = _load('archetypes.joblib',     ArchetypeClassifier)
+    win_predictor  = _load('win_predictor.joblib',  WinPredictor)
+    game_predictor = _load('game_predictor.joblib', GamePredictor)
+    kmeans_clf     = _load('kmeans.joblib',          KMeansClusterer)
 
     app.run(port=8000)
