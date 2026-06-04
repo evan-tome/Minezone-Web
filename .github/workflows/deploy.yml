@@ -31,6 +31,8 @@ jobs:
           context: ./frontend
           push: true
           tags: ${{ env.IMAGE_PREFIX }}/minezone-frontend:${{ github.sha }}
+          build-args: |
+            VITE_API_URL=${{ secrets.VITE_API_URL }}
 
       - name: Log in to Azure
         uses: azure/login@v2
@@ -109,5 +111,12 @@ jobs:
         run: |
           az containerapp update \
             --name ml \
+            --resource-group minezone-web \
+            --image ${{ env.IMAGE_PREFIX }}/minezone-ml:${{ github.sha }}
+            
+      - name: Update ml-trainer image
+        run: |
+          az containerapp job update \
+            --name ml-trainer \
             --resource-group minezone-web \
             --image ${{ env.IMAGE_PREFIX }}/minezone-ml:${{ github.sha }}
