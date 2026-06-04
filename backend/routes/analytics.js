@@ -51,31 +51,6 @@ const getLevelDistribution = makeCache(`
 
 const VAULTED_IDS = '25, 37, 38, 42, 43, 65, 69, 101, 102, 103, 104, 105';
 
-const getTopClasses = makeCache(`
-    SELECT
-        ClassID,
-        SUM(GamesPlayed) AS totalPlayed,
-        SUM(GamesWon)    AS totalWon
-    FROM PlayerClasses
-    WHERE ClassID NOT IN (${VAULTED_IDS})
-    GROUP BY ClassID
-    ORDER BY totalPlayed DESC
-    LIMIT 20
-`);
-
-const getBottomClasses = makeCache(`
-    SELECT
-        ClassID,
-        SUM(GamesPlayed) AS totalPlayed,
-        SUM(GamesWon)    AS totalWon
-    FROM PlayerClasses
-    WHERE ClassID NOT IN (${VAULTED_IDS})
-    GROUP BY ClassID
-    HAVING totalPlayed > 0
-    ORDER BY totalWon ASC
-    LIMIT 20
-`);
-
 const getAllClassStats = makeCache(`
     SELECT
         ClassID,
@@ -157,8 +132,6 @@ function send(getter, req, res) {
 
 router.get('/overview',             (req, res) => send(getOverview, req, res));
 router.get('/distribution/levels',  (req, res) => send(getLevelDistribution, req, res));
-router.get('/top-classes',          (req, res) => send(getTopClasses, req, res));
-router.get('/bottom-classes',       (req, res) => send(getBottomClasses, req, res));
 router.get('/winrates',             (req, res) => send(getWinRates, req, res));
 router.get('/all-class-stats',      (req, res) => send(getAllClassStats, req, res));
 router.get('/kd-ratios',            (req, res) => send(getKDRatios, req, res));

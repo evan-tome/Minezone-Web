@@ -8,7 +8,7 @@ import {
 import { FaUsers, FaGamepad, FaMedal, FaSkull, FaFish, FaFire } from 'react-icons/fa';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
-import { fetchOverview, fetchLevelDistribution, fetchTopByStat, fetchTopClasses, fetchBottomClasses, fetchWinRates, fetchAllClassStats, fetchMapPopularity, fetchGamesOverTime, fetchPeakHours, fetchKDRatios } from '../../api/analytics.js';
+import { fetchOverview, fetchLevelDistribution, fetchTopByStat, fetchWinRates, fetchAllClassStats, fetchMapPopularity, fetchGamesOverTime, fetchPeakHours, fetchKDRatios } from '../../api/analytics.js';
 import { CLASSES } from '../../utils/classes.js';
 import '../../App.css';
 import './Analytics.css';
@@ -388,9 +388,8 @@ export function Analytics() {
     const [topStreak, setTopStreak]   = useState([]);
     const [topFish, setTopFish]       = useState([]);
     const [levels, setLevels]         = useState([]);
-    const [classes, setClasses]           = useState([]);
-    const [classSort, setClassSort]       = useState('played');
-    const [bottomClasses, setBottomClasses] = useState([]);
+    const [allClasses, setAllClasses]         = useState([]);
+    const [classSort, setClassSort]           = useState('played');
     const [bottomClassSort, setBottomClassSort] = useState('won');
     const [winRates, setWinRates]         = useState([]);
     const [kdRatios, setKdRatios]         = useState([]);
@@ -422,23 +421,14 @@ export function Analytics() {
             setLevels(d.map(b => ({ name: `${b.bucket}-${b.bucket + 4}`, value: b.count })))
         ).catch(() => {});
 
-        fetchTopClasses().then(d =>
-            setClasses(d.map(c => ({
-                name: getClassName(c.ClassID),
-                played: Number(c.totalPlayed),
-                won: Number(c.totalWon ?? 0),
-            })))
-        ).catch(() => {});
-
-        fetchBottomClasses().then(d =>
-            setBottomClasses(d.map(c => ({
-                name: getClassName(c.ClassID),
-                played: Number(c.totalPlayed),
-                won: Number(c.totalWon ?? 0),
-            })))
-        ).catch(() => {});
-
         fetchAllClassStats().then(rows => {
+            const mapped = rows.map(c => ({
+                name: getClassName(c.ClassID),
+                played: Number(c.totalPlayed),
+                won: Number(c.totalWon ?? 0),
+            }));
+            setAllClasses(mapped);
+
             const totals = { Free: { played: 0, won: 0 }, Token: { played: 0, won: 0 }, Level: { played: 0, won: 0 }, Donor: { played: 0, won: 0 } };
             rows.forEach(r => {
                 const cat = getCategory(r.ClassID);
@@ -577,7 +567,7 @@ export function Analytics() {
                         </ChartCard>
                     )}
 
-                    {classes.length > 0 && (
+                    {allClasses.length > 0 && (
                         <ChartCard
                             title="Most Wins by Class"
                             action={
@@ -594,16 +584,26 @@ export function Analytics() {
                                     >
                                         By Won
                                     </button>
+                                    <button
+                                        className={classSort === 'winRate' ? 'active' : ''}
+                                        onClick={() => setClassSort('winRate')}
+                                    >
+                                        By Win Rate
+                                    </button>
                                 </div>
                             }
                         >
                             <ClassesChart
-                                data={[...classes].sort((a, b) => b[classSort] - a[classSort])}
+                                data={[...allClasses]
+                                    .sort((a, b) => classSort === 'winRate'
+                                        ? (b.won / b.played) - (a.won / a.played)
+                                        : b[classSort] - a[classSort])
+                                    .slice(0, 20)}
                             />
                         </ChartCard>
                     )}
 
-                    {bottomClasses.length > 0 && (
+                    {allClasses.length > 0 && (
                         <ChartCard
                             title="Least Wins by Class"
                             action={
@@ -620,11 +620,21 @@ export function Analytics() {
                                     >
                                         By Played
                                     </button>
+                                    <button
+                                        className={bottomClassSort === 'winRate' ? 'active' : ''}
+                                        onClick={() => setBottomClassSort('winRate')}
+                                    >
+                                        By Win Rate
+                                    </button>
                                 </div>
                             }
                         >
                             <ClassesChart
-                                data={[...bottomClasses].sort((a, b) => a[bottomClassSort] - b[bottomClassSort])}
+                                data={[...allClasses]
+                                    .sort((a, b) => bottomClassSort === 'winRate'
+                                        ? (a.won / a.played) - (b.won / b.played)
+                                        : a[bottomClassSort] - b[bottomClassSort])
+                                    .slice(0, 20)}
                             />
                         </ChartCard>
                     )}
