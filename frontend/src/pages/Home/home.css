@@ -659,8 +659,8 @@ p.about-socials-label {
         font-size: 0.85rem;
     }
 
-    .gc-btn-left  { left:  -44px; }
-    .gc-btn-right { right: -44px; }
+    .gc-btn-left  { left: 4px; }
+    .gc-btn-right { right: 4px; }
 
     .news-cards li,
     .news-cards li.reverse {
@@ -706,6 +706,8 @@ p.about-socials-label {
     .gc-track {
         grid-template-columns: 1fr;
     }
+
+    .carousel-btn { display: none; }
 
     .community-cta {
         padding: 0;

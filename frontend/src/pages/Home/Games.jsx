@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import '../../App.css';
 import scbImg from '../../assets/scb.png';
@@ -72,10 +72,24 @@ function GameCardSide({ game, onClick }) {
 
 export function Games() {
     const [current, setCurrent] = useState(0);
+    const touchStartX = useRef(null);
 
     const n = games.length;
     const prevIdx = (current - 1 + n) % n;
     const nextIdx = (current + 1) % n;
+
+    const handleTouchStart = (e) => {
+        touchStartX.current = e.touches[0].clientX;
+    };
+
+    const handleTouchEnd = (e) => {
+        if (touchStartX.current === null) return;
+        const diff = touchStartX.current - e.changedTouches[0].clientX;
+        if (Math.abs(diff) > 40) {
+            setCurrent(diff > 0 ? nextIdx : prevIdx);
+        }
+        touchStartX.current = null;
+    };
 
     return (
         <div className="game-carousel">
@@ -83,7 +97,11 @@ export function Games() {
                 <button className="carousel-btn gc-btn-left" onClick={() => setCurrent(prevIdx)} aria-label="Previous game">
                     <FaChevronLeft aria-hidden="true" />
                 </button>
-                <div className="gc-track">
+                <div
+                    className="gc-track"
+                    onTouchStart={handleTouchStart}
+                    onTouchEnd={handleTouchEnd}
+                >
                     <div className="gc-slot gc-slot-side">
                         <GameCardSide key={prevIdx} game={games[prevIdx]} onClick={() => setCurrent(prevIdx)} />
                     </div>

@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { FaFlask, FaChartBar, FaBars, FaTimes } from 'react-icons/fa';
+
 import '../App.css';
 import './Navbar.css';
 import OnlineIndicator from "./OnlineIndicator";
@@ -45,7 +46,7 @@ const Navbar = () => {
     return (
         <nav
             className="navbar"
-            style={isHomePage ? { background: 'transparent', borderBottom: 'none' } : undefined}
+            style={isHomePage ? { background: 'transparent', borderBottom: 'none', position: 'relative' } : { position: 'relative' }}
         >
             <div className="navbar-left">
                 <a href="/">
@@ -99,12 +100,9 @@ const Navbar = () => {
                         <li><a href="/stats" onClick={close} aria-current={ariaCurrent('/stats')}>Stats</a></li>
                         <li><a href="https://discord.com/invite/3J32tT9Zhp" target="_blank" rel="noreferrer" onClick={close}>Discord</a></li>
                         <li><a href="https://minezone.tebex.io" target="_blank" rel="noreferrer" onClick={close}>Store</a></li>
-                        <li><a href="/labs" onClick={close} aria-current={ariaCurrent('/labs')}>Labs</a></li>
-                        <li><a href="/analytics" onClick={close} aria-current={ariaCurrent('/analytics')}>Analytics</a></li>
+                        <li><a href="/labs" onClick={close} aria-current={ariaCurrent('/labs')}><FaFlask /> Labs</a></li>
+                        <li><a href="/analytics" onClick={close} aria-current={ariaCurrent('/analytics')}><FaChartBar /> Analytics</a></li>
                     </ul>
-                    <div className="mobile-nav-indicator">
-                        <OnlineIndicator />
-                    </div>
                 </div>
             )}
         </nav>
