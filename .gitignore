@@ -36,6 +36,7 @@ logs/
 # =========================
 # OS / Editor files
 # =========================
+.claude/
 .DS_Store
 Thumbs.db
 .vscode/
