@@ -4,8 +4,6 @@ Website for [Minezone](https://minezone.club), a Minecraft server running Super 
 
 ## What it does
 
-Website for [Minezone](https://minezone.club), a Minecraft server running Super Craft Bros.
-
 The server generates a lot of data across thousands of matches: kills, wins, map picks, class selections, parkour times, fishing records. Without a way to actually look at that data, it just sits in a database. This site changes that. Players can look up their own stats (K/D, win rate, favorite classes, parkour times, fishing records), browse leaderboards, and review recent match history. The analytics page gives a server-wide view of game data: map popularity, peak hours, class usage, and player level distribution. The Labs section adds ML features on top of that, including player clustering, archetype detection, class recommendations, and win prediction.
 
 ## Stack
