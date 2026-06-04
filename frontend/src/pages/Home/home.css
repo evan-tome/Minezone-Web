@@ -56,6 +56,13 @@
 .hero-indicator {
     position: relative;
     margin-top: 8px;
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .hero-indicator {
+        display: block;
+    }
 }
 
 .hero-indicator .online-tooltip {
