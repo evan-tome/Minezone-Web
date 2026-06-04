@@ -1,1 +1,1 @@
-export const API_URL = "https://backend.gentledesert-11990375.westus3.azurecontainerapps.io";
+export const API_URL = "https://backend.ambitiouspebble-b2d2aa7b.canadacentral.azurecontainerapps.io";
