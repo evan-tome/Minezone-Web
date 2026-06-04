@@ -337,4 +337,4 @@ if __name__ == "__main__":
     game_predictor = _load('game_predictor.joblib', GamePredictor)
     kmeans_clf     = _load('kmeans.joblib',          KMeansClusterer)
 
-    app.run(port=8000)
+    app.run(host='0.0.0.0', port=8000)
