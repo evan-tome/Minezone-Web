@@ -8,12 +8,12 @@ import parkour2Img from '../../assets/parkour2.png';
 const games = [
     {
         title: "Super Craft Bros",
-        description: "The classic Minecraft PvP experience, rebuilt from the ground up. Choose from kits and fight to be the last one standing.",
+        description: "Fast-paced PvP where every class has unique abilities and playstyles. Outsmart your opponents, secure powerful drops, and be the last player standing.",
         bullets: [
             "Over 60 unique classes and maps to master",
-            "Pick up powerful items from lightning drops",
-            "Duel your friends in 1v1 mode",
-            "Get a random kit each life in Frenzy mode including ones you don't own",
+            "Collect powerful items from lightning drops",
+            "Challenge friends in 1v1 duels",
+            "Get a random kit each life in Frenzy mode, including ones you don't own",
         ],
         img: scbImg,
     },
@@ -22,8 +22,8 @@ const games = [
         description: "Take a break and discover rare fish and hidden treasures across the lobby.",
         bullets: [
             "100+ fish and treasures to discover",
-            "Speed up your progression with EXP and Tokens from fishing",
-            "Unique catches at every fishing spot",
+            "Earn EXP and Tokens as you fish to speed up progression",
+            "Different fishing spots offer unique catches",
             "Unlock exclsusive rewards and cosmetics",
             "Compete for the top spot on the fishing leaderboard",
         ],
@@ -31,11 +31,11 @@ const games = [
     },
     {
         title: "Parkour",
-        description: "Complete fun and challenging parkour courses to earn a spot on the leaderboard.",
+        description: "Take on challenging parkour courses and push for the fastest time on the leaderboard.",
         bullets: [
             "Compete for the fastest time on the leaderboard",
-            "Race your friends to see who's the best",
-            "Earn prizes for completions",
+            "Race your friends to see who's best",
+            "Earn prizes for completing courses",
         ],
         img: parkour2Img,
     },
