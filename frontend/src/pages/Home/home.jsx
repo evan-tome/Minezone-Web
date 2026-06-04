@@ -6,6 +6,7 @@ import CopyLinkButton from './CopyLinkButton';
 import NewsCard from './NewsCard';
 import Footer from '../../components/Footer';
 import { Games } from './Games';
+import OnlineIndicator from '../../components/OnlineIndicator';
 import { FaDiscord, FaYoutube, FaInstagram, FaTwitter, FaTiktok, FaMap, FaUser, FaMedal, FaTrophy, FaStar, FaBolt } from 'react-icons/fa';
 
 const features = [
@@ -36,6 +37,9 @@ export function Home() {
                     <img src="/minezonebanner.png" className="hero-logo" alt="Minezone" />
                     <p className="hero-tagline">The Home of Super Craft Bros</p>
                     <CopyLinkButton />
+                    <div className="hero-indicator">
+                        <OnlineIndicator />
+                    </div>
                 </div>
             </div>
 

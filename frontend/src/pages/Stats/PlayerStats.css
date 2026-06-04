@@ -338,6 +338,65 @@
     color: var(--text);
 }
 
+@media (max-width: 640px) {
+    .ps-card {
+        padding: 18px 14px;
+        border-radius: 14px;
+        margin-top: 20px;
+        box-sizing: border-box;
+    }
+
+    .ps-avatar {
+        width: 60px;
+        height: 60px;
+    }
+
+    .ps-username {
+        font-size: 1.4rem;
+    }
+
+    .ps-progression {
+        grid-template-columns: 70px 1fr 100px;
+        gap: 10px;
+        padding: 14px;
+    }
+
+    .ps-grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .stat-cell-value {
+        font-size: 1.2rem;
+    }
+
+    .game-cards {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+    }
+
+    .game-card {
+        padding: 10px 10px;
+    }
+
+    .game-card-map {
+        font-size: 0.78rem;
+    }
+
+    .game-card-result,
+    .game-card-date {
+        font-size: 0.68rem;
+    }
+
+    .game-card-stat-label,
+    .game-card-stat-value {
+        font-size: 0.72rem;
+    }
+
+    .gc-firstblood-tag {
+        display: none;
+    }
+}
+
 @media (min-width: 1440px) {
     .ps-card {
         max-width: 760px;

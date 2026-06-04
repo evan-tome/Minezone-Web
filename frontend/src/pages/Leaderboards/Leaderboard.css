@@ -167,3 +167,35 @@
     color: var(--muted);
     font-size: 1rem;
 }
+
+@media (max-width: 640px) {
+    .lb-table-wrap {
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .lb-table {
+        min-width: 620px;
+    }
+
+    .lb-table th,
+    .lb-table td {
+        padding: 10px 10px;
+        font-size: 0.82rem;
+    }
+
+    .lb-th-player {
+        min-width: 130px;
+    }
+
+    .player-head {
+        width: 26px;
+        height: 26px;
+    }
+
+    .rank {
+        width: 24px;
+        height: 24px;
+        font-size: 0.75rem;
+    }
+}

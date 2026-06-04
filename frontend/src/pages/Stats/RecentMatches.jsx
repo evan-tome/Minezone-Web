@@ -90,8 +90,8 @@ export function MatchCard({ match, linked = true }) {
                     <span className="rm-col-name">Player</span>
                     <span className="rm-col-class">Class</span>
                     <span className="rm-col-stat">Kills</span>
-                    <span className="rm-col-stat">Deaths</span>
-                    <span className="rm-col-stat">Lives</span>
+                    <span className="rm-col-stat rm-deaths">Deaths</span>
+                    <span className="rm-col-stat rm-lives">Lives</span>
                 </div>
 
                 {match.players.map(p => {

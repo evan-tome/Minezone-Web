@@ -103,9 +103,6 @@ const Navbar = () => {
                         <li><a href="/labs" onClick={close} aria-current={ariaCurrent('/labs')}><FaFlask /> Labs</a></li>
                         <li><a href="/analytics" onClick={close} aria-current={ariaCurrent('/analytics')}><FaChartBar /> Analytics</a></li>
                     </ul>
-                    <div className="mobile-menu-footer">
-                        <OnlineIndicator />
-                    </div>
                 </div>
             )}
         </nav>
