@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import '../../App.css';
+import scbImg from '../../assets/scb.png';
+import fishingImg from '../../assets/fishing.png';
+import parkour2Img from '../../assets/parkour2.png';
 
 const games = [
     {
@@ -12,7 +15,7 @@ const games = [
             "Duel your friends in 1v1 mode",
             "Get a random kit each life in Frenzy mode including ones you don't own",
         ],
-        img: "../src/assets/scb.png",
+        img: scbImg,
     },
     {
         title: "Fishing",
@@ -24,7 +27,7 @@ const games = [
             "Unlock exclsusive rewards and cosmetics",
             "Compete for the top spot on the fishing leaderboard",
         ],
-        img: "../src/assets/fishing.png",
+        img: fishingImg,
     },
     {
         title: "Parkour",
@@ -34,7 +37,7 @@ const games = [
             "Race your friends to see who's the best",
             "Earn prizes for completions",
         ],
-        img: "../src/assets/parkour2.png",
+        img: parkour2Img,
     },
 ];
 

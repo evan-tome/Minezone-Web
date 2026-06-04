@@ -1,5 +1,6 @@
 import '../../App.css';
 import './home.css'
+import cosmeticsImg from '../../assets/cosmetics.png';
 import Navbar from "../../components/Navbar";
 import CopyLinkButton from './CopyLinkButton';
 import NewsCard from './NewsCard';
@@ -21,7 +22,7 @@ const newsPosts = [
         title: "Welcome to Our Website!",
         date: "May 8, 2026",
         content: "We're thrilled to announce the official launch of the Minezone website!",
-        image: "../src/assets/cosmetics.png"
+        image: cosmeticsImg
     }
 ];
 
