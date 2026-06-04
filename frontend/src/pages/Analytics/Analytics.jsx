@@ -475,9 +475,9 @@ export function Analytics() {
             const byHour = {};
             d.forEach(r => { byHour[Number(r.hour)] = Number(r.games); });
             setPeakHours(
-                Array.from({ length: 24 }, (_, estH) => ({
-                    hour: formatHour(estH),
-                    games: byHour[(estH + 5) % 24] ?? 0,
+                Array.from({ length: 24 }, (_, h) => ({
+                    hour: formatHour(h),
+                    games: byHour[h] ?? 0,
                 }))
             );
         }).catch(() => {});
@@ -513,7 +513,7 @@ export function Analytics() {
                                 </ChartCard>
                             )}
                             {peakHours.length > 0 && (
-                                <ChartCard title="Peak Hours (all time, EST)">
+                                <ChartCard title="Peak Hours (all time, ET)">
                                     <PeakHoursChart data={peakHours} />
                                 </ChartCard>
                             )}
@@ -571,7 +571,7 @@ export function Analytics() {
 
                     {allClasses.length > 0 && (
                         <ChartCard
-                            title="Most Wins by Class"
+                            title="Most Active Classes"
                             action={
                                 <div className="chart-sort-toggle">
                                     <button
@@ -607,7 +607,7 @@ export function Analytics() {
 
                     {allClasses.length > 0 && (
                         <ChartCard
-                            title="Least Wins by Class"
+                            title="Least Active Classes"
                             action={
                                 <div className="chart-sort-toggle">
                                     <button
