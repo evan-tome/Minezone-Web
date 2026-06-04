@@ -100,7 +100,7 @@ function ChartCard({ title, children, full, action, rowSpan }) {
     );
 }
 
-function HorizontalBar({ data, dataKey = 'value', nameKey = 'name' }) {
+function HorizontalBar({ data, dataKey = 'value', nameKey = 'name', unit }) {
     const navigate = useNavigate();
     return (
         <ResponsiveContainer width="100%" height={300}>
@@ -109,7 +109,15 @@ function HorizontalBar({ data, dataKey = 'value', nameKey = 'name' }) {
                 <XAxis type="number" tick={{ fill: 'var(--muted)', fontSize: 12 }} axisLine={false} tickLine={false} />
                 <YAxis type="category" dataKey={nameKey} width={110} axisLine={false} tickLine={false}
                     tick={(props) => <PlayerTick {...props} navigate={navigate} />} />
-                <Tooltip content={<ChartTooltip />} cursor={{ fill: 'var(--accent-soft)' }} />
+                <Tooltip content={unit ? ({ active, payload, label }) => {
+                    if (!active || !payload?.length) return null;
+                    return (
+                        <div className="chart-tooltip">
+                            <p className="chart-tooltip-name">{label}</p>
+                            <p className="chart-tooltip-value" style={{ color: ACCENT }}>{Number(payload[0].value).toLocaleString()} {unit}</p>
+                        </div>
+                    );
+                } : <ChartTooltip />} cursor={{ fill: 'var(--accent-soft)' }} />
                 <Bar dataKey={dataKey} radius={[0, 4, 4, 0]} maxBarSize={22}>
                     {data.map((entry, i) => <Cell key={entry[nameKey]} fill={BAR_COLORS[i] ?? BAR_COLORS.at(-1)} />)}
                 </Bar>
@@ -254,9 +262,17 @@ function MapPopularityChart({ data }) {
                 <XAxis type="number" hide />
                 <YAxis type="category" dataKey="name" width={120} axisLine={false} tickLine={false}
                     tick={{ fill: 'var(--text)', fontSize: 12 }} />
-                <Tooltip content={<ChartTooltip />} cursor={{ fill: 'var(--accent-soft)' }} />
+                <Tooltip content={({ active, payload, label }) => {
+                    if (!active || !payload?.length) return null;
+                    return (
+                        <div className="chart-tooltip">
+                            <p className="chart-tooltip-name">{label}</p>
+                            <p className="chart-tooltip-value" style={{ color: ACCENT }}>{payload[0].value.toLocaleString()} games</p>
+                        </div>
+                    );
+                }} cursor={{ fill: 'var(--accent-soft)' }} />
                 <Bar dataKey="value" radius={[0, 4, 4, 0]} maxBarSize={24}
-                    label={{ position: 'right', formatter: v => v.toLocaleString(), fill: 'var(--muted)', fontSize: 12 }}>
+                    label={{ position: 'right', formatter: v => `${v.toLocaleString()} games`, fill: 'var(--muted)', fontSize: 12 }}>
                     {data.map((entry, i) => <Cell key={entry.name} fill={BAR_COLORS[i] ?? BAR_COLORS.at(-1)} />)}
                 </Bar>
             </BarChart>
@@ -528,24 +544,24 @@ export function Analytics() {
                         </div>
                     )}
 
-                    <ChartCard title="Top 10 by Wins">
-                        <HorizontalBar data={topWins} />
-                    </ChartCard>
-
-                    <ChartCard title="Top 10 by Kills">
-                        <HorizontalBar data={topKills} />
-                    </ChartCard>
-
                     <ChartCard title="Player Level Distribution" full>
                         <VerticalBar data={levels} />
                     </ChartCard>
 
+                    <ChartCard title="Top 10 by Wins">
+                        <HorizontalBar data={topWins} unit="wins" />
+                    </ChartCard>
+
+                    <ChartCard title="Top 10 by Kills">
+                        <HorizontalBar data={topKills} unit="kills" />
+                    </ChartCard>
+
                     <ChartCard title="Top 10 Best Winstreaks">
-                        <HorizontalBar data={topStreak} />
+                        <HorizontalBar data={topStreak} unit="wins" />
                     </ChartCard>
 
                     <ChartCard title="Top 10 Fish Caught">
-                        <HorizontalBar data={topFish} />
+                        <HorizontalBar data={topFish} unit="fish" />
                     </ChartCard>
 
                     {classCategories.length > 0 && (
