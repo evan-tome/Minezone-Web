@@ -49,12 +49,15 @@ const getLevelDistribution = makeCache(`
     ORDER BY bucket ASC
 `);
 
+const VAULTED_IDS = '25, 37, 38, 42, 43, 65, 69, 101, 102, 103, 104, 105';
+
 const getTopClasses = makeCache(`
     SELECT
         ClassID,
         SUM(GamesPlayed) AS totalPlayed,
         SUM(GamesWon)    AS totalWon
     FROM PlayerClasses
+    WHERE ClassID NOT IN (${VAULTED_IDS})
     GROUP BY ClassID
     ORDER BY totalPlayed DESC
     LIMIT 20
@@ -66,6 +69,7 @@ const getBottomClasses = makeCache(`
         SUM(GamesPlayed) AS totalPlayed,
         SUM(GamesWon)    AS totalWon
     FROM PlayerClasses
+    WHERE ClassID NOT IN (${VAULTED_IDS})
     GROUP BY ClassID
     HAVING totalPlayed > 0
     ORDER BY totalWon ASC
@@ -78,6 +82,7 @@ const getAllClassStats = makeCache(`
         SUM(GamesPlayed) AS totalPlayed,
         SUM(GamesWon)    AS totalWon
     FROM PlayerClasses
+    WHERE ClassID NOT IN (${VAULTED_IDS})
     GROUP BY ClassID
 `);
 

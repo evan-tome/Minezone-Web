@@ -423,7 +423,7 @@ export function Analytics() {
         ).catch(() => {});
 
         fetchTopClasses().then(d =>
-            setClasses(d.filter(c => !CLASSES.get(c.ClassID)?.vaulted).map(c => ({
+            setClasses(d.map(c => ({
                 name: getClassName(c.ClassID),
                 played: Number(c.totalPlayed),
                 won: Number(c.totalWon ?? 0),
@@ -431,7 +431,7 @@ export function Analytics() {
         ).catch(() => {});
 
         fetchBottomClasses().then(d =>
-            setBottomClasses(d.filter(c => !CLASSES.get(c.ClassID)?.vaulted).map(c => ({
+            setBottomClasses(d.map(c => ({
                 name: getClassName(c.ClassID),
                 played: Number(c.totalPlayed),
                 won: Number(c.totalWon ?? 0),
@@ -440,7 +440,7 @@ export function Analytics() {
 
         fetchAllClassStats().then(rows => {
             const totals = { Free: { played: 0, won: 0 }, Token: { played: 0, won: 0 }, Level: { played: 0, won: 0 }, Donor: { played: 0, won: 0 } };
-            rows.filter(r => !CLASSES.get(r.ClassID)?.vaulted).forEach(r => {
+            rows.forEach(r => {
                 const cat = getCategory(r.ClassID);
                 if (cat && totals[cat]) {
                     totals[cat].played += Number(r.totalPlayed);
