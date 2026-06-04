@@ -79,7 +79,8 @@ jobs:
           az containerapp update \
             --name backend \
             --resource-group minezone-web \
-            --image ${{ env.IMAGE_PREFIX }}/minezone-backend:${{ github.sha }}
+            --image ${{ env.IMAGE_PREFIX }}/minezone-backend:${{ github.sha }} \
+            --set-env-vars "ML_URL=http://ml.internal.ambitiouspebble-b2d2aa7b.canadacentral.azurecontainerapps.io"
 
   deploy-ml:
     runs-on: ubuntu-latest
