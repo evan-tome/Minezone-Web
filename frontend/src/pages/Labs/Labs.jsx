@@ -631,12 +631,8 @@ function TrendPanel() {
     };
 
     const playedClasses = baseResult
-        ? [...new Map(
-            baseResult.games
-                .filter(g => g.class_id != null)
-                .map(g => [g.class_id, g.class_id])
-          ).values()]
-            .map(id => ({ id, name: getClassName(id), count: baseResult.games.filter(g => g.class_id === id).length }))
+        ? Object.entries(baseResult.class_counts ?? {})
+            .map(([id, count]) => ({ id: Number(id), name: getClassName(Number(id)), count }))
             .filter(c => c.count >= 5)
             .sort((a, b) => b.count - a.count)
         : [];

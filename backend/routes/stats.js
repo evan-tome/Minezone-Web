@@ -382,7 +382,20 @@ router.get('/:username/trend', async (req, res) => {
                FROM scb_game_players WHERE uuid = ?
                ORDER BY game_id DESC LIMIT 100`;
         const [games] = await db.query(sql, classId ? [player.UUID, classId] : [player.UUID]);
-        res.json({ username: player.LastPlayerName, games: games.reverse() });
+
+        let classCounts = null;
+        if (!classId) {
+            const [countRows] = await db.query(
+                `SELECT class_id, LEAST(COUNT(*), 100) AS count
+                 FROM scb_game_players
+                 WHERE uuid = ? AND class_id IS NOT NULL
+                 GROUP BY class_id`,
+                [player.UUID]
+            );
+            classCounts = Object.fromEntries(countRows.map(r => [r.class_id, r.count]));
+        }
+
+        res.json({ username: player.LastPlayerName, games: games.reverse(), ...(classCounts && { class_counts: classCounts }) });
     } catch {
         res.status(500).json({ error: 'Database error' });
     }
