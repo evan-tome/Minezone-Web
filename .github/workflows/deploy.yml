@@ -15,9 +15,6 @@ permissions:
 jobs:
   deploy-frontend:
     runs-on: ubuntu-latest
-    if: |
-      contains(toJson(github.event.commits.*.modified), 'frontend/') ||
-      contains(toJson(github.event.commits.*.added), 'frontend/')
     steps:
       - uses: actions/checkout@v4
 
@@ -51,9 +48,6 @@ jobs:
 
   deploy-backend:
     runs-on: ubuntu-latest
-    if: |
-      contains(toJson(github.event.commits.*.modified), 'backend/') ||
-      contains(toJson(github.event.commits.*.added), 'backend/')
     steps:
       - uses: actions/checkout@v4
 
@@ -87,9 +81,6 @@ jobs:
 
   deploy-ml:
     runs-on: ubuntu-latest
-    if: |
-      contains(toJson(github.event.commits.*.modified), 'ml/') ||
-      contains(toJson(github.event.commits.*.added), 'ml/')
     steps:
       - uses: actions/checkout@v4
 
