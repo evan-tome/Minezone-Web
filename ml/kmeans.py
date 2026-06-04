@@ -117,13 +117,13 @@ class KMeansClusterer:
         self._stat_dists = {k: sorted(s[k] for s in all_stats) for k in STAT_KEYS}
         X = np.array([self._to_percentile_vec(s) for s in all_stats])
 
-        # PCA to 2D first — clustering happens in this space so map and
+        # PCA to 2D first - clustering happens in this space so map and
         # reported cluster are always consistent
         self._pca_mean  = X.mean(axis=0)
         _, _, Vt        = np.linalg.svd(X - self._pca_mean, full_matrices=False)
         self._pca_comps = Vt[:2]
 
-        # Uniform scaling so both axes share the same unit — prevents visual
+        # Uniform scaling so both axes share the same unit - prevents visual
         # distortion from PCA components having different variances
         X_2d_raw         = (X - self._pca_mean) @ self._pca_comps.T
         self._pca_offset  = X_2d_raw.mean(axis=0)

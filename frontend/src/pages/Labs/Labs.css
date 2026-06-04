@@ -1,5 +1,5 @@
 /* ============================================
-   LABS PAGE — dark, futuristic design system
+   LABS PAGE - dark, futuristic design system
 ============================================ */
 
 .labs-page {
@@ -1317,7 +1317,7 @@
    RESPONSIVE
 ============================================ */
 
-/* Mobile toggle — hidden on desktop */
+/* Mobile toggle - hidden on desktop */
 .labs-mobile-nav-toggle { display: none; }
 
 @media (max-width: 800px) {

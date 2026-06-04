@@ -210,12 +210,8 @@ p.about-socials-label {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    transition: border-color 0.2s ease;
 }
 
-.feature-card:hover {
-    border-color: var(--accent);
-}
 
 .feature-card-icon {
     color: var(--accent);
@@ -316,23 +312,25 @@ p.about-socials-label {
     display: grid;
     grid-template-columns: 1fr 1.25fr 1fr;
     gap: 16px;
-    align-items: stretch;
+    align-items: start;
+}
+
+.gc-slot-center {
+    min-height: 580px;
 }
 
 .gc-slot {
     display: flex;
+    align-items: stretch;
 }
 
-.gc-slot-center {
-    overflow: hidden;
-    height: 474px;
-}
 
 .gc-slot-side {
     cursor: pointer;
     padding: 52px 0;
     transform: scale(0.95);
     transform-origin: center;
+    min-height: 440px;
 }
 
 @keyframes gc-fade-in {
@@ -346,9 +344,9 @@ p.about-socials-label {
     background: var(--surface);
     border: 2px solid var(--border);
     border-radius: 16px;
-    overflow: hidden;
     display: flex;
     flex-direction: column;
+    flex: 1;
     transition: border-color 0.2s, box-shadow 0.2s, opacity 0.2s, transform 0.2s;
 }
 
@@ -406,6 +404,7 @@ p.about-socials-label {
     object-position: center;
     display: block;
     flex-shrink: 0;
+    border-radius: 14px 14px 0 0;
 }
 
 /* Content */
@@ -521,16 +520,12 @@ p.about-socials-label {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     border-radius: 12px;
     overflow: hidden;
-    transition: border-color 0.2s ease;
 }
 
 .news-cards li.reverse {
     flex-direction: row-reverse;
 }
 
-.news-cards li:hover {
-    border-color: var(--accent);
-}
 
 .news-cards img {
     width: 300px;
@@ -572,7 +567,7 @@ p.about-socials-label {
 }
 
 /* =========================
-   RESPONSIVE — LARGE DESKTOP (≥1440px)
+   RESPONSIVE - LARGE DESKTOP (>=1440px)
 ========================= */
 
 @media (min-width: 1440px) {
@@ -608,7 +603,7 @@ p.about-socials-label {
 }
 
 /* =========================
-   RESPONSIVE — TABLET (≤1024px)
+   RESPONSIVE - TABLET (<=1024px)
 ========================= */
 
 @media (max-width: 1024px) {
@@ -649,7 +644,7 @@ p.about-socials-label {
 }
 
 /* =========================
-   RESPONSIVE — SMALL TABLET (≤768px)
+   RESPONSIVE - SMALL TABLET (<=768px)
 ========================= */
 
 @media (max-width: 768px) {
@@ -663,6 +658,10 @@ p.about-socials-label {
 
     .gc-track {
         gap: 10px;
+    }
+
+    .gc-slot-side {
+        min-height: unset;
     }
 
     .gc-img {
@@ -698,7 +697,7 @@ p.about-socials-label {
 }
 
 /* =========================
-   RESPONSIVE — MOBILE (≤640px)
+   RESPONSIVE - MOBILE (<=640px)
 ========================= */
 
 @media (max-width: 640px) {

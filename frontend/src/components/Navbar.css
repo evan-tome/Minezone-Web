@@ -76,7 +76,7 @@
     background: rgba(255, 255, 255, 0.15);
 }
 
-/* Hamburger button — hidden on desktop */
+/* Hamburger button - hidden on desktop */
 .navbar-hamburger {
     display: none;
     background: none;
@@ -96,7 +96,7 @@
     background: rgba(0, 0, 0, 0.2);
 }
 
-/* Mobile dropdown — full-screen overlay, shown only at mobile breakpoint */
+/* Mobile dropdown - full-screen overlay, shown only at mobile breakpoint */
 .navbar-mobile-menu {
     display: none;
 }

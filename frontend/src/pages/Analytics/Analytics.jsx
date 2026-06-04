@@ -5,7 +5,7 @@ import {
     Tooltip, Cell, CartesianGrid, Legend, PieChart, Pie,
     AreaChart, Area,
 } from 'recharts';
-import { FaUsers, FaGamepad, FaMedal, FaSkull, FaFish, FaFire } from 'react-icons/fa';
+import { FaUsers, FaGamepad, FaMedal, FaSkull, FaFish, FaClock } from 'react-icons/fa';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import { fetchOverview, fetchLevelDistribution, fetchTopByStat, fetchWinRates, fetchAllClassStats, fetchMapPopularity, fetchGamesOverTime, fetchPeakHours, fetchKDRatios } from '../../api/analytics.js';
@@ -500,7 +500,7 @@ export function Analytics() {
                         <StatCard icon={<FaMedal />}    label="Avg Level"      value={overview.avgLevel} />
                         <StatCard icon={<FaSkull />}    label="Total Kills"    value={Number(overview.totalKills).toLocaleString()} />
                         <StatCard icon={<FaFish />}     label="Fish Caught"    value={Number(overview.totalFishCaught).toLocaleString()} />
-                        <StatCard icon={<FaFire />}     label="Top Winstreak"  value={Number(overview.topWinstreak).toLocaleString()} />
+                        <StatCard icon={<FaClock />}    label="Total Game Time" value={(() => { const m = Number(overview.totalGameMinutes); const d = Math.floor(m / 1440); const h = Math.floor((m % 1440) / 60); return d > 0 ? `${d.toLocaleString()}d ${h}h` : `${h}h`; })()} />
                     </div>
                 )}
 

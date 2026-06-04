@@ -45,6 +45,7 @@ export function Stats() {
             setPlayerData({
                 ...player,
                 FavClass: favclass?.ClassID ?? null,
+                BestClass: favclass?.BestClassID ?? null,
                 TotalTime: parkour?.[0]?.TotalTime ?? null,
                 RecentGames: games ?? [],
             });

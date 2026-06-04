@@ -36,7 +36,7 @@ const getOverview = makeCache(`
         ROUND(AVG(Level), 1)   AS avgLevel,
         SUM(TotalCaught)       AS totalFishCaught,
         SUM(Kills)             AS totalKills,
-        MAX(BestWinstreak)     AS topWinstreak
+        (SELECT SUM(game_duration_minutes) FROM scb_games) AS totalGameMinutes
     FROM PlayerData
 `);
 

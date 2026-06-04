@@ -163,8 +163,9 @@ function PlayerStats({ player }) {
                 <StatCell label="Winstreak"      value={player.Winstreak.toLocaleString()}     icon={<FaFire />} />
                 <StatCell label="Best Winstreak" value={player.BestWinstreak.toLocaleString()} icon={<FaCrown />} accent />
             </div>
-            <div className="ps-stat-grid ps-grid-1">
+            <div className="ps-stat-grid ps-grid-2">
                 <StatCell label="Favorite Class" value={player.FavClass ? getClassName(player.FavClass) : "N/A"} icon={<IoSparkles />} />
+                <StatCell label="Best Class" value={player.BestClass ? getClassName(player.BestClass) : "N/A"} icon={<FaTrophy />} accent />
             </div>
 
             {/* Recent Games */}

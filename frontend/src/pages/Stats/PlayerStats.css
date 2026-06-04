@@ -254,10 +254,9 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-    border-left-width: 3px;
     text-decoration: none;
     color: inherit;
-    transition: opacity 0.15s;
+    transition: border-color 0.15s, background 0.15s;
 }
 
 .game-card:hover {
@@ -265,8 +264,8 @@
     background: color-mix(in srgb, var(--accent) 5%, var(--bg));
 }
 
-.game-card-win  { border-left-color: #4caf79; }
-.game-card-loss { border-left-color: #e05555; }
+.game-card-win  { background: rgba(76, 175, 121, 0.1); }
+.game-card-loss { background: rgba(224, 85, 85, 0.1); }
 
 .game-card-header {
     display: flex;

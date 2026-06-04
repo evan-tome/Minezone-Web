@@ -296,16 +296,22 @@ router.get('/:username/favclass', (req, res) => {
     const { username } = req.params;
 
     const sql = `
-        SELECT pc.ClassID
-        FROM PlayerClasses pc
-        JOIN PlayerData pd ON pc.UUID = pd.UUID
-        WHERE pd.LastPlayerName = ?
-        ORDER BY pc.GamesPlayed DESC
-        LIMIT 1
+        SELECT
+            (SELECT pc1.ClassID FROM PlayerClasses pc1
+             JOIN PlayerData pd1 ON pc1.UUID = pd1.UUID
+             WHERE pd1.LastPlayerName = ?
+             ORDER BY pc1.GamesPlayed DESC LIMIT 1) AS FavClassID,
+            (SELECT pc2.ClassID FROM PlayerClasses pc2
+             JOIN PlayerData pd2 ON pc2.UUID = pd2.UUID
+             WHERE pd2.LastPlayerName = ?
+             ORDER BY pc2.GamesWon DESC LIMIT 1) AS BestClassID
     `;
-    con.query(sql, [username], (err, result) => {
+    con.query(sql, [username, username], (err, result) => {
         if (err) return res.status(500).json({ error: "Database error" });
-        res.json({ ClassID: result[0]?.ClassID ?? null });
+        res.json({
+            ClassID: result[0]?.FavClassID ?? null,
+            BestClassID: result[0]?.BestClassID ?? null,
+        });
     });
 });
 

@@ -87,7 +87,7 @@ export function Store() {
                                     <td className="perk-name">{perk}</td>
                                     {ranks.map((rank, colIdx) => (
                                         <td key={colIdx}>
-                                            {rank.perks.includes(perk) ? "✓" : "—"}
+                                            {rank.perks.includes(perk) ? "✓" : "-"}
                                         </td>
                                     ))}
                                 </tr>
