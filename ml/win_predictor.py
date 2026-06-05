@@ -1,11 +1,11 @@
 import numpy as np
-from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.calibration import CalibratedClassifierCV
 from sklearn.preprocessing import StandardScaler
 
-_FEATURE_KEYS = ['wlr', 'flawless_rate', 'mvp_rate', 'kills_pg']
+_FEATURE_KEYS = ['flawless_rate', 'mvp_rate', 'kills_pg']
 
 STAT_DISPLAY = {
-    'wlr':           'win rate',
     'flawless_rate': 'flawless rate',
     'mvp_rate':      'MVP rate',
     'kills_pg':      'kills per game',
@@ -16,6 +16,7 @@ class WinPredictor:
     def __init__(self):
         self._model = None
         self._scaler = None
+        self._feature_corrs = None
 
     @property
     def ready(self):
@@ -25,7 +26,6 @@ class WinPredictor:
                      flawless_wins, match_mvps, avg_kills_pg):
         total = wins + losses
         return [
-            wins / max(total, 1),
             flawless_wins / max(wins, 1),
             match_mvps / max(total, 1),
             avg_kills_pg if avg_kills_pg is not None else kills / max(total, 1),
@@ -38,14 +38,11 @@ class WinPredictor:
                 pd.Wins, pd.Losses, pd.Kills, pd.Deaths,
                 pd.FlawlessWins, pd.MatchMvps,
                 ag.avg_kills_pg,
-                ag.avg_first_blood,
                 IF(gp.placement = 1, 1, 0) AS won
             FROM scb_game_players gp
             JOIN PlayerData pd ON pd.UUID = gp.uuid
             JOIN (
-                SELECT uuid,
-                       AVG(kills)      AS avg_kills_pg,
-                       AVG(firstblood) AS avg_first_blood
+                SELECT uuid, AVG(kills) AS avg_kills_pg
                 FROM scb_game_players
                 GROUP BY uuid
             ) ag ON ag.uuid = gp.uuid
@@ -73,7 +70,14 @@ class WinPredictor:
         self._scaler = StandardScaler()
         X_scaled = self._scaler.fit_transform(X)
 
-        self._model = LogisticRegression(max_iter=1000, random_state=42)
+        # Pearson correlation of each feature with target — used to determine direction at inference
+        self._feature_corrs = np.array([
+            float(np.corrcoef(X[:, i], y)[0, 1])
+            for i in range(X.shape[1])
+        ])
+
+        base = GradientBoostingClassifier(n_estimators=100, max_depth=3, random_state=42)
+        self._model = CalibratedClassifierCV(base, cv=5, method='sigmoid')
         self._model.fit(X_scaled, y)
         print(f"Win predictor trained on {len(X)} game rows.")
 
@@ -92,14 +96,15 @@ class WinPredictor:
         X_scaled = self._scaler.transform(np.array([feats], dtype=float))
         prob = float(self._model.predict_proba(X_scaled)[0][1])
 
-        # (original_index, display_name, contribution), index preserved so above_avg is correct
-        coefs = self._model.coef_[0]
+        # Average feature importances across the 5 calibration folds
+        importances = np.mean([
+            clf.estimator.feature_importances_
+            for clf in self._model.calibrated_classifiers_
+        ], axis=0)
+
         indexed = sorted(
-            [
-                (i, STAT_DISPLAY[k], float(coefs[i] * X_scaled[0][i]))
-                for i, k in enumerate(_FEATURE_KEYS)
-            ],
-            key=lambda x: abs(x[2]),
+            [(i, STAT_DISPLAY[k], float(importances[i])) for i, k in enumerate(_FEATURE_KEYS)],
+            key=lambda x: x[2],
             reverse=True,
         )
 
@@ -108,9 +113,10 @@ class WinPredictor:
             'key_factors': [
                 {
                     'stat':      name,
-                    'direction': 'up' if impact >= 0 else 'down',
+                    # up = player's value on this stat aligns with what wins (above avg on positive stat, or below avg on negative stat)
+                    'direction': 'up' if (X_scaled[0][idx] > 0) == (self._feature_corrs[idx] > 0) else 'down',
                     'above_avg': bool(X_scaled[0][idx] > 0),
                 }
-                for idx, name, impact in indexed[:3]
+                for idx, name, _ in indexed[:3]
             ],
         }
