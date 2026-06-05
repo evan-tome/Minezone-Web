@@ -404,6 +404,8 @@ function WinPredictor() {
 
     const pct = result?.win_probability;
     const actual = result?.actual_win_rate;
+    const tracked = result?.tracked_win_rate;
+    const trackedGames = result?.tracked_games;
     const delta = pct != null && actual != null ? Math.round((pct - actual) * 10) / 10 : null;
 
     return (
@@ -474,6 +476,18 @@ function WinPredictor() {
                                 </span>
                                 <span className="labs-predict-compare-val">{actual}%</span>
                             </div>
+                            {tracked != null && (
+                                <>
+                                    <div className="labs-predict-compare-divider" />
+                                    <div className="labs-predict-compare-row">
+                                        <span className="labs-predict-compare-label">
+                                            Tracked games win rate
+                                            <span className="labs-predict-sublabel">{trackedGames} recorded matches on this server</span>
+                                        </span>
+                                        <span className="labs-predict-compare-val">{tracked}%</span>
+                                    </div>
+                                </>
+                            )}
                             <div className="labs-predict-compare-divider" />
                             <div className="labs-predict-compare-row">
                                 <span className="labs-predict-compare-label">

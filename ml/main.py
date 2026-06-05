@@ -226,8 +226,9 @@ def predict_win(username):
                 """
                 SELECT pd.LastPlayerName, pd.Wins, pd.Losses, pd.Kills, pd.Deaths,
                        pd.FlawlessWins, pd.MatchMvps,
-                       AVG(gp.kills)   AS avg_kills,
-                       SUM(gp.firstblood) AS first_bloods
+                       AVG(gp.kills)                        AS avg_kills,
+                       COUNT(gp.game_id)                    AS tracked_games,
+                       SUM(IF(gp.placement = 1, 1, 0))      AS tracked_wins
                 FROM PlayerData pd
                 LEFT JOIN scb_game_players gp ON gp.uuid = pd.UUID
                 WHERE pd.LastPlayerName = %s
@@ -261,7 +262,17 @@ def predict_win(username):
     total = player['Wins'] + player['Losses']
     actual_wr = round(player['Wins'] / max(total, 1) * 100, 1)
 
-    return jsonify(username=player['LastPlayerName'], actual_win_rate=actual_wr, **result)
+    tracked_games = int(player['tracked_games'] or 0)
+    tracked_wins = int(player['tracked_wins'] or 0)
+    tracked_wr = round(tracked_wins / max(tracked_games, 1) * 100, 1) if tracked_games > 0 else None
+
+    return jsonify(
+        username=player['LastPlayerName'],
+        actual_win_rate=actual_wr,
+        tracked_win_rate=tracked_wr,
+        tracked_games=tracked_games,
+        **result,
+    )
 
 
 @app.route('/predict-game', methods=['POST'])
