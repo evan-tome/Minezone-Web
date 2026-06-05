@@ -476,18 +476,18 @@ function WinPredictor() {
                                 </span>
                                 <span className="labs-predict-compare-val">{actual}%</span>
                             </div>
-                            {tracked != null && (
-                                <>
-                                    <div className="labs-predict-compare-divider" />
-                                    <div className="labs-predict-compare-row">
-                                        <span className="labs-predict-compare-label">
-                                            Tracked games win rate
-                                            <span className="labs-predict-sublabel">{trackedGames} recorded matches on this server</span>
-                                        </span>
-                                        <span className="labs-predict-compare-val">{tracked}%</span>
-                                    </div>
-                                </>
-                            )}
+                            <div className="labs-predict-compare-divider" />
+                            <div className="labs-predict-compare-row">
+                                <span className="labs-predict-compare-label">
+                                    Tracked games win rate
+                                    <span className="labs-predict-sublabel">
+                                        {trackedGames > 0 ? `${trackedGames} recorded matches on this server` : 'no recorded matches found'}
+                                    </span>
+                                </span>
+                                <span className="labs-predict-compare-val">
+                                    {tracked != null ? `${tracked}%` : '—'}
+                                </span>
+                            </div>
                             <div className="labs-predict-compare-divider" />
                             <div className="labs-predict-compare-row">
                                 <span className="labs-predict-compare-label">
