@@ -2,15 +2,14 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 
-_FEATURE_KEYS = ['kdr', 'wlr', 'flawless_rate', 'mvp_rate', 'kills_pg', 'first_blood_rate']
+_FEATURE_KEYS = ['kdr', 'wlr', 'flawless_rate', 'mvp_rate', 'kills_pg']
 
 STAT_DISPLAY = {
-    'kdr':              'K/D ratio',
-    'wlr':              'win rate',
-    'flawless_rate':    'flawless rate',
-    'mvp_rate':         'MVP rate',
-    'kills_pg':         'kills per game',
-    'first_blood_rate': 'first blood rate',
+    'kdr':           'K/D ratio',
+    'wlr':           'win rate',
+    'flawless_rate': 'flawless rate',
+    'mvp_rate':      'MVP rate',
+    'kills_pg':      'kills per game',
 }
 
 
@@ -24,7 +23,7 @@ class WinPredictor:
         return self._model is not None
 
     def _to_features(self, wins, losses, kills, deaths,
-                     flawless_wins, match_mvps, avg_kills_pg, first_blood_rate):
+                     flawless_wins, match_mvps, avg_kills_pg):
         total = wins + losses
         return [
             kills / max(deaths, 1),
@@ -32,7 +31,6 @@ class WinPredictor:
             flawless_wins / max(wins, 1),
             match_mvps / max(total, 1),
             avg_kills_pg if avg_kills_pg is not None else kills / max(total, 1),
-            first_blood_rate or 0.0,
         ]
 
     def train(self, conn):
@@ -67,8 +65,7 @@ class WinPredictor:
             X.append(self._to_features(
                 r['Wins'], r['Losses'], r['Kills'], r['Deaths'],
                 r['FlawlessWins'], r['MatchMvps'],
-                float(r['avg_kills_pg'])    if r['avg_kills_pg']    is not None else None,
-                float(r['avg_first_blood']) if r['avg_first_blood'] is not None else 0.0,
+                float(r['avg_kills_pg']) if r['avg_kills_pg'] is not None else None,
             ))
             y.append(int(r['won']))
 
@@ -84,17 +81,14 @@ class WinPredictor:
 
     def predict(self, wins, losses, kills, deaths,
                 flawless_wins, match_mvps,
-                avg_kills_pg=None, first_bloods=None):
+                avg_kills_pg=None):
         if not self.ready:
             return None
-
-        total = wins + losses
-        first_blood_rate = (first_bloods or 0) / max(total, 1)
 
         feats = self._to_features(
             wins, losses, kills, deaths,
             flawless_wins, match_mvps,
-            avg_kills_pg, first_blood_rate,
+            avg_kills_pg,
         )
 
         X_scaled = self._scaler.transform(np.array([feats], dtype=float))

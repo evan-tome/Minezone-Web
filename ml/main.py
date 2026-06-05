@@ -253,7 +253,6 @@ def predict_win(username):
         flawless_wins=player['FlawlessWins'],
         match_mvps=player['MatchMvps'],
         avg_kills_pg=float(player['avg_kills']) if player['avg_kills'] is not None else None,
-        first_bloods=int(player['first_bloods']) if player['first_bloods'] is not None else 0,
     )
 
     if result is None:
