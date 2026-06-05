@@ -1,7 +1,7 @@
 import './RecentMatches.css';
 import { CLASSES } from '../../utils/classes.js';
 import { RANKS } from '../../utils/ranks.js';
-import { FaCrown, FaChevronLeft, FaChevronRight, FaStar, FaClock, FaLink } from 'react-icons/fa';
+import { FaCrown, FaChevronLeft, FaChevronRight, FaStar, FaClock, FaLink, FaPlug } from 'react-icons/fa';
 import { PiSwordBold } from "react-icons/pi";
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -94,13 +94,16 @@ export function MatchCard({ match, linked = true }) {
                     <span className="rm-col-stat rm-lives">Lives</span>
                 </div>
 
-                {match.players.map(p => {
+                {[...match.players]
+                    .sort((a, b) => a.placement === 0 ? 1 : b.placement === 0 ? -1 : a.placement - b.placement)
+                    .map(p => {
                     const rank = getRank(p.role_id);
+                    const dnf = p.placement === 0;
                     return (
-                        <div key={p.uuid} className={`rm-player-row ${p.winner ? 'rm-winner' : ''}`}>
+                        <div key={p.uuid} className={`rm-player-row ${p.winner ? 'rm-winner' : ''} ${dnf ? 'rm-dnf' : ''}`}>
                             <span className="rm-col-place rm-place-num">
                                 <span className="rm-crown-slot">{p.placement === 1 && <FaCrown className="rm-crown" />}</span>
-                                {ordinal(p.placement)}
+                                {dnf ? <StatBadge icon={<FaPlug />} label="Disconnected" variant="dnf" /> : ordinal(p.placement)}
                             </span>
                             <span className="rm-col-name rm-name-cell">
                                 <span className="rm-level">Lv. {p.level}</span>

@@ -201,6 +201,13 @@
     font-size: 0.8rem;
 }
 
+.rm-dnf .rm-col-place,
+.rm-dnf .rm-col-class,
+.rm-dnf .rm-col-stat {
+    opacity: 0.4;
+}
+
+
 .rm-name-cell {
     display: flex;
     flex-direction: row;
@@ -313,6 +320,10 @@
 
 .rm-badge-mvp {
     color: #f3c01a;
+}
+
+.rm-badge-dnf {
+    color: var(--muted);
 }
 
 .rm-permalink {
