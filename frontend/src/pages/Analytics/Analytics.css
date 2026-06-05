@@ -39,10 +39,6 @@
     transition: border-color 0.2s ease;
 }
 
-.stat-card:hover {
-    border-color: var(--accent);
-}
-
 .stat-card-icon {
     font-size: 1.5rem;
     color: var(--accent);
