@@ -92,6 +92,11 @@
     box-shadow: 0 0 6px #f87171;
 }
 
+.online-dot.loading {
+    background: #6b7280;
+    box-shadow: none;
+}
+
 .online-count {
     color: #fff;
     font-size: 1rem;
