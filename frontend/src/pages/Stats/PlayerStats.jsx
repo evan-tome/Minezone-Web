@@ -5,7 +5,7 @@ import { RANKS } from '../../utils/ranks.js';
 import { CLASSES } from '../../utils/classes.js';
 import { FaTrophy, FaFish, FaBolt, FaMedal, FaCoins, FaStar,
          FaSkull, FaShieldAlt, FaChartLine, FaUsers, FaClock,
-         FaTimes, FaFire, FaCrown, FaList, FaHistory, FaUser, FaCopy } from 'react-icons/fa';
+         FaTimes, FaFire, FaCrown, FaList, FaHistory, FaUser, FaCopy, FaPlug } from 'react-icons/fa';
 import { IoSparkles } from 'react-icons/io5';
 
 
@@ -71,7 +71,9 @@ function GameCard({ game }) {
             <div className="game-card-stats">
                 <div className="game-card-stat">
                     <span className="game-card-stat-label"><FaMedal /> Place</span>
-                    <span className="game-card-stat-value">{ordinal(game.placement)}</span>
+                    <span className="game-card-stat-value">
+                        {game.placement === 0 ? <FaPlug style={{ opacity: 0.4 }} title="Disconnected" /> : ordinal(game.placement)}
+                    </span>
                 </div>
                 <div className="game-card-stat">
                     <span className="game-card-stat-label"><FaSkull /> Kills</span>
