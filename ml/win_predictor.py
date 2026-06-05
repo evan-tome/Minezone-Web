@@ -26,7 +26,7 @@ class WinPredictor:
                      flawless_wins, match_mvps, avg_kills_pg):
         total = wins + losses
         return [
-            flawless_wins / max(wins, 1),
+            flawless_wins / max(wins + losses, 1),
             match_mvps / max(total, 1),
             avg_kills_pg if avg_kills_pg is not None else kills / max(total, 1),
         ]
