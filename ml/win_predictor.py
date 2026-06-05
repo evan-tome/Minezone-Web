@@ -2,10 +2,9 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 
-_FEATURE_KEYS = ['kdr', 'wlr', 'flawless_rate', 'mvp_rate', 'kills_pg']
+_FEATURE_KEYS = ['wlr', 'flawless_rate', 'mvp_rate', 'kills_pg']
 
 STAT_DISPLAY = {
-    'kdr':           'K/D ratio',
     'wlr':           'win rate',
     'flawless_rate': 'flawless rate',
     'mvp_rate':      'MVP rate',
@@ -26,7 +25,6 @@ class WinPredictor:
                      flawless_wins, match_mvps, avg_kills_pg):
         total = wins + losses
         return [
-            kills / max(deaths, 1),
             wins / max(total, 1),
             flawless_wins / max(wins, 1),
             match_mvps / max(total, 1),
