@@ -16,7 +16,12 @@ const OnlineIndicator = () => {
         return () => source.close();
     }, []);
 
-    if (!status) return null;
+    if (!status) return (
+        <div className="online-indicator">
+            <span className="online-dot loading" aria-hidden="true" />
+            <span className="online-count">...</span>
+        </div>
+    );
 
     const players = status.players || [];
 
