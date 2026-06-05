@@ -134,7 +134,7 @@ export function WinPredictor() {
                             <div className="labs-predict-compare-row">
                                 <span className="labs-predict-compare-label">
                                     Career win rate
-                                    <span className="labs-predict-sublabel">matches what shows on their stats page</span>
+                                    <span className="labs-predict-sublabel">recorded across all matches</span>
                                 </span>
                                 <span className="labs-predict-compare-val">{actual}%</span>
                             </div>

@@ -11,6 +11,7 @@ const games = [
         description: "Fast-paced PvP where every class has unique abilities and playstyles. Outsmart your opponents, secure powerful drops, and be the last player standing.",
         bullets: [
             "Over 60 unique classes and maps to master",
+            "Start with 5 lives and be the last one standing to win",
             "Collect powerful items from lightning drops",
             "Challenge friends in 1v1 duels",
             "Get a random kit each life in Frenzy mode, including ones you don't own",
