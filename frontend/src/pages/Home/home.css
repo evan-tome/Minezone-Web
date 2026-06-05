@@ -295,111 +295,35 @@ p.about-socials-label {
 }
 
 /* =========================
-   GAMES CAROUSEL
+   GAMES GRID
 ========================= */
 
-.game-carousel {
+.gc-grid {
     width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 24px;
-}
-
-.gc-track-wrapper {
-    position: relative;
-    width: 100%;
-}
-
-.gc-track {
     display: grid;
-    grid-template-columns: 1fr 1.25fr 1fr;
+    grid-template-columns: 1fr 1.15fr 1fr;
     gap: 16px;
-    align-items: start;
-}
-
-.gc-slot-center {
-    min-height: 580px;
-}
-
-.gc-slot {
-    display: flex;
     align-items: stretch;
 }
 
-
-.gc-slot-side {
-    cursor: pointer;
-    padding: 52px 0;
-    transform: scale(0.95);
-    transform-origin: center;
-    min-height: 440px;
-}
-
-@keyframes gc-fade-in {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-}
-
-/* Cards */
 .gc-card {
-    width: 100%;
     background: var(--surface);
     border: 2px solid var(--border);
     border-radius: 16px;
     display: flex;
     flex-direction: column;
-    flex: 1;
-    transition: border-color 0.2s, box-shadow 0.2s, opacity 0.2s, transform 0.2s;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.gc-card-center {
+.gc-card:hover {
     border-color: var(--accent);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-    animation: gc-fade-in 0.3s ease;
 }
 
-.carousel-btn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: var(--accent);
-    border: none;
-    border-radius: 50%;
-    color: #fff;
-    font-size: 1rem;
-    width: 44px;
-    height: 44px;
-    display: grid;
-    place-items: center;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    z-index: 1;
-}
-
-.carousel-btn:hover {
-    background: #c97e03;
-}
-
-.gc-btn-left  { left:  -54px; }
-.gc-btn-right { right: -54px; }
-
-.gc-card-side {
-    opacity: 0.58;
-    padding: 0;
-    appearance: none;
-    -webkit-appearance: none;
-    box-sizing: border-box;
-    text-align: left;
-    font-family: inherit;
-}
-
-.gc-slot-side:hover .gc-card-side {
-    opacity: 0.82;
+.gc-card-featured {
     border-color: var(--accent);
 }
 
-/* Image on top */
 .gc-img {
     width: 100%;
     height: 200px;
@@ -410,32 +334,17 @@ p.about-socials-label {
     border-radius: 14px 14px 0 0;
 }
 
-/* Content */
 .gc-content {
+    padding: 24px 28px 40px;
     display: flex;
     flex-direction: column;
     gap: 10px;
-}
-
-.gc-content-center {
-    padding: 24px 28px 28px;
-}
-
-
-.gc-content-side {
-    padding: 16px 18px 20px;
+    flex: 1;
 }
 
 .gc-title {
     font-size: 1.7rem;
     font-weight: 800;
-    color: var(--text);
-    margin: 0 0 10px;
-}
-
-.gc-title-side {
-    font-size: 1.1rem;
-    font-weight: 700;
     color: var(--text);
     margin: 0;
 }
@@ -447,16 +356,6 @@ p.about-socials-label {
     margin: 0;
 }
 
-.gc-desc-side {
-    font-size: 0.88rem;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-/* Bullets list (center card only) */
 .gc-bullets {
     margin: 4px 0 0;
     padding: 0;
@@ -471,29 +370,6 @@ p.about-socials-label {
     line-height: 1.5;
     list-style: disc;
     margin-left: 16px;
-}
-
-/* Dots */
-.gc-dots {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-
-.gc-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    border: none;
-    background: var(--border);
-    cursor: pointer;
-    padding: 0;
-    transition: background 0.2s, transform 0.2s;
-}
-
-.gc-dot-active {
-    background: var(--accent);
-    transform: scale(1.35);
 }
 
 /* =========================
@@ -616,8 +492,6 @@ p.about-socials-label {
         padding: 48px 24px 24px;
     }
 
-    .gc-btn-left  { left:  -20px; }
-    .gc-btn-right { right: -20px; }
 
     .hero-tagline {
         font-size: 1.9rem;
@@ -656,14 +530,6 @@ p.about-socials-label {
         font-size: 1.6rem;
     }
 
-    .gc-track {
-        gap: 10px;
-    }
-
-    .gc-slot-side {
-        min-height: unset;
-    }
-
     .gc-img {
         height: 160px;
     }
@@ -671,15 +537,6 @@ p.about-socials-label {
     .gc-title {
         font-size: 1.3rem;
     }
-
-    .carousel-btn {
-        width: 36px;
-        height: 36px;
-        font-size: 0.85rem;
-    }
-
-    .gc-btn-left  { left: 4px; }
-    .gc-btn-right { right: 4px; }
 
     .news-cards li,
     .news-cards li.reverse {
@@ -758,15 +615,9 @@ p.about-socials-label {
         overflow: hidden;
     }
 
-    .gc-slot-side {
-        display: none;
-    }
-
-    .gc-track {
+    .gc-grid {
         grid-template-columns: 1fr;
     }
-
-    .carousel-btn { display: none; }
 
     .community-cta {
         padding: 0;
