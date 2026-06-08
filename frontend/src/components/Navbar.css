@@ -2,13 +2,21 @@
     position: sticky;
     top: 0;
     z-index: 100;
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
     width: 100%;
     padding: 8px clamp(16px, 5vw, 80px);
     box-sizing: border-box;
     background: var(--accent);
+}
+
+.navbar-left {
+    justify-self: start;
+}
+
+.navbar-right {
+    justify-self: end;
 }
 
 .navbar-left .logo {
