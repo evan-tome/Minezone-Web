@@ -107,7 +107,7 @@ export function Home() {
                 <div className="community-cta">
                     <div className="cta-text">
                         <h3>Join the Community</h3>
-                        <p>Connect with thousands of players, get notified about events and updates, and find your next match.</p>
+                        <p>Connect with players, get notified about events and updates, and find your next match.</p>
                     </div>
                     <a
                         href="https://discord.com/invite/3J32tT9Zhp"
