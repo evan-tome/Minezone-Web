@@ -19,7 +19,7 @@ const OnlineIndicator = () => {
     if (!status) return (
         <div className="online-indicator">
             <span className="online-dot loading" aria-hidden="true" />
-            <span className="online-count">...</span>
+            <span className="online-count">Loading...</span>
         </div>
     );
 
