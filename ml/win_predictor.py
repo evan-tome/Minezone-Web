@@ -22,7 +22,7 @@ class WinPredictor:
     def ready(self):
         return self._model is not None
 
-    def _to_features(self, wins, losses, kills, deaths,
+    def _to_features(self, wins, losses, kills,
                      flawless_wins, match_mvps, avg_kills_pg):
         total = wins + losses
         return [
@@ -31,44 +31,27 @@ class WinPredictor:
             avg_kills_pg if avg_kills_pg is not None else kills / max(total, 1),
         ]
 
-    def train(self, conn):
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("""
-            SELECT
-                pd.Wins, pd.Losses, pd.Kills, pd.Deaths,
-                pd.FlawlessWins, pd.MatchMvps,
-                ag.avg_kills_pg,
-                IF(gp.placement = 1, 1, 0) AS won
-            FROM scb_game_players gp
-            JOIN PlayerData pd ON pd.UUID = gp.uuid
-            JOIN (
-                SELECT uuid, AVG(kills) AS avg_kills_pg
-                FROM scb_game_players
-                GROUP BY uuid
-            ) ag ON ag.uuid = gp.uuid
-            WHERE (pd.Wins + pd.Losses) >= 10
-        """)
-        rows = cursor.fetchall()
-        cursor.close()
+    def train(self, df_games):
+        df = df_games[df_games['total_games'] >= 10]
 
-        if len(rows) < 50:
-            print(f"Not enough data to train win predictor ({len(rows)} rows).")
+        if len(df) < 50:
+            print(f"Not enough data to train win predictor ({len(df)} rows).")
             return
 
         X, y = [], []
-        for r in rows:
+        for r in df.itertuples(index=False):
             X.append(self._to_features(
-                r['Wins'], r['Losses'], r['Kills'], r['Deaths'],
-                r['FlawlessWins'], r['MatchMvps'],
-                float(r['avg_kills_pg']) if r['avg_kills_pg'] is not None else None,
+                r.Wins, r.Losses, r.Kills,
+                r.FlawlessWins, r.MatchMvps,
+                float(r.avg_kills_pg),
             ))
-            y.append(int(r['won']))
+            y.append(int(r.placement == 1))
 
         X = np.array(X, dtype=float)
         y = np.array(y)
 
         self._scaler = StandardScaler()
-        X_scaled = self._scaler.fit_transform(X)
+        x_scaled = self._scaler.fit_transform(X)
 
         # Pearson correlation of each feature with target — used to determine direction at inference
         self._feature_corrs = np.array([
@@ -76,9 +59,9 @@ class WinPredictor:
             for i in range(X.shape[1])
         ])
 
-        base = GradientBoostingClassifier(n_estimators=100, max_depth=3, random_state=42)
+        base = GradientBoostingClassifier(n_estimators=100, max_depth=3, learning_rate=0.1, random_state=42)
         self._model = CalibratedClassifierCV(base, cv=5, method='sigmoid')
-        self._model.fit(X_scaled, y)
+        self._model.fit(x_scaled, y)
         print(f"Win predictor trained on {len(X)} game rows.")
 
     def predict(self, wins, losses, kills, deaths,
@@ -88,13 +71,13 @@ class WinPredictor:
             return None
 
         feats = self._to_features(
-            wins, losses, kills, deaths,
+            wins, losses, kills,
             flawless_wins, match_mvps,
             avg_kills_pg,
         )
 
-        X_scaled = self._scaler.transform(np.array([feats], dtype=float))
-        prob = float(self._model.predict_proba(X_scaled)[0][1])
+        x_scaled = self._scaler.transform(np.array([feats], dtype=float))
+        prob = float(self._model.predict_proba(x_scaled)[0][1])
 
         # Average feature importances across the 5 calibration folds
         importances = np.mean([
@@ -114,8 +97,8 @@ class WinPredictor:
                 {
                     'stat':      name,
                     # up = player's value on this stat aligns with what wins (above avg on positive stat, or below avg on negative stat)
-                    'direction': 'up' if (X_scaled[0][idx] > 0) == (self._feature_corrs[idx] > 0) else 'down',
-                    'above_avg': bool(X_scaled[0][idx] > 0),
+                    'direction': 'up' if (x_scaled[0][idx] > 0) == (self._feature_corrs[idx] > 0) else 'down',
+                    'above_avg': bool(x_scaled[0][idx] > 0),
                 }
                 for idx, name, _ in indexed[:3]
             ],

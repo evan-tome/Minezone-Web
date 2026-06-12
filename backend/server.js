@@ -7,6 +7,7 @@ const statsRouter = require('./routes/stats');
 const leaderboardRouter = require('./routes/leaderboard');
 const serverRouter = require('./routes/server');
 const analyticsRouter = require('./routes/analytics');
+const internalRouter = require('./routes/internal');
 
 const app = express();
 const PORT = 8080;
@@ -40,6 +41,7 @@ app.use('/stats', statsLimiter, statsRouter);
 app.use('/leaderboard', leaderboardRouter);
 app.use('/server', serverRouter);
 app.use('/analytics', analyticsRouter);
+app.use('/internal', internalRouter);
 
 con.getConnection((err, connection) => {
     if (err) throw err;

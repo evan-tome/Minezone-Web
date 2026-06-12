@@ -1,0 +1,231 @@
+.internal-main {
+    max-width: 1280px;
+}
+
+.internal-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.internal-header h1 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.internal-header p {
+    color: var(--muted);
+    font-size: 1.05rem;
+    margin: 0;
+}
+
+/* Tabs */
+.internal-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 28px;
+    border-bottom: 2px solid var(--border);
+}
+
+.internal-tab-btn {
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    padding: 10px 22px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+    border-radius: 6px 6px 0 0;
+}
+
+.internal-tab-btn:hover {
+    color: var(--text);
+}
+
+.internal-tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+}
+
+/* Section card */
+.internal-section {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+}
+
+.internal-section-header {
+    margin-bottom: 24px;
+}
+
+.internal-section-header h2 {
+    margin: 0 0 10px 0;
+    font-size: 1.3rem;
+    font-weight: 800;
+}
+
+.internal-count {
+    display: inline-block;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+}
+
+.internal-desc {
+    color: var(--muted);
+    font-size: 0.88rem;
+    margin: 0;
+    line-height: 1.6;
+    max-width: 780px;
+}
+
+/* Table */
+.internal-table-wrap {
+    overflow-x: auto;
+    margin-top: 8px;
+}
+
+.internal-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+}
+
+.internal-table th {
+    text-align: left;
+    padding: 10px 14px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--muted);
+    border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+}
+
+.internal-table td {
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    white-space: nowrap;
+}
+
+.internal-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.internal-row-link {
+    cursor: pointer;
+    transition: background 0.12s;
+}
+
+.internal-row-link:hover {
+    background: var(--accent-soft);
+}
+
+.internal-rank {
+    color: var(--muted);
+    font-size: 0.8rem;
+    width: 32px;
+}
+
+.internal-username {
+    font-weight: 700;
+    color: var(--accent);
+}
+
+.internal-classname {
+    font-weight: 600;
+}
+
+.internal-date {
+    color: var(--muted);
+    font-size: 0.85rem;
+}
+
+.internal-positive { color: #991b1b; font-weight: 600; }
+.internal-negative { color: #1e3a8a; font-weight: 600; }
+
+.internal-score {
+    font-family: monospace;
+    font-size: 0.82rem;
+    background: var(--bg);
+    color: var(--muted);
+    padding: 2px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+}
+
+
+/* Pipeline health badge */
+.internal-health-badge {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.3rem;
+    font-weight: 800;
+    padding: 20px 24px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+}
+
+.internal-health-badge.healthy {
+    background: #dcfce7;
+    color: #14532d;
+    border: 2px solid #86efac;
+}
+
+.internal-health-badge.issues {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 2px solid #fca5a5;
+}
+
+.internal-pipeline-meta {
+    display: flex;
+    gap: 24px;
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-bottom: 24px;
+}
+
+.internal-pipeline-meta span::before {
+    content: '• ';
+}
+
+/* States */
+.internal-loading,
+.internal-empty {
+    text-align: center;
+    padding: 56px 24px;
+    color: var(--muted);
+    font-size: 0.95rem;
+}
+
+.internal-error {
+    text-align: center;
+    padding: 56px 24px;
+    color: #dc2626;
+    font-size: 0.95rem;
+}
+
+@media (max-width: 640px) {
+    .internal-section {
+        padding: 20px 16px;
+    }
+
+    .internal-tab-btn {
+        padding: 10px 14px;
+        font-size: 0.82rem;
+    }
+}
