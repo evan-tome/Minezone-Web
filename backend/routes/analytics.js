@@ -89,7 +89,7 @@ const getKDRatios = makeCache(`
     LIMIT 15
 `);
 
-const getMapPopularity = makeCache(`
+const getMapPopularityClassic = makeCache(`
     SELECT
         g.map_name,
         COUNT(*) AS game_count
@@ -101,6 +101,24 @@ const getMapPopularity = makeCache(`
         HAVING COUNT(*) > 1
     ) multi ON multi.game_id = g.game_id
     WHERE g.map_name IS NOT NULL AND g.map_name != ''
+      AND LOWER(g.game_type) = 'classic'
+    GROUP BY g.map_name
+    ORDER BY game_count DESC
+`);
+
+const getMapPopularityDuel = makeCache(`
+    SELECT
+        g.map_name,
+        COUNT(*) AS game_count
+    FROM scb_games g
+    INNER JOIN (
+        SELECT game_id
+        FROM scb_game_players
+        GROUP BY game_id
+        HAVING COUNT(*) > 1
+    ) multi ON multi.game_id = g.game_id
+    WHERE g.map_name IS NOT NULL AND g.map_name != ''
+      AND LOWER(g.game_type) = 'duel'
     GROUP BY g.map_name
     ORDER BY game_count DESC
 `);
@@ -139,7 +157,11 @@ router.get('/distribution/levels',  (req, res) => send(getLevelDistribution, req
 router.get('/winrates',             (req, res) => send(getWinRates, req, res));
 router.get('/all-class-stats',      (req, res) => send(getAllClassStats, req, res));
 router.get('/kd-ratios',            (req, res) => send(getKDRatios, req, res));
-router.get('/maps',                 (req, res) => send(getMapPopularity, req, res));
+router.get('/maps', (req, res) => {
+    const gameType = req.query.gameType?.toLowerCase();
+    const getter = gameType === 'duel' ? getMapPopularityDuel : getMapPopularityClassic;
+    send(getter, req, res);
+});
 router.get('/over-time',            (req, res) => send(getGamesOverTime, req, res));
 router.get('/peak-hours',           (req, res) => send(getPeakHours, req, res));
 
