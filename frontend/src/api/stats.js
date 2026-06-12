@@ -108,6 +108,12 @@ export async function fetchGamePrediction(players) {
     return res.json();
 }
 
+export async function fetchClassStats() {
+    const res = await fetch(`${BASE}/stats/class-stats`);
+    if (!res.ok) throw new Error('Failed to load class stats.');
+    return res.json();
+}
+
 export async function fetchClusterMap() {
     const res = await fetch(`${BASE}/stats/cluster-map`);
     if (!res.ok) throw new Error('Failed to fetch cluster map');

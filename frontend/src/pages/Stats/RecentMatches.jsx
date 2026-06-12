@@ -1,7 +1,7 @@
 import './RecentMatches.css';
 import { CLASSES } from '../../utils/classes.js';
 import { RANKS } from '../../utils/ranks.js';
-import { FaCrown, FaChevronLeft, FaChevronRight, FaStar, FaClock, FaLink, FaPlug } from 'react-icons/fa';
+import { FaCrown, FaChevronLeft, FaChevronRight, FaStar, FaClock, FaPlug, FaSearch, FaTimes } from 'react-icons/fa';
 import { PiSwordBold } from "react-icons/pi";
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -66,23 +66,25 @@ function formatDate(iso) {
 }
 
 export function MatchCard({ match, linked = true }) {
+    const headerContent = (
+        <>
+            <div className="rm-card-header-left">
+                <span className="rm-mode-label">{match.game_type.toUpperCase()}</span>
+                <span className="rm-map">{match.map_name}</span>
+            </div>
+            <div className="rm-card-header-right">
+                <span className="rm-meta">{formatDate(match.end_time)}</span>
+                <span className="rm-meta rm-duration"><FaClock className="rm-duration-icon" />{match.game_duration_minutes} min</span>
+            </div>
+        </>
+    );
+
     return (
         <div className="rm-card">
-            <div className="rm-card-header">
-                <div className="rm-card-header-left">
-                    <span className="rm-mode-label">{match.game_type.toUpperCase()}</span>
-                    <span className="rm-map">{match.map_name}</span>
-                </div>
-                <div className="rm-card-header-right">
-                    {linked && (
-                        <Link to={`/match/${match.game_id}`} className="rm-permalink" aria-label={`Permalink for match ${match.game_id}`}>
-                            <FaLink aria-hidden="true" />
-                        </Link>
-                    )}
-                    <span className="rm-meta">{formatDate(match.end_time)}</span>
-                    <span className="rm-meta rm-duration"><FaClock className="rm-duration-icon" />{match.game_duration_minutes} min</span>
-                </div>
-            </div>
+            {linked
+                ? <Link to={`/match/${match.game_id}`} className="rm-card-header rm-card-header-link">{headerContent}</Link>
+                : <div className="rm-card-header">{headerContent}</div>
+            }
 
             <div className="rm-player-list">
                 <div className="rm-player-row rm-player-header">
@@ -137,17 +139,34 @@ const MODES = ['', 'classic', 'frenzy', 'duel'];
 function RecentMatches({ matches, loading, error }) {
     const [page, setPage] = useState(0);
     const [modeFilter, setModeFilter] = useState('');
+    const [search, setSearch] = useState('');
 
     const allMatches = matches ?? [];
-    const filtered = modeFilter
+    const byMode = modeFilter
         ? allMatches.filter(m => m.game_type?.toLowerCase() === modeFilter)
         : allMatches;
+
+    const q = search.trim().toLowerCase();
+    const filtered = q
+        ? byMode.filter(m =>
+            m.map_name?.toLowerCase().includes(q) ||
+            m.players.some(p =>
+                p.username?.toLowerCase().includes(q) ||
+                CLASSES.get(p.class_id)?.name?.toLowerCase().includes(q)
+            )
+        )
+        : byMode;
 
     const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
     const paginated = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
     const handleMode = (mode) => {
         setModeFilter(mode);
+        setPage(0);
+    };
+
+    const handleSearch = (e) => {
+        setSearch(e.target.value);
         setPage(0);
     };
 
@@ -176,10 +195,28 @@ function RecentMatches({ matches, loading, error }) {
                     })}
                 </div>
             </div>
+            <div className="rm-search-row">
+                <FaSearch className="rm-search-icon" aria-hidden="true" />
+                <input
+                    className="rm-search-input"
+                    type="text"
+                    placeholder="Search by player, class, or map…"
+                    value={search}
+                    onChange={handleSearch}
+                />
+                {search && (
+                    <button className="rm-search-clear" onClick={() => { setSearch(''); setPage(0); }} aria-label="Clear search">
+                        <FaTimes />
+                    </button>
+                )}
+            </div>
             {loading && <p className="rm-status">Loading recent matches...</p>}
             {error && <ErrorScreen title="Failed to load matches" message={error} />}
             {!loading && !error && !matches?.length && <p className="rm-status">No matches recorded yet.</p>}
-            {!loading && !error && matches?.length > 0 && (
+            {!loading && !error && matches?.length > 0 && !filtered.length && (
+                <p className="rm-status">No matches found for "{search}".</p>
+            )}
+            {!loading && !error && filtered.length > 0 && (
                 <>
                     <div className="rm-list">
                         {paginated.map(m => <MatchCard key={m.game_id} match={m} />)}
