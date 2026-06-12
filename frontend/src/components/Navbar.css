@@ -98,6 +98,8 @@
     transition: background 0.2s;
     position: relative;
     z-index: 100;
+    grid-column: 3;
+    justify-self: end;
 }
 
 .navbar-hamburger:hover {
