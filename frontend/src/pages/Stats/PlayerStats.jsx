@@ -92,7 +92,7 @@ function GameCard({ game }) {
     );
 }
 
-function PlayerStats({ player }) {
+function PlayerStats({ player, loading = false }) {
     const [copied, setCopied] = useState(false);
     const headUrl = `https://minotar.net/helm/${player.UUID}/128.png`;
     const rank = player.RoleID !== 0 ? RANKS.get(player.RoleID) : undefined;
@@ -109,7 +109,7 @@ function PlayerStats({ player }) {
     const matches = player.Wins + player.Losses;
 
     return (
-        <div className="ps-card">
+        <div className={`ps-card${loading ? ' ps-loading' : ''}`}>
 
             {/* Header */}
             <div className="ps-header">
