@@ -37,8 +37,8 @@ export async function fetchKDRatios() {
     return res.json();
 }
 
-export async function fetchMapPopularity() {
-    const res = await fetch(`${API_URL}/analytics/maps`);
+export async function fetchMapPopularity(gameType = 'classic') {
+    const res = await fetch(`${API_URL}/analytics/maps?gameType=${gameType}`);
     if (!res.ok) throw new Error('Failed to fetch map popularity');
     return res.json();
 }

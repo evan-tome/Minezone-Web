@@ -1,5 +1,4 @@
 import numpy as np
-from collections import defaultdict
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 
@@ -27,68 +26,25 @@ class GamePredictor:
             first_blood_rate or 0.0,
         ]
 
-    def train(self, conn):
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("""
-            SELECT
-                gp.game_id,
-                gp.uuid,
-                gp.placement,
-                pd.Wins, pd.Losses, pd.Kills, pd.Deaths,
-                pd.FlawlessWins, pd.MatchMvps,
-                ag.avg_kills_pg,
-                ag.avg_first_blood
-            FROM scb_game_players gp
-            JOIN PlayerData pd ON pd.UUID = gp.uuid
-            JOIN (
-                SELECT uuid,
-                       AVG(kills)      AS avg_kills_pg,
-                       AVG(firstblood) AS avg_first_blood
-                FROM scb_game_players
-                GROUP BY uuid
-            ) ag ON ag.uuid = gp.uuid
-            WHERE (pd.Wins + pd.Losses) >= 5
-              AND gp.game_id IS NOT NULL
-        """)
-        rows = cursor.fetchall()
-        cursor.close()
-
-        games = defaultdict(list)
-        for row in rows:
-            games[row['game_id']].append(row)
-
-        # Only games with 2+ players and exactly one winner
-        valid_games = {
-            gid: players for gid, players in games.items()
-            if len(players) >= 2
-            and sum(1 for p in players if p['placement'] == 1) == 1
-        }
-
-        if len(valid_games) < 50:
-            print(f"Not enough data to train game predictor ({len(valid_games)} games).")
-            return
-
-        # Compute raw features for every (game_id, uuid)
-        feat_map = {}
-        all_feats = []
+    def _compute_feat_map(self, valid_games):
+        feat_map, all_feats = {}, []
         for gid, players in valid_games.items():
             for p in players:
                 f = self._to_features(
                     p['Wins'] or 0, p['Losses'] or 0,
                     p['Kills'] or 0, p['Deaths'] or 0,
                     p['FlawlessWins'] or 0, p['MatchMvps'] or 0,
-                    float(p['avg_kills_pg']) if p['avg_kills_pg'] is not None else None,
-                    float(p['avg_first_blood'] or 0),
+                    float(p['avg_kills_pg']),
+                    float(p['avg_first_blood']),
                 )
                 feat_map[(gid, p['uuid'])] = f
                 all_feats.append(f)
+        return feat_map, all_feats
 
-        self._scaler = StandardScaler()
-        self._scaler.fit(np.array(all_feats, dtype=float))
-
-        # Pairwise training: winner features minus each loser's features
+    def _build_pairwise(self, valid_games, feat_map):
+        # Winner features minus each loser's features.
         # P(winner beats loser) = sigmoid(β · (feat_winner - feat_loser))
-        # No intercept: constant shifts cancel in the softmax at inference
+        # No intercept: constant shifts cancel in the softmax at inference.
         X, y = [], []
         for gid, players in valid_games.items():
             winner = next(p for p in players if p['placement'] == 1)
@@ -101,7 +57,25 @@ class GamePredictor:
                 y.append(1)
                 X.append(p_scaled - w_scaled)
                 y.append(0)
+        return X, y
 
+    def train(self, df_games):
+        # Only games with 2+ players and exactly one winner
+        valid_games = {
+            gid: group.to_dict('records')
+            for gid, group in df_games.groupby('game_id')
+            if len(group) >= 2 and (group['placement'] == 1).sum() == 1
+        }
+
+        if len(valid_games) < 50:
+            print(f"Not enough data to train game predictor ({len(valid_games)} games).")
+            return
+
+        feat_map, all_feats = self._compute_feat_map(valid_games)
+        self._scaler = StandardScaler()
+        self._scaler.fit(np.array(all_feats, dtype=float))
+
+        X, y = self._build_pairwise(valid_games, feat_map)
         X = np.array(X, dtype=float)
         y = np.array(y)
 

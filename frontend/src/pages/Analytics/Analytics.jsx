@@ -413,6 +413,7 @@ export function Analytics() {
     const [kdRatios, setKdRatios]         = useState([]);
     const [classCategories, setClassCategories] = useState([]);
     const [mapPopularity, setMapPopularity]     = useState([]);
+    const [mapMode, setMapMode]                 = useState('classic');
     const [gamesOverTime, setGamesOverTime]     = useState([]);
     const [peakHours, setPeakHours]             = useState([]);
 
@@ -481,9 +482,6 @@ export function Analytics() {
             })))
         ).catch(() => {});
 
-        fetchMapPopularity().then(d =>
-            setMapPopularity(d.map(r => ({ name: r.map_name, value: Number(r.game_count) })))
-        ).catch(() => {});
 
         fetchGamesOverTime().then(d =>
             setGamesOverTime(d.map(r => ({ date: r.date, games: Number(r.games) })))
@@ -501,6 +499,12 @@ export function Analytics() {
             );
         }).catch(() => {});
     }, []);
+
+    useEffect(() => {
+        fetchMapPopularity(mapMode).then(d =>
+            setMapPopularity(d.map(r => ({ name: r.map_name, value: Number(r.game_count) })))
+        ).catch(() => {});
+    }, [mapMode]);
 
     return (
         <div className="app dark-page">
@@ -527,7 +531,18 @@ export function Analytics() {
                     {(mapPopularity.length > 0 || peakHours.length > 0 || gamesOverTime.length > 0) && (
                         <div className="map-time-group">
                             {mapPopularity.length > 0 && (
-                                <ChartCard title="Map Popularity" rowSpan={2}>
+                                <ChartCard title="Map Popularity" rowSpan={2} action={
+                                <div className="chart-sort-toggle">
+                                    <button
+                                        className={mapMode === 'classic' ? 'active' : ''}
+                                        onClick={() => setMapMode('classic')}
+                                    >Classic</button>
+                                    <button
+                                        className={mapMode === 'duel' ? 'active' : ''}
+                                        onClick={() => setMapMode('duel')}
+                                    >Duel</button>
+                                </div>
+                            }>
                                     <MapPopularityChart data={mapPopularity} />
                                 </ChartCard>
                             )}

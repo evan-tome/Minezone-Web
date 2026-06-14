@@ -9,6 +9,9 @@ from archetypes import ArchetypeClassifier
 from win_predictor import WinPredictor
 from game_predictor import GamePredictor
 from kmeans import KMeansClusterer
+from anomaly_detector import AnomalyDetector
+from pipeline_monitor import PipelineMonitor
+from balance_monitor import BalanceMonitor
 
 _ml_dir = Path(__file__).parent
 if not load_dotenv(_ml_dir / '.env'):
@@ -19,11 +22,14 @@ MODELS_DIR = _ml_dir / 'models'
 app = Flask(__name__)
 
 _pool = None
-recommender = None
-archetype_clf = None
-win_predictor = None
-game_predictor = None
-kmeans_clf = None
+recommender      = None
+archetype_clf    = None
+win_predictor    = None
+game_predictor   = None
+kmeans_clf       = None
+anomaly_detector = None
+pipeline_monitor = None
+balance_monitor  = None
 
 
 def make_pool():
@@ -339,12 +345,36 @@ def predict_game():
     return jsonify(predictions=result)
 
 
+@app.route('/internal/anomalies', methods=['GET'])
+def get_anomalies():
+    if not anomaly_detector.ready:
+        return jsonify(error='Anomaly detector not ready'), 503
+    return jsonify(flagged=anomaly_detector.get_flagged())
+
+
+@app.route('/internal/pipeline-health', methods=['GET'])
+def pipeline_health():
+    if not pipeline_monitor.ready:
+        return jsonify(error='Pipeline monitor not ready'), 503
+    return jsonify(**pipeline_monitor.get_status())
+
+
+@app.route('/internal/balance', methods=['GET'])
+def balance():
+    if not balance_monitor.ready:
+        return jsonify(error='Balance monitor not ready'), 503
+    return jsonify(flagged=balance_monitor.get_flagged())
+
+
 if __name__ == "__main__":
     _pool = make_pool()
-    recommender    = _load('recommender.joblib',    ClassRecommender)
-    archetype_clf  = _load('archetypes.joblib',     ArchetypeClassifier)
-    win_predictor  = _load('win_predictor.joblib',  WinPredictor)
-    game_predictor = _load('game_predictor.joblib', GamePredictor)
-    kmeans_clf     = _load('kmeans.joblib',          KMeansClusterer)
+    recommender      = _load('recommender.joblib',      ClassRecommender)
+    archetype_clf    = _load('archetypes.joblib',       ArchetypeClassifier)
+    win_predictor    = _load('win_predictor.joblib',    WinPredictor)
+    game_predictor   = _load('game_predictor.joblib',   GamePredictor)
+    kmeans_clf       = _load('kmeans.joblib',           KMeansClusterer)
+    anomaly_detector = _load('anomaly_detector.joblib', AnomalyDetector)
+    pipeline_monitor = _load('pipeline_monitor.joblib', PipelineMonitor)
+    balance_monitor  = _load('balance_monitor.joblib',  BalanceMonitor)
 
     app.run(host='0.0.0.0', port=8000)

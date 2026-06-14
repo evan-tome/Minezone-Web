@@ -72,35 +72,21 @@ class ArchetypeClassifier:
             'games':            float(total),
         }
 
-    def train(self, conn):
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("""
-            SELECT
-                pd.UUID,
-                pd.Wins, pd.Losses, pd.Kills, pd.Deaths,
-                pd.FlawlessWins, pd.MatchMvps,
-                AVG(gp.kills) AS avg_kills_pg,
-                SUM(gp.firstblood) AS first_bloods
-            FROM PlayerData pd
-            LEFT JOIN scb_game_players gp ON gp.uuid = pd.UUID
-            WHERE (pd.Wins + pd.Losses) >= 10
-            GROUP BY pd.UUID
-        """)
-        rows = cursor.fetchall()
-        cursor.close()
+    def train(self, df_players):
+        df = df_players[df_players['total_games'] >= 10]
 
-        if len(rows) < 10:
-            print(f"Not enough data to train archetype classifier ({len(rows)} players).")
+        if len(df) < 10:
+            print(f"Not enough data to train archetype classifier ({len(df)} players).")
             return
 
         all_stats = [
             self._compute_stats(
-                r['Wins'], r['Losses'], r['Kills'], r['Deaths'],
-                r['FlawlessWins'], r['MatchMvps'],
-                float(r['avg_kills_pg']) if r['avg_kills_pg'] is not None else None,
-                int(r['first_bloods']) if r['first_bloods'] is not None else 0,
+                r.Wins, r.Losses, r.Kills, r.Deaths,
+                r.FlawlessWins, r.MatchMvps,
+                float(r.avg_kills_pg),
+                int(r.first_bloods),
             )
-            for r in rows
+            for r in df.itertuples(index=False)
         ]
 
         self._distributions = {
@@ -108,7 +94,7 @@ class ArchetypeClassifier:
             for k in all_stats[0]
         }
         self._trained = True
-        print(f"Archetype classifier trained on {len(rows)} players.")
+        print(f"Archetype classifier trained on {len(df)} players.")
 
     def _percentile(self, stat, value):
         dist = self._distributions.get(stat, [])
