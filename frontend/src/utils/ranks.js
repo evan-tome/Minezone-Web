@@ -17,6 +17,7 @@ const RANKS = new Map([
     [18, { label: "HR",            color: "#FF55FF" }], // §d  Light Purple
     [1,  { label: "Admin",         color: "#FF5555" }], // §c  Red
     [2,  { label: "Owner",         color: "#FF5555" }], // §c  Red
+    [19, { label: "TW",            color: "#FF55FF" }], // §d  Light Purple
 ]);
 
 export { RANKS };
