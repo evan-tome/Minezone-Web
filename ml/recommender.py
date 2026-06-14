@@ -56,58 +56,39 @@ class ClassRecommender:
     # TRAINING
     # -----------------------------
 
-    def train(self, conn):
-        cursor = conn.cursor(dictionary=True)
+    def train(self, df_players, df_classes):
+        valid = df_classes[df_classes['ClassID'].isin(VALID_CLASS_IDS)]
 
-        cursor.execute("""
-            SELECT UUID, ClassID, GamesPlayed, GamesWon
-            FROM PlayerClasses
-            WHERE ClassID NOT IN (25, 37, 38, 42, 43, 65, 69, 101, 102, 103, 104, 105)
-              AND GamesPlayed >= 5
-        """)
-        all_class_rows = cursor.fetchall()
-
-        if not all_class_rows:
+        if valid.empty:
             print("No class data found for training")
             return
 
-        # Compute per-class average win rates, restricted to valid IDs
-        wr_sums, wr_counts = {}, {}
-        for row in all_class_rows:
-            cid = int(row['ClassID'])
-            if cid not in VALID_CLASS_IDS:
-                continue
-            wr = row['GamesWon'] / row['GamesPlayed']
-            wr_sums[cid] = wr_sums.get(cid, 0.0) + wr
-            wr_counts[cid] = wr_counts.get(cid, 0) + 1
+        # Per-class average win rate across all players (Bayesian prior)
+        wr = valid['GamesWon'] / valid['GamesPlayed']
+        self._class_avg_wr = valid.assign(wr=wr).groupby('ClassID')['wr'].mean().to_dict()
 
-        self._class_avg_wr = {cid: wr_sums[cid] / wr_counts[cid] for cid in wr_sums}
-
-        # Group class rows by player, keeping only valid class IDs
+        # Group class rows by player UUID, keeping only valid class IDs
         player_classes = {}
-        for row in all_class_rows:
-            cid = int(row['ClassID'])
-            if cid in VALID_CLASS_IDS:
-                player_classes.setdefault(row['UUID'], []).append(row)
+        for row in valid.itertuples(index=False):
+            player_classes.setdefault(row.UUID, []).append({
+                'ClassID': row.ClassID,
+                'GamesPlayed': row.GamesPlayed,
+                'GamesWon': row.GamesWon,
+            })
 
-        uuids = list(player_classes.keys())
-        fmt = ','.join(['%s'] * len(uuids))
-        cursor.execute(
-            f"""
-            SELECT UUID, Wins, Losses, Kills, Deaths, FlawlessWins, MatchMvps, Level, BestWinstreak
-            FROM PlayerData
-            WHERE UUID IN ({fmt}) AND (Wins + Losses) >= 10
-            """,
-            uuids,
+        players = (
+            df_players[
+                df_players['UUID'].isin(player_classes) &
+                (df_players['total_games'] >= 10)
+            ]
+            .set_index('UUID')
         )
-        players = {row['UUID']: row for row in cursor.fetchall()}
-        cursor.close()
 
         X, y = [], []
         for uuid, classes in player_classes.items():
-            if uuid not in players:
+            if uuid not in players.index:
                 continue
-            p = players[uuid]
+            p = players.loc[uuid]
 
             # Label = Bayesian best class (more reliable than raw win rate for small samples)
             best = max(classes, key=lambda c: self._bayesian_wr(int(c['ClassID']), c['GamesPlayed'], c['GamesWon']))
@@ -127,15 +108,17 @@ class ClassRecommender:
         y = np.array(y)
 
         self._scaler = StandardScaler()
-        X_scaled = self._scaler.fit_transform(X)
+        x_scaled = self._scaler.fit_transform(X)
 
         self._model = RandomForestClassifier(
             n_estimators=200,
             max_depth=12,
+            min_samples_leaf=2,
+            max_features='sqrt',
             class_weight='balanced',
             random_state=42,
         )
-        self._model.fit(X_scaled, y)
+        self._model.fit(x_scaled, y)
         print(f"Model trained on {len(X)} samples, {len(set(y))} classes")
 
     # -----------------------------

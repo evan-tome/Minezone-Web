@@ -94,30 +94,19 @@ class KMeansClusterer:
         dists = np.abs(x_n + y_n - 1) / np.sqrt(2)
         return int(ks[np.argmax(dists)])
 
-    def train(self, conn):
-        # Fetches all players with >= 10 games, builds percentile vectors, runs PCA,
-        # picks K via the elbow method, then runs K-means N_INIT times and keeps the best run.
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("""
-            SELECT pd.UUID, pd.LastPlayerName,
-                   pd.Wins, pd.Losses, pd.Kills, pd.Deaths,
-                   pd.MatchMvps,
-                   AVG(gp.kills) AS avg_kills_pg
-            FROM PlayerData pd
-            LEFT JOIN scb_game_players gp ON gp.uuid = pd.UUID
-            WHERE (pd.Wins + pd.Losses) >= 10
-              AND pd.Level > 0
-            GROUP BY pd.UUID, pd.LastPlayerName,
-                     pd.Wins, pd.Losses, pd.Kills, pd.Deaths,
-                     pd.MatchMvps
-        """)
-        rows = cursor.fetchall()
-        cursor.close()
+    def train(self, df_players):
+        # Builds percentile vectors, runs PCA, picks K via the elbow method,
+        # then runs K-means N_INIT times and keeps the best run.
+        df = df_players[
+            (df_players['total_games'] >= 10) &
+            (df_players['Level'] > 0)
+        ]
 
-        if len(rows) < MIN_PLAYERS:
-            print(f"Not enough data to train K-means ({len(rows)} players).")
+        if len(df) < MIN_PLAYERS:
+            print(f"Not enough data to train K-means ({len(df)} players).")
             return
 
+        rows  = df.to_dict('records')
         all_stats = [self._player_vector(r) for r in rows]
         names     = [r['LastPlayerName'] for r in rows]
 

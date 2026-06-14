@@ -208,6 +208,26 @@ router.get('/:username/profile', async (req, res) => {
 
 const ML_URL = process.env.ML_URL || 'http://localhost:8000';
 
+router.get('/class-stats', async (req, res) => {
+    try {
+        const [rows] = await db.query(`
+            SELECT ClassID      AS class_id,
+                   SUM(GamesPlayed) AS games,
+                   SUM(GamesWon)    AS wins
+            FROM PlayerClasses
+            GROUP BY ClassID
+            ORDER BY games DESC
+        `);
+        res.json(rows.map(r => ({
+            class_id: r.class_id,
+            games:    Number(r.games),
+            wins:     Number(r.wins),
+        })));
+    } catch (err) {
+        res.status(500).json({ error: 'Database error' });
+    }
+});
+
 router.get('/cluster-map', async (req, res) => {
     try {
         const r = await fetch(`${ML_URL}/cluster-map`);
@@ -373,6 +393,7 @@ router.get('/:username/predict-win', async (req, res) => {
         res.status(503).json({ error: 'ML service unavailable' });
     }
 });
+
 
 router.get('/:username/trend', async (req, res) => {
     const { username } = req.params;
