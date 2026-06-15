@@ -1,6 +1,6 @@
 # Minezone Website
 
-A full-stack web app for [Minezone](https://minezone.club), a Minecraft server running Super Craft Bros (a class-based PvP minigame). It turns the server's raw match data into player profiles, leaderboards, server-wide analytics, and ML-driven insights.
+A full-stack web app for [Minezone](https://minezone.club), a Minecraft server running Super Craft Bros (a class-based PvP minigame). It turns the server's raw user and match data into player profiles, leaderboards, server-wide analytics, and ML-driven insights.
 
 ## What it does
 
