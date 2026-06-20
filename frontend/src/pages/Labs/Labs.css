@@ -1320,9 +1320,10 @@
 /* Mobile toggle - hidden on desktop */
 .labs-mobile-nav-toggle { display: none; }
 
-@media (max-width: 800px) {
+@media (max-width: 800px), (max-height: 500px) and (orientation: landscape) {
     .labs-layout {
         flex-direction: column;
+        min-height: 0;
     }
 
     .labs-sidebar {

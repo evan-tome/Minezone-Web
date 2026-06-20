@@ -557,6 +557,30 @@ p.about-socials-label {
    RESPONSIVE - MOBILE (<=640px)
 ========================= */
 
+@media (max-height: 500px) and (orientation: landscape) {
+    .img-bg-container {
+        height: auto;
+    }
+
+    .img-bg-container::before {
+        background-position: center 30%;
+    }
+
+    .hero {
+        padding: 16px 32px;
+        gap: 8px;
+    }
+
+    .hero-logo {
+        width: 420px;
+        margin-top: 0;
+    }
+
+    .hero-tagline {
+        font-size: 1.4rem;
+    }
+}
+
 @media (max-width: 640px) {
     .page-section {
         padding: 0 16px;
@@ -572,7 +596,7 @@ p.about-socials-label {
     }
 
     .img-bg-container::before {
-        background-position: center top;
+        background-position: center 30%;
     }
 
     .hero {

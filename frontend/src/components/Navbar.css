@@ -138,7 +138,7 @@
     background: rgba(255, 255, 255, 0.1);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) and (orientation: landscape) {
     .navbar-center,
     .navbar-right {
         display: none;
@@ -167,5 +167,21 @@
 
     .mobile-menu-footer {
         margin-top: 32px;
+    }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+    .navbar-mobile-menu {
+        justify-content: flex-start;
+        padding: 16px 32px 24px;
+    }
+
+    .mobile-nav-links a {
+        padding: 8px 16px;
+        font-size: 1.2rem;
+    }
+
+    .mobile-menu-footer {
+        margin-top: 16px;
     }
 }
