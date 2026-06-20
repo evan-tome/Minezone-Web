@@ -45,7 +45,7 @@ const getOverview = makeCache(`
 
 const getLevelDistribution = makeCache(`
     SELECT
-        FLOOR(Level / 5) * 5 AS bucket,
+        FLOOR(Level / 2) * 2 AS bucket,
         COUNT(*)              AS count
     FROM PlayerData
     GROUP BY bucket
