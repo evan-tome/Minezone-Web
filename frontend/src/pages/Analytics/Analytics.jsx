@@ -250,8 +250,10 @@ function formatHour(h) {
 }
 
 function formatDate(dateStr) {
-    const d = new Date(dateStr);
-    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    // parse the components directly so the displayed day doesn't shift with the
+    // viewer's timezone offset from the UTC-midnight value the API sends
+    const [y, m, d] = dateStr.slice(0, 10).split('-').map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
 function MapPopularityChart({ data }) {
