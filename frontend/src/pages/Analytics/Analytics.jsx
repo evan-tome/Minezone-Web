@@ -1,14 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     ResponsiveContainer, BarChart, Bar, XAxis, YAxis,
     Tooltip, Cell, CartesianGrid, Legend, PieChart, Pie,
-    AreaChart, Area,
+    AreaChart, Area, ComposedChart, LineChart, Line,
 } from 'recharts';
-import { FaUsers, FaGamepad, FaMedal, FaSkull, FaFish, FaClock, FaChevronDown, FaExclamationTriangle } from 'react-icons/fa';
+import { FaUsers, FaGamepad, FaMedal, FaSkull, FaFish, FaClock, FaExclamationTriangle, FaChartLine, FaMap, FaShieldAlt, FaCalendarDay, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
-import { fetchOverview, fetchLevelDistribution, fetchTopByStat, fetchWinRates, fetchAllClassStats, fetchMapPopularity, fetchGamesOverTime, fetchPeakHours, fetchKDRatios } from '../../api/analytics.js';
+import { fetchOverview, fetchLevelDistribution, fetchTopByStat, fetchWinRates, fetchAllClassStats, fetchMapPopularity, fetchGamesOverTime, fetchGamesOverTimeByType, fetchPlayersOverTime, fetchNewPlayersOverTime, fetchPeakHours, fetchKDRatios, fetchGamesByDay, fetchMapClasses } from '../../api/analytics.js';
+import { MatchCard } from '../Stats/RecentMatches.jsx';
 import { CLASSES } from '../../utils/classes.js';
 import '../../App.css';
 import './Analytics.css';
@@ -106,26 +107,30 @@ function ClassesTooltip({ active, payload, label }) {
     );
 }
 
-function ChartSection({ title, children, defaultOpen = true }) {
-    const [open, setOpen] = useState(defaultOpen);
+function WinsOnlyTooltip({ active, payload, label }) {
+    if (!active || !payload?.length) return null;
+    const d = payload[0].payload;
     return (
-        <section className="chart-section">
-            <button type="button" className="chart-section-title" onClick={() => setOpen(o => !o)} aria-expanded={open}>
-                <FaChevronDown className={`chart-section-chevron ${open ? '' : 'collapsed'}`} />
-                {title}
-            </button>
-            {open && <div className="chart-section-body">{children}</div>}
-        </section>
+        <div className="chart-tooltip">
+            <p className="chart-tooltip-name">{label}</p>
+            <p className="chart-tooltip-value" style={{ color: '#4ade80' }}>Won: {d.won.toLocaleString()}</p>
+        </div>
     );
 }
+
+const CATEGORIES = [
+    { id: 'activity', label: 'Activity', icon: <FaChartLine /> },
+    { id: 'maps',     label: 'Maps',     icon: <FaMap /> },
+    { id: 'classes',  label: 'Classes',  icon: <FaShieldAlt /> },
+    { id: 'games',    label: 'Games',    icon: <FaCalendarDay /> },
+];
 
 // Renders a skeleton while loading, an error message (with retry) on failure, a quiet
 // empty state when the fetch succeeded with nothing to show, or the chart otherwise —
 // every chart card goes through the same three states instead of just vanishing.
-function ChartCard({ title, children, full, action, rowSpan, status = 'ready', empty, minHeight = 280, onRetry }) {
+function ChartCard({ title, children, full, action, status = 'ready', empty, minHeight = 280, onRetry }) {
     return (
-        <div className={`chart-card ${full ? 'chart-card-full' : ''}`}
-             style={rowSpan ? { gridRow: `span ${rowSpan}` } : undefined}>
+        <div className={`chart-card ${full ? 'chart-card-full' : ''}`}>
             <div className="chart-card-header">
                 <h3 className="chart-card-title">{title}</h3>
                 {status === 'ready' && !empty && action}
@@ -220,25 +225,32 @@ function CategoryTooltip({ active, payload, label }) {
 }
 
 function CategoryChart({ data }) {
+    const rated = data.map(d => ({ ...d, winRate: d.played > 0 ? (d.won / d.played) * 100 : 0 }));
     return (
         <>
             <div className="category-legend">
                 <span><span className="category-legend-swatch" style={{ opacity: 0.4, background: 'var(--muted)' }} />Games Played</span>
                 <span><span className="category-legend-swatch" style={{ background: 'var(--muted)' }} />Games Won</span>
+                <span><span className="category-legend-swatch category-legend-outline" style={{ borderColor: 'var(--muted)' }} />Win Rate</span>
             </div>
             <ResponsiveContainer width="100%" height={240}>
-                <BarChart data={data} margin={{ left: 8, right: 8, top: 4, bottom: 4 }}>
+                <ComposedChart data={rated} margin={{ left: 8, right: 8, top: 4, bottom: 4 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
                     <XAxis dataKey="name" tick={{ fill: 'var(--muted)', fontSize: 12 }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fill: 'var(--muted)', fontSize: 12 }} axisLine={false} tickLine={false} />
+                    <YAxis yAxisId="count" tick={{ fill: 'var(--muted)', fontSize: 12 }} axisLine={false} tickLine={false} />
+                    <YAxis yAxisId="rate" orientation="right" domain={[0, 100]} tickFormatter={v => `${v}%`}
+                        tick={{ fill: 'var(--muted)', fontSize: 12 }} axisLine={false} tickLine={false} />
                     <Tooltip content={<CategoryTooltip />} cursor={{ fill: 'var(--accent-soft)' }} />
-                    <Bar dataKey="played" radius={[4, 4, 0, 0]} maxBarSize={48}>
-                        {data.map(entry => <Cell key={entry.name} fill={CATEGORY_COLORS[entry.name] ?? '#888'} opacity={0.4} />)}
+                    <Bar yAxisId="count" dataKey="played" radius={[4, 4, 0, 0]} maxBarSize={36}>
+                        {rated.map(entry => <Cell key={entry.name} fill={CATEGORY_COLORS[entry.name] ?? '#888'} opacity={0.4} />)}
                     </Bar>
-                    <Bar dataKey="won" radius={[4, 4, 0, 0]} maxBarSize={48}>
-                        {data.map(entry => <Cell key={entry.name} fill={CATEGORY_COLORS[entry.name] ?? '#888'} />)}
+                    <Bar yAxisId="count" dataKey="won" radius={[4, 4, 0, 0]} maxBarSize={36}>
+                        {rated.map(entry => <Cell key={entry.name} fill={CATEGORY_COLORS[entry.name] ?? '#888'} />)}
                     </Bar>
-                </BarChart>
+                    <Bar yAxisId="rate" dataKey="winRate" fill="transparent" radius={[4, 4, 0, 0]} maxBarSize={36}>
+                        {rated.map(entry => <Cell key={entry.name} fill="transparent" stroke={CATEGORY_COLORS[entry.name] ?? '#888'} strokeWidth={2} />)}
+                    </Bar>
+                </ComposedChart>
             </ResponsiveContainer>
         </>
     );
@@ -308,14 +320,50 @@ function formatDate(dateStr) {
     return new Date(y, m - 1, d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
-function MapPopularityChart({ data }) {
+function todayStr() {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+}
+
+// Shifts a YYYY-MM-DD string by `delta` days, parsing/formatting the components directly
+// so the result doesn't drift with the viewer's timezone offset.
+function shiftDate(dateStr, delta) {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    const dt = new Date(y, m - 1, d);
+    dt.setDate(dt.getDate() + delta);
+    return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
+}
+
+const KNOWN_TYPES = ['classic', 'frenzy', 'duel'];
+const TREND_TYPES = [{ key: 'total', label: 'All' }, { key: 'classic', label: 'Classic' }, { key: 'frenzy', label: 'Frenzy' }, { key: 'duel', label: 'Duel' }];
+
+function MapNameTick({ x, y, payload, onSelect }) {
     return (
-        <ResponsiveContainer width="100%" height={520}>
-            <BarChart layout="vertical" data={data} margin={{ left: 8, right: 52, top: 8, bottom: 4 }}>
+        <g transform={`translate(${x},${y})`} onClick={() => onSelect?.(payload.value)} style={{ cursor: onSelect ? 'pointer' : undefined }}>
+            <rect x={-120} y={-13} width={120} height={26} fill="transparent" />
+            <text
+                x={0} y={0} dy={4}
+                textAnchor="end"
+                fontSize={12}
+                className="player-tick"
+            >
+                {payload.value}
+            </text>
+        </g>
+    );
+}
+
+function MapPopularityChart({ data, selected, onSelect }) {
+    const height = Math.max(100, data.length * 26 + 16);
+    return (
+        <ResponsiveContainer width="100%" height={height}>
+            <BarChart layout="vertical" data={data} margin={{ left: 8, right: 52, top: 8, bottom: 4 }}
+                className={onSelect ? 'map-chart-clickable' : undefined}
+                onClick={onSelect ? e => e?.activePayload?.length && onSelect(e.activePayload[0].payload.name) : undefined}>
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--border)" />
                 <XAxis type="number" hide />
                 <YAxis type="category" dataKey="name" width={120} axisLine={false} tickLine={false}
-                    tick={{ fill: 'var(--text)', fontSize: 12 }} />
+                    tick={(props) => <MapNameTick {...props} onSelect={onSelect} />} />
                 <Tooltip content={({ active, payload, label }) => {
                     if (!active || !payload?.length) return null;
                     return (
@@ -325,23 +373,27 @@ function MapPopularityChart({ data }) {
                         </div>
                     );
                 }} cursor={{ fill: 'var(--accent-soft)' }} />
-                <Bar dataKey="value" radius={[0, 4, 4, 0]} maxBarSize={24}
+                <Bar dataKey="value" radius={[0, 4, 4, 0]} maxBarSize={16} background={{ fill: 'transparent' }}
+                    isAnimationActive={false}
                     label={{ position: 'right', formatter: v => `${v.toLocaleString()}`, fill: 'var(--muted)', fontSize: 12 }}>
-                    {data.map((entry, i) => <Cell key={entry.name} fill={BAR_COLORS[i] ?? BAR_COLORS.at(-1)} />)}
+                    {data.map((entry, i) => (
+                        <Cell key={entry.name} fill={BAR_COLORS[i] ?? BAR_COLORS.at(-1)}
+                            opacity={selected && selected !== entry.name ? 0.35 : 1} />
+                    ))}
                 </Bar>
             </BarChart>
         </ResponsiveContainer>
     );
 }
 
-function GamesOverTimeChart({ data }) {
+function GamesOverTimeChart({ data, dataKey = 'games', valueLabel = 'games', color = ACCENT, gradientId = 'gamesGrad' }) {
     return (
         <ResponsiveContainer width="100%" height={220}>
             <AreaChart data={data} margin={{ left: 8, right: 24, top: 4, bottom: 4 }}>
                 <defs>
-                    <linearGradient id="gamesGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%"  stopColor={ACCENT} stopOpacity={0.35} />
-                        <stop offset="95%" stopColor={ACCENT} stopOpacity={0} />
+                    <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%"  stopColor={color} stopOpacity={0.35} />
+                        <stop offset="95%" stopColor={color} stopOpacity={0} />
                     </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
@@ -353,12 +405,50 @@ function GamesOverTimeChart({ data }) {
                     return (
                         <div className="chart-tooltip">
                             <p className="chart-tooltip-name">{formatDate(label)}</p>
-                            <p className="chart-tooltip-value" style={{ color: ACCENT }}>{payload[0].value} games</p>
+                            <p className="chart-tooltip-value" style={{ color }}>{payload[0].value} {valueLabel}</p>
+                        </div>
+                    );
+                }} cursor={{ stroke: color, strokeWidth: 1 }} />
+                <Area type="monotone" dataKey={dataKey} stroke={color} strokeWidth={2} fill={`url(#${gradientId})`} dot={false} activeDot={{ r: 4, fill: color }} />
+            </AreaChart>
+        </ResponsiveContainer>
+    );
+}
+
+const TYPE_COLORS = { classic: '#34d399', frenzy: '#60a5fa', duel: '#c084fc' };
+
+function GamesOverTimeMultiChart({ data, types, onPointClick }) {
+    const series = types.length > 0 ? types : ['total'];
+    return (
+        <ResponsiveContainer width="100%" height={250}>
+            <LineChart data={data} margin={{ left: 8, right: 24, top: 4, bottom: 4 }}
+                className={onPointClick ? 'map-chart-clickable' : undefined}
+                onClick={onPointClick ? e => e?.activeLabel && onPointClick(e.activeLabel) : undefined}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+                <XAxis dataKey="date" tick={{ fill: 'var(--muted)', fontSize: 11 }} axisLine={false} tickLine={false}
+                    tickFormatter={formatDate} interval="preserveStartEnd" />
+                <YAxis tick={{ fill: 'var(--muted)', fontSize: 12 }} axisLine={false} tickLine={false} />
+                <Tooltip content={({ active, payload, label }) => {
+                    if (!active || !payload?.length) return null;
+                    return (
+                        <div className="chart-tooltip">
+                            <p className="chart-tooltip-name">{formatDate(label)}</p>
+                            {payload.map(p => (
+                                <p key={p.dataKey} className="chart-tooltip-value" style={{ color: p.color }}>
+                                    {p.dataKey === 'total' ? 'Games' : p.name}: {p.value}
+                                </p>
+                            ))}
                         </div>
                     );
                 }} cursor={{ stroke: ACCENT, strokeWidth: 1 }} />
-                <Area type="monotone" dataKey="games" stroke={ACCENT} strokeWidth={2} fill="url(#gamesGrad)" dot={false} activeDot={{ r: 4, fill: ACCENT }} />
-            </AreaChart>
+                <Legend height={30} wrapperStyle={{ fontSize: '0.85rem', color: 'var(--muted)' }} />
+                {series.map(key => (
+                    <Line key={key} type="monotone" dataKey={key}
+                        name={key === 'total' ? 'Games' : key[0].toUpperCase() + key.slice(1)}
+                        stroke={key === 'total' ? ACCENT : TYPE_COLORS[key]} strokeWidth={2}
+                        dot={false} activeDot={{ r: 4 }} />
+                ))}
+            </LineChart>
         </ResponsiveContainer>
     );
 }
@@ -392,17 +482,17 @@ function PeakHoursChart({ data }) {
     );
 }
 
-function ClassesChart({ data }) {
+function ClassesChart({ data, height = 560, winsOnly = false }) {
     return (
-        <ResponsiveContainer width="100%" height={560}>
+        <ResponsiveContainer width="100%" height={height}>
             <BarChart layout="vertical" data={data} margin={{ left: 8, right: 24, top: 4, bottom: 4 }}>
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--border)" />
                 <XAxis type="number" tick={{ fill: 'var(--muted)', fontSize: 12 }} axisLine={false} tickLine={false} />
                 <YAxis type="category" dataKey="name" width={120} tick={{ fill: 'var(--text)', fontSize: 12 }} axisLine={false} tickLine={false} />
-                <Tooltip content={<ClassesTooltip />} cursor={{ fill: 'var(--accent-soft)' }} />
-                <Legend wrapperStyle={{ fontSize: '0.85rem', color: 'var(--muted)', paddingTop: '12px' }} />
-                <Bar dataKey="played" name="Games Played" fill="#e09304" radius={[0, 3, 3, 0]} maxBarSize={14} />
-                <Bar dataKey="won"    name="Games Won"    fill="#4ade80" radius={[0, 3, 3, 0]} maxBarSize={14} />
+                <Tooltip content={winsOnly ? <WinsOnlyTooltip /> : <ClassesTooltip />} cursor={{ fill: 'var(--accent-soft)' }} />
+                {!winsOnly && <Legend wrapperStyle={{ fontSize: '0.85rem', color: 'var(--muted)', paddingTop: '12px' }} />}
+                {!winsOnly && <Bar dataKey="played" name="Games Played" fill="#e09304" radius={[0, 3, 3, 0]} maxBarSize={14} />}
+                <Bar dataKey="won" name="Games Won" fill="#4ade80" radius={[0, 3, 3, 0]} maxBarSize={winsOnly ? 22 : 14} />
             </BarChart>
         </ResponsiveContainer>
     );
@@ -424,7 +514,17 @@ export function Analytics() {
     const [mapPopularity, setMapPopularity]     = useState([]);
     const [mapMode, setMapMode]                 = useState('classic');
     const [gamesOverTime, setGamesOverTime]     = useState([]);
+    const [gamesOverTimeByType, setGamesOverTimeByType] = useState([]);
+    const [gamesOverTimeTypes, setGamesOverTimeTypes]   = useState(['total']);
+    const [playersOverTime, setPlayersOverTime]         = useState([]);
+    const [newPlayersOverTime, setNewPlayersOverTime]   = useState([]);
     const [peakHours, setPeakHours]             = useState([]);
+    const [gamesByDayDate, setGamesByDayDate]   = useState(todayStr);
+    const [gamesByDay, setGamesByDay]           = useState([]);
+    const [gamesByDayPage, setGamesByDayPage]   = useState(0);
+    const [activeCategory, setActiveCategory]   = useState('activity');
+    const [selectedMap, setSelectedMap]         = useState(null);
+    const [mapClasses, setMapClasses]           = useState([]);
 
     // Tracks 'loading' | 'ready' | 'error' per data source so every chart card can show
     // a skeleton, an error + retry, or its content instead of just appearing/disappearing.
@@ -432,6 +532,8 @@ export function Analytics() {
         overview: 'loading', topWins: 'loading', topKills: 'loading', topStreak: 'loading',
         topFish: 'loading', levels: 'loading', classes: 'loading', winRates: 'loading',
         kdRatios: 'loading', mapPopularity: 'loading', gamesOverTime: 'loading', peakHours: 'loading',
+        gamesByDay: 'loading', mapClasses: 'loading', gamesOverTimeByType: 'loading',
+        newPlayersOverTime: 'loading', playersOverTime: 'loading',
     });
     const setStat = (key, value) => setStatus(s => ({ ...s, [key]: value }));
 
@@ -562,6 +664,36 @@ export function Analytics() {
             .catch(() => setStat('gamesOverTime', 'error'));
     };
 
+    const loadGamesOverTimeByType = () => {
+        setStat('gamesOverTimeByType', 'loading');
+        fetchGamesOverTimeByType()
+            .then(d => {
+                setGamesOverTimeByType(d.map(r => ({ date: r.date, gameType: r.game_type, games: Number(r.games) })));
+                setStat('gamesOverTimeByType', 'ready');
+            })
+            .catch(() => setStat('gamesOverTimeByType', 'error'));
+    };
+
+    const loadPlayersOverTime = () => {
+        setStat('playersOverTime', 'loading');
+        fetchPlayersOverTime()
+            .then(d => {
+                setPlayersOverTime(d.map(r => ({ date: r.date, games: Number(r.players) })));
+                setStat('playersOverTime', 'ready');
+            })
+            .catch(() => setStat('playersOverTime', 'error'));
+    };
+
+    const loadNewPlayersOverTime = () => {
+        setStat('newPlayersOverTime', 'loading');
+        fetchNewPlayersOverTime()
+            .then(d => {
+                setNewPlayersOverTime(d.map(r => ({ date: r.date, games: Number(r.new_players) })));
+                setStat('newPlayersOverTime', 'ready');
+            })
+            .catch(() => setStat('newPlayersOverTime', 'error'));
+    };
+
     const loadPeakHours = () => {
         setStat('peakHours', 'loading');
         fetchPeakHours()
@@ -580,6 +712,20 @@ export function Analytics() {
             .catch(() => setStat('peakHours', 'error'));
     };
 
+    // The trendline filter above the chart is the single source of truth for game type;
+    // a lone specific type narrows the DB query, while "All" or multiple types fetches
+    // everything and filters client-side so the two views never disagree.
+    const effectiveTypes = gamesOverTimeTypes.includes('total') ? [] : gamesOverTimeTypes;
+    const dayTypeFilter = effectiveTypes.length === 1 ? effectiveTypes[0] : '';
+    const gamesOverTimeTypesKey = gamesOverTimeTypes.join(',');
+
+    const loadGamesByDay = () => {
+        setStat('gamesByDay', 'loading');
+        fetchGamesByDay(gamesByDayDate, dayTypeFilter)
+            .then(d => { setGamesByDay(d.matches ?? []); setStat('gamesByDay', 'ready'); })
+            .catch(() => setStat('gamesByDay', 'error'));
+    };
+
     const loadMapPopularity = () => {
         setStat('mapPopularity', 'loading');
         fetchMapPopularity(mapMode)
@@ -588,6 +734,23 @@ export function Analytics() {
                 setStat('mapPopularity', 'ready');
             })
             .catch(() => setStat('mapPopularity', 'error'));
+    };
+
+    const loadMapClasses = (mapName) => {
+        setStat('mapClasses', 'loading');
+        fetchMapClasses(mapName, mapMode)
+            .then(rows => {
+                setMapClasses(rows
+                    .map(r => ({
+                        name: getClassName(r.class_id),
+                        played: Number(r.played),
+                        won: Number(r.won ?? 0),
+                    }))
+                    .filter(c => c.won > 0)
+                    .slice(0, 5));
+                setStat('mapClasses', 'ready');
+            })
+            .catch(() => setStat('mapClasses', 'error'));
     };
 
     useEffect(() => {
@@ -601,12 +764,49 @@ export function Analytics() {
         loadWinRates();
         loadKdRatios();
         loadGamesOverTime();
+        loadGamesOverTimeByType();
+        loadPlayersOverTime();
+        loadNewPlayersOverTime();
         loadPeakHours();
     }, []);
 
     useEffect(() => {
         loadMapPopularity();
+        setSelectedMap(null);
     }, [mapMode]);
+
+    useEffect(() => {
+        if (selectedMap) loadMapClasses(selectedMap);
+    }, [selectedMap]);
+
+    useEffect(() => {
+        loadGamesByDay();
+        setGamesByDayPage(0);
+    }, [gamesByDayDate, dayTypeFilter]);
+
+    // Re-filtering client-side (multiple specific types selected) doesn't refetch, but
+    // should still reset to page 1 since the visible set changed.
+    useEffect(() => {
+        setGamesByDayPage(0);
+    }, [gamesOverTimeTypesKey]);
+
+    const gamesOverTimeByDate = useMemo(() => {
+        const byDate = {};
+        gamesOverTimeByType.forEach(r => {
+            const d = String(r.date).slice(0, 10);
+            if (!byDate[d]) byDate[d] = { date: d, classic: 0, frenzy: 0, duel: 0, total: 0 };
+            if (KNOWN_TYPES.includes(r.gameType)) byDate[d][r.gameType] = r.games;
+            byDate[d].total += r.games;
+        });
+        return Object.values(byDate).sort((a, b) => a.date.localeCompare(b.date));
+    }, [gamesOverTimeByType]);
+
+    const visibleGamesByDay = effectiveTypes.length > 1
+        ? gamesByDay.filter(m => effectiveTypes.includes(m.game_type?.toLowerCase()))
+        : gamesByDay;
+    const DAY_PAGE_SIZE = 5;
+    const totalDayPages = Math.ceil(visibleGamesByDay.length / DAY_PAGE_SIZE);
+    const pagedGamesByDay = visibleGamesByDay.slice(gamesByDayPage * DAY_PAGE_SIZE, (gamesByDayPage + 1) * DAY_PAGE_SIZE);
 
     return (
         <div className="app dark-page">
@@ -618,181 +818,330 @@ export function Analytics() {
                     <p>Live statistics and trends from Minezone</p>
                 </div>
 
-                <div className="overview-grid">
-                    {status.overview === 'loading' && Array.from({ length: 6 }, (_, i) => <StatCardSkeleton key={i} />)}
-                    {status.overview === 'error' && <StatCardError />}
-                    {status.overview === 'ready' && overview && (
-                        <>
-                            <StatCard icon={<FaUsers />}   label="Total Players"  value={Number(overview.totalPlayers).toLocaleString()} />
-                            <StatCard icon={<FaGamepad />}  label="Games Played"   value={Number(overview.totalGames).toLocaleString()} />
-                            <StatCard icon={<FaMedal />}    label="Avg Level"      value={overview.avgLevel} />
-                            <StatCard icon={<FaSkull />}    label="Total Kills"    value={Number(overview.totalKills).toLocaleString()} />
-                            <StatCard icon={<FaFish />}     label="Fish Caught"    value={Number(overview.totalFishCaught).toLocaleString()} />
-                            <StatCard icon={<FaClock />}    label="Total Game Time" value={(() => { const m = Number(overview.totalGameMinutes); const d = Math.floor(m / 1440); const h = Math.floor((m % 1440) / 60); return d > 0 ? `${d.toLocaleString()}d ${h}h` : `${h}h`; })()} />
-                        </>
-                    )}
-                </div>
+                <div className="analytics-layout">
+                    <aside className="analytics-sidebar">
+                        <nav className="analytics-nav">
+                            {CATEGORIES.map(cat => (
+                                <button
+                                    key={cat.id}
+                                    type="button"
+                                    className={`analytics-nav-btn${activeCategory === cat.id ? ' active' : ''}`}
+                                    onClick={() => setActiveCategory(cat.id)}
+                                >
+                                    <span className="analytics-nav-icon">{cat.icon}</span>
+                                    {cat.label}
+                                </button>
+                            ))}
+                        </nav>
+                    </aside>
 
-                <div className="charts-grid">
+                    <div className="analytics-content">
 
-                    <ChartSection title="Activity Trends">
-                        <div className="chart-section-grid map-time-group">
-                            <ChartCard title="Map Popularity" rowSpan={2} status={status.mapPopularity} empty={mapPopularity.length === 0}
-                                minHeight={520} onRetry={loadMapPopularity} action={
-                                <div className="chart-sort-toggle">
-                                    <button
-                                        className={mapMode === 'classic' ? 'active' : ''}
-                                        onClick={() => setMapMode('classic')}
-                                    >Classic</button>
-                                    <button
-                                        className={mapMode === 'duel' ? 'active' : ''}
-                                        onClick={() => setMapMode('duel')}
-                                    >Duel</button>
+                        {activeCategory === 'activity' && (
+                            <>
+                                <div className="overview-grid">
+                                    {status.overview === 'loading' && Array.from({ length: 6 }, (_, i) => <StatCardSkeleton key={i} />)}
+                                    {status.overview === 'error' && <StatCardError />}
+                                    {status.overview === 'ready' && overview && (
+                                        <>
+                                            <StatCard icon={<FaUsers />}   label="Total Players"  value={Number(overview.totalPlayers).toLocaleString()} />
+                                            <StatCard icon={<FaGamepad />}  label="Games Played"   value={Number(overview.totalGames).toLocaleString()} />
+                                            <StatCard icon={<FaMedal />}    label="Avg Level"      value={overview.avgLevel} />
+                                            <StatCard icon={<FaSkull />}    label="Total Kills"    value={Number(overview.totalKills).toLocaleString()} />
+                                            <StatCard icon={<FaFish />}     label="Fish Caught"    value={Number(overview.totalFishCaught).toLocaleString()} />
+                                            <StatCard icon={<FaClock />}    label="Total Game Time" value={(() => { const m = Number(overview.totalGameMinutes); const d = Math.floor(m / 1440); const h = Math.floor((m % 1440) / 60); return d > 0 ? `${d.toLocaleString()}d ${h}h` : `${h}h`; })()} />
+                                        </>
+                                    )}
                                 </div>
-                            }>
-                                <MapPopularityChart data={mapPopularity} />
-                            </ChartCard>
 
-                            <ChartCard title="Peak Hours (all time, ET)" status={status.peakHours} empty={peakHours.length === 0}
-                                minHeight={220} onRetry={loadPeakHours}>
-                                <PeakHoursChart data={peakHours} />
-                            </ChartCard>
+                                <div className="chart-section-grid">
+                                    <ChartCard title="Peak Hours (all time, ET)" full status={status.peakHours} empty={peakHours.length === 0}
+                                        minHeight={220} onRetry={loadPeakHours}>
+                                        <PeakHoursChart data={peakHours} />
+                                    </ChartCard>
 
-                            <ChartCard title="Games Played: Last 60 Days" status={status.gamesOverTime} empty={gamesOverTime.length === 0}
-                                minHeight={220} onRetry={loadGamesOverTime}>
-                                <GamesOverTimeChart data={gamesOverTime} />
-                            </ChartCard>
-                        </div>
-                    </ChartSection>
+                                    <ChartCard title="Games Played: Last 60 Days" status={status.gamesOverTime} empty={gamesOverTime.length === 0}
+                                        minHeight={220} onRetry={loadGamesOverTime}>
+                                        <GamesOverTimeChart data={gamesOverTime} />
+                                    </ChartCard>
 
-                    <ChartSection title="Player Leaderboards">
-                        <div className="chart-section-grid leaderboard-grid">
-                            <ChartCard title="Player Level Distribution" full status={status.levels} empty={levels.length === 0}
-                                minHeight={280} onRetry={loadLevels}>
-                                <VerticalBar data={levels} />
-                            </ChartCard>
+                                    <ChartCard title="Players per Day: Last 60 Days" status={status.playersOverTime} empty={playersOverTime.length === 0}
+                                        minHeight={220} onRetry={loadPlayersOverTime}>
+                                        <GamesOverTimeChart data={playersOverTime} valueLabel="players" color="#60a5fa" gradientId="playersGrad" />
+                                    </ChartCard>
 
-                            <ChartCard title="Top 10 by Wins" status={status.topWins} empty={topWins.length === 0}
-                                minHeight={300} onRetry={loadTopWins}>
-                                <HorizontalBar data={topWins} unit="wins" />
-                            </ChartCard>
+                                    <ChartCard title="First Games Played: Last 60 Days" full status={status.newPlayersOverTime} empty={newPlayersOverTime.length === 0}
+                                        minHeight={220} onRetry={loadNewPlayersOverTime}>
+                                        <GamesOverTimeChart data={newPlayersOverTime} valueLabel="new players" color="#34d399" gradientId="newPlayersGrad" />
+                                    </ChartCard>
+                                </div>
 
-                            <ChartCard title="Top 10 by Kills" status={status.topKills} empty={topKills.length === 0}
-                                minHeight={300} onRetry={loadTopKills}>
-                                <HorizontalBar data={topKills} unit="kills" />
-                            </ChartCard>
+                                <div className="chart-section-grid leaderboard-grid">
+                                    <ChartCard title="Player Level Distribution" full status={status.levels} empty={levels.length === 0}
+                                        minHeight={280} onRetry={loadLevels}>
+                                        <VerticalBar data={levels} />
+                                    </ChartCard>
 
-                            <ChartCard title="Top 10 Best Winstreaks" status={status.topStreak} empty={topStreak.length === 0}
-                                minHeight={300} onRetry={loadTopStreak}>
-                                <HorizontalBar data={topStreak} unit="wins" />
-                            </ChartCard>
+                                    <ChartCard title="Top 10 by Wins" status={status.topWins} empty={topWins.length === 0}
+                                        minHeight={300} onRetry={loadTopWins}>
+                                        <HorizontalBar data={topWins} unit="wins" />
+                                    </ChartCard>
 
-                            <ChartCard title="Top 10 Fish Caught" status={status.topFish} empty={topFish.length === 0}
-                                minHeight={300} onRetry={loadTopFish}>
-                                <HorizontalBar data={topFish} unit="fish" />
-                            </ChartCard>
+                                    <ChartCard title="Top 10 by Kills" status={status.topKills} empty={topKills.length === 0}
+                                        minHeight={300} onRetry={loadTopKills}>
+                                        <HorizontalBar data={topKills} unit="kills" />
+                                    </ChartCard>
 
-                            <ChartCard title="Top Win Rates (min. 20 games)" status={status.winRates} empty={winRates.length === 0}
-                                minHeight={380} onRetry={loadWinRates}>
-                                <HorizontalBar data={winRates} dataKey="winRate" height={380} domain={[0, 100]}
-                                    formatValue={v => `${v}%`}
-                                    tooltipExtra={d => `${d.wins}W / ${d.losses}L · ${d.total} games`} />
-                            </ChartCard>
+                                    <ChartCard title="Top 10 Best Winstreaks" status={status.topStreak} empty={topStreak.length === 0}
+                                        minHeight={300} onRetry={loadTopStreak}>
+                                        <HorizontalBar data={topStreak} unit="wins" />
+                                    </ChartCard>
 
-                            <ChartCard title="Top K/D Ratios (min. 20 games)" status={status.kdRatios} empty={kdRatios.length === 0}
-                                minHeight={380} onRetry={loadKdRatios}>
-                                <HorizontalBar data={kdRatios} dataKey="kd" height={380}
-                                    formatValue={v => v.toFixed(2)}
-                                    tooltipExtra={d => `${d.kills.toLocaleString()}K / ${d.deaths.toLocaleString()}D`} />
-                            </ChartCard>
-                        </div>
-                    </ChartSection>
+                                    <ChartCard title="Top 10 Fish Caught" status={status.topFish} empty={topFish.length === 0}
+                                        minHeight={300} onRetry={loadTopFish}>
+                                        <HorizontalBar data={topFish} unit="fish" />
+                                    </ChartCard>
 
-                    <ChartSection title="Class Performance">
-                        <div className="chart-section-grid">
-                            <ChartCard title="Wins by Class Category" status={status.classes} empty={classCategories.length === 0}
-                                minHeight={240} onRetry={loadClasses}>
-                                <CategoryChart data={classCategories} />
-                            </ChartCard>
+                                    <ChartCard title="Top Win Rates (min. 20 games)" status={status.winRates} empty={winRates.length === 0}
+                                        minHeight={380} onRetry={loadWinRates}>
+                                        <HorizontalBar data={winRates} dataKey="winRate" height={380} domain={[0, 100]}
+                                            formatValue={v => `${v}%`}
+                                            tooltipExtra={d => `${d.wins}W / ${d.losses}L · ${d.total} games`} />
+                                    </ChartCard>
 
-                            <ChartCard title="% of Total Wins by Category" status={status.classes} empty={classCategories.length === 0}
-                                minHeight={280} onRetry={loadClasses}>
-                                <CategoryPieChart data={classCategories} />
-                            </ChartCard>
-                        </div>
+                                    <ChartCard title="Top K/D Ratios (min. 20 games)" status={status.kdRatios} empty={kdRatios.length === 0}
+                                        minHeight={380} onRetry={loadKdRatios}>
+                                        <HorizontalBar data={kdRatios} dataKey="kd" height={380}
+                                            formatValue={v => v.toFixed(2)}
+                                            tooltipExtra={d => `${d.kills.toLocaleString()}K / ${d.deaths.toLocaleString()}D`} />
+                                    </ChartCard>
+                                </div>
+                            </>
+                        )}
 
-                        <div className="chart-section-grid classes-pair">
-                            <ChartCard
-                                title="Most Performing Classes"
-                                status={status.classes} empty={allClasses.length === 0} minHeight={560} onRetry={loadClasses}
-                                action={
+                        {activeCategory === 'maps' && (
+                            <div className="chart-section-grid">
+                                <ChartCard title="Map Popularity" full status={status.mapPopularity} empty={mapPopularity.length === 0}
+                                    minHeight={520} onRetry={loadMapPopularity} action={
                                     <div className="chart-sort-toggle">
                                         <button
-                                            className={classSort === 'played' ? 'active' : ''}
-                                            onClick={() => setClassSort('played')}
-                                        >
-                                            By Played
-                                        </button>
+                                            className={mapMode === 'classic' ? 'active' : ''}
+                                            onClick={() => setMapMode('classic')}
+                                        >Classic</button>
                                         <button
-                                            className={classSort === 'won' ? 'active' : ''}
-                                            onClick={() => setClassSort('won')}
-                                        >
-                                            By Won
-                                        </button>
-                                        <button
-                                            className={classSort === 'winRate' ? 'active' : ''}
-                                            onClick={() => setClassSort('winRate')}
-                                        >
-                                            By Win Rate
-                                        </button>
+                                            className={mapMode === 'duel' ? 'active' : ''}
+                                            onClick={() => setMapMode('duel')}
+                                        >Duel</button>
                                     </div>
-                                }
-                            >
-                                <ClassesChart
-                                    data={[...allClasses]
-                                        .sort((a, b) => classSort === 'winRate'
-                                            ? (b.won / b.played) - (a.won / a.played)
-                                            : b[classSort] - a[classSort])
-                                        .slice(0, 20)}
-                                />
-                            </ChartCard>
+                                }>
+                                    <p className="map-chart-hint">Click a map to see its top classes by wins.</p>
+                                    <MapPopularityChart data={mapPopularity} selected={selectedMap} onSelect={setSelectedMap} />
+                                </ChartCard>
 
-                            <ChartCard
-                                title="Least Performing Classes"
-                                status={status.classes} empty={allClasses.length === 0} minHeight={560} onRetry={loadClasses}
-                                action={
-                                    <div className="chart-sort-toggle">
-                                        <button
-                                            className={bottomClassSort === 'won' ? 'active' : ''}
-                                            onClick={() => setBottomClassSort('won')}
-                                        >
-                                            By Won
-                                        </button>
-                                        <button
-                                            className={bottomClassSort === 'played' ? 'active' : ''}
-                                            onClick={() => setBottomClassSort('played')}
-                                        >
-                                            By Played
-                                        </button>
-                                        <button
-                                            className={bottomClassSort === 'winRate' ? 'active' : ''}
-                                            onClick={() => setBottomClassSort('winRate')}
-                                        >
-                                            By Win Rate
-                                        </button>
+                                {selectedMap && (
+                                    <ChartCard
+                                        title={`Top 5 Winning Classes on ${selectedMap}`}
+                                        full status={status.mapClasses} empty={mapClasses.length === 0}
+                                        minHeight={200} onRetry={() => loadMapClasses(selectedMap)}
+                                        action={
+                                            <button type="button" className="chart-error-retry" onClick={() => setSelectedMap(null)}>
+                                                Clear
+                                            </button>
+                                        }
+                                    >
+                                        <ClassesChart data={mapClasses} height={Math.max(160, mapClasses.length * 40 + 40)} winsOnly />
+                                    </ChartCard>
+                                )}
+                            </div>
+                        )}
+
+                        {activeCategory === 'classes' && (
+                            <>
+                                <div className="chart-section-grid">
+                                    <ChartCard title="Wins by Class Category" status={status.classes} empty={classCategories.length === 0}
+                                        minHeight={240} onRetry={loadClasses}>
+                                        <CategoryChart data={classCategories} />
+                                    </ChartCard>
+
+                                    <ChartCard title="% of Total Wins by Category" status={status.classes} empty={classCategories.length === 0}
+                                        minHeight={280} onRetry={loadClasses}>
+                                        <CategoryPieChart data={classCategories} />
+                                    </ChartCard>
+                                </div>
+
+                                <div className="chart-section-grid classes-pair">
+                                    <ChartCard
+                                        title="Most Performing Classes"
+                                        status={status.classes} empty={allClasses.length === 0} minHeight={560} onRetry={loadClasses}
+                                        action={
+                                            <div className="chart-sort-toggle">
+                                                <button
+                                                    className={classSort === 'played' ? 'active' : ''}
+                                                    onClick={() => setClassSort('played')}
+                                                >
+                                                    By Played
+                                                </button>
+                                                <button
+                                                    className={classSort === 'won' ? 'active' : ''}
+                                                    onClick={() => setClassSort('won')}
+                                                >
+                                                    By Won
+                                                </button>
+                                                <button
+                                                    className={classSort === 'winRate' ? 'active' : ''}
+                                                    onClick={() => setClassSort('winRate')}
+                                                >
+                                                    By Win Rate
+                                                </button>
+                                            </div>
+                                        }
+                                    >
+                                        <ClassesChart
+                                            data={[...allClasses]
+                                                .sort((a, b) => classSort === 'winRate'
+                                                    ? (b.won / b.played) - (a.won / a.played)
+                                                    : b[classSort] - a[classSort])
+                                                .slice(0, 20)}
+                                        />
+                                    </ChartCard>
+
+                                    <ChartCard
+                                        title="Least Performing Classes"
+                                        status={status.classes} empty={allClasses.length === 0} minHeight={560} onRetry={loadClasses}
+                                        action={
+                                            <div className="chart-sort-toggle">
+                                                <button
+                                                    className={bottomClassSort === 'won' ? 'active' : ''}
+                                                    onClick={() => setBottomClassSort('won')}
+                                                >
+                                                    By Won
+                                                </button>
+                                                <button
+                                                    className={bottomClassSort === 'played' ? 'active' : ''}
+                                                    onClick={() => setBottomClassSort('played')}
+                                                >
+                                                    By Played
+                                                </button>
+                                                <button
+                                                    className={bottomClassSort === 'winRate' ? 'active' : ''}
+                                                    onClick={() => setBottomClassSort('winRate')}
+                                                >
+                                                    By Win Rate
+                                                </button>
+                                            </div>
+                                        }
+                                    >
+                                        <ClassesChart
+                                            data={[...allClasses]
+                                                .sort((a, b) => bottomClassSort === 'winRate'
+                                                    ? (a.won / a.played) - (b.won / b.played)
+                                                    : a[bottomClassSort] - b[bottomClassSort])
+                                                .slice(0, 20)}
+                                        />
+                                    </ChartCard>
+                                </div>
+                            </>
+                        )}
+
+                        {activeCategory === 'games' && (
+                            <>
+                                <div className="chart-section-grid">
+                                    <ChartCard title="Games Played: Last 60 Days" full status={status.gamesOverTimeByType} empty={gamesOverTimeByDate.length === 0}
+                                        minHeight={220} onRetry={loadGamesOverTimeByType} action={
+                                        <div className="chart-sort-toggle">
+                                            {TREND_TYPES.map(({ key, label }) => (
+                                                <button
+                                                    key={key}
+                                                    className={gamesOverTimeTypes.includes(key) ? 'active' : ''}
+                                                    onClick={() => setGamesOverTimeTypes(prev => {
+                                                        if (prev.includes(key)) {
+                                                            const next = prev.filter(x => x !== key);
+                                                            return next.length > 0 ? next : prev;
+                                                        }
+                                                        return [...prev, key];
+                                                    })}
+                                                >
+                                                    {label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    }>
+                                        <p className="map-chart-hint">Click a point to see matches from that date.</p>
+                                        <GamesOverTimeMultiChart data={gamesOverTimeByDate} types={gamesOverTimeTypes}
+                                            onPointClick={setGamesByDayDate} />
+                                    </ChartCard>
+                                </div>
+
+                                <div className="games-by-day">
+                                    <div className="games-by-day-controls">
+                                        <div className="games-by-day-calendar">
+                                            <button type="button" className="games-by-day-nav" aria-label="Previous day"
+                                                onClick={() => setGamesByDayDate(d => shiftDate(d, -1))}>
+                                                <FaChevronLeft />
+                                            </button>
+                                            <input
+                                                type="date"
+                                                className="games-by-day-input"
+                                                value={gamesByDayDate}
+                                                max={todayStr()}
+                                                onChange={e => setGamesByDayDate(e.target.value)}
+                                            />
+                                            <button type="button" className="games-by-day-nav" aria-label="Next day"
+                                                disabled={gamesByDayDate >= todayStr()}
+                                                onClick={() => setGamesByDayDate(d => shiftDate(d, 1))}>
+                                                <FaChevronRight />
+                                            </button>
+                                            <button type="button" className="games-by-day-today"
+                                                disabled={gamesByDayDate === todayStr()}
+                                                onClick={() => setGamesByDayDate(todayStr())}>
+                                                Today
+                                            </button>
+                                        </div>
+
+                                        {status.gamesByDay === 'ready' && (
+                                            <span className="games-by-day-count">
+                                                {visibleGamesByDay.length} game{visibleGamesByDay.length !== 1 ? 's' : ''}
+                                            </span>
+                                        )}
                                     </div>
-                                }
-                            >
-                                <ClassesChart
-                                    data={[...allClasses]
-                                        .sort((a, b) => bottomClassSort === 'winRate'
-                                            ? (a.won / a.played) - (b.won / b.played)
-                                            : a[bottomClassSort] - b[bottomClassSort])
-                                        .slice(0, 20)}
-                                />
-                            </ChartCard>
-                        </div>
-                    </ChartSection>
+
+                                    {status.gamesByDay === 'loading' && <p className="games-by-day-status">Loading games...</p>}
+
+                                    {status.gamesByDay === 'error' && (
+                                        <div className="games-by-day-status">
+                                            <FaExclamationTriangle className="chart-error-icon" />
+                                            <p>Couldn't load games for this day.</p>
+                                            <button type="button" className="chart-error-retry" onClick={loadGamesByDay}>Retry</button>
+                                        </div>
+                                    )}
+
+                                    {status.gamesByDay === 'ready' && visibleGamesByDay.length === 0 && (
+                                        <p className="games-by-day-status">No games played on this day.</p>
+                                    )}
+
+                                    {status.gamesByDay === 'ready' && visibleGamesByDay.length > 0 && (
+                                        <>
+                                            <div className="rm-list">
+                                                {pagedGamesByDay.map(m => <MatchCard key={m.game_id} match={m} />)}
+                                            </div>
+                                            {totalDayPages > 1 && (
+                                                <div className="rm-pagination">
+                                                    <button className="rm-page-btn" onClick={() => setGamesByDayPage(p => p - 1)} disabled={gamesByDayPage === 0}>
+                                                        <FaChevronLeft />
+                                                    </button>
+                                                    <span className="rm-page-info">{gamesByDayPage + 1} / {totalDayPages}</span>
+                                                    <button className="rm-page-btn" onClick={() => setGamesByDayPage(p => p + 1)} disabled={gamesByDayPage >= totalDayPages - 1}>
+                                                        <FaChevronRight />
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
+                                </div>
+                            </>
+                        )}
+
+                    </div>
                 </div>
 
             </div>

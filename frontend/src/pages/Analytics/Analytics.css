@@ -23,7 +23,6 @@
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     gap: 14px;
-    margin-bottom: 40px;
 }
 
 .stat-card {
@@ -61,43 +60,64 @@
 }
 
 /* Charts */
-.charts-grid {
+.analytics-layout {
     display: flex;
-    flex-direction: column;
-    gap: 40px;
+    gap: 28px;
+    align-items: flex-start;
 }
 
-.chart-section-title {
+.analytics-sidebar {
+    flex: 0 0 200px;
+    position: sticky;
+    top: 24px;
+}
+
+.analytics-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.analytics-nav-btn {
     display: flex;
     align-items: center;
     gap: 10px;
     width: 100%;
-    font-size: 0.78rem;
-    font-weight: 800;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
+    font-size: 0.88rem;
+    font-weight: 600;
     color: var(--muted);
-    padding: 4px 0;
-    margin: 0 0 16px;
+    padding: 10px 12px;
+    border-radius: 8px;
     background: none;
     border: none;
     font-family: inherit;
     cursor: pointer;
     text-align: left;
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.chart-section-title:hover {
+.analytics-nav-btn:hover {
     color: var(--text);
+    background: var(--accent-soft);
 }
 
-.chart-section-chevron {
-    font-size: 0.7rem;
-    transition: transform 0.2s ease;
+.analytics-nav-btn.active {
+    color: var(--text);
+    background: var(--accent-soft);
+}
+
+.analytics-nav-icon {
+    font-size: 0.95rem;
+    color: var(--accent);
     flex-shrink: 0;
 }
 
-.chart-section-chevron.collapsed {
-    transform: rotate(-90deg);
+.analytics-content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 .chart-section-grid {
@@ -120,10 +140,6 @@
 
 .chart-card-full {
     grid-column: 1 / -1;
-}
-
-.map-time-group {
-    grid-template-columns: 1fr 1fr;
 }
 
 .classes-pair {
@@ -197,6 +213,11 @@
     border-radius: 3px;
 }
 
+.category-legend-outline {
+    background: transparent;
+    border: 2px solid;
+}
+
 .player-tick {
     fill: var(--text);
     cursor: pointer;
@@ -205,6 +226,10 @@
 
 .player-tick:hover {
     fill: var(--accent);
+}
+
+.map-chart-clickable {
+    cursor: pointer;
 }
 
 /* Tooltip */
@@ -293,6 +318,125 @@
     color: var(--text);
 }
 
+.games-by-day-controls {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.games-by-day-calendar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.games-by-day-input {
+    font-family: inherit;
+    font-size: 0.85rem;
+    padding: 7px 10px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    color-scheme: light;
+    accent-color: var(--accent);
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.games-by-day-input:hover {
+    border-color: var(--accent);
+}
+
+.games-by-day-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.games-by-day-input::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.55;
+    transition: opacity 0.2s ease;
+    border-radius: 4px;
+}
+
+.games-by-day-input::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
+
+.games-by-day-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.games-by-day-nav:hover:not(:disabled) {
+    border-color: var(--accent);
+    color: var(--text);
+}
+
+.games-by-day-nav:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.games-by-day-today {
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 7px 12px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.games-by-day-today:hover:not(:disabled) {
+    border-color: var(--accent);
+    color: var(--text);
+}
+
+.games-by-day-today:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.games-by-day-count {
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+
+.map-chart-hint {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin: -8px 0 12px;
+}
+
+.games-by-day-status {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 32px 0;
+    color: var(--muted);
+    text-align: center;
+    font-size: 0.9rem;
+}
+
 @media (min-width: 1500px) {
     .leaderboard-grid {
         grid-template-columns: repeat(3, 1fr);
@@ -310,5 +454,26 @@
 
     .chart-card-full {
         grid-column: 1;
+    }
+
+    .analytics-layout {
+        flex-direction: column;
+    }
+
+    .analytics-sidebar {
+        flex: none;
+        position: static;
+        width: 100%;
+    }
+
+    .analytics-nav {
+        flex-direction: row;
+        overflow-x: auto;
+        gap: 8px;
+    }
+
+    .analytics-nav-btn {
+        flex-shrink: 0;
+        white-space: nowrap;
     }
 }
