@@ -133,6 +133,46 @@ const getGamesOverTime = makeCache(`
     ORDER BY date ASC
 `);
 
+const getGamesOverTimeByType = makeCache(`
+    SELECT
+        DATE(end_time)   AS date,
+        LOWER(game_type) AS game_type,
+        COUNT(*)         AS games
+    FROM scb_games
+    WHERE end_time >= DATE_SUB(NOW(), INTERVAL 60 DAY)
+    GROUP BY date, game_type
+    ORDER BY date ASC
+`);
+
+const getPlayersOverTime = makeCache(`
+    SELECT
+        DATE(g.end_time)        AS date,
+        COUNT(DISTINCT gp.uuid) AS players
+    FROM scb_games g
+    JOIN scb_game_players gp ON g.game_id = gp.game_id
+    WHERE g.end_time >= DATE_SUB(NOW(), INTERVAL 60 DAY)
+    GROUP BY date
+    ORDER BY date ASC
+`);
+
+// For every player, finds the date of their earliest recorded game (their "first game ever"),
+// then counts how many of those first games fall within the last 60 days — i.e. new-player
+// activity per day, not total games played.
+const getNewPlayersOverTime = makeCache(`
+    SELECT
+        DATE(d.first_game) AS date,
+        COUNT(*)           AS new_players
+    FROM (
+        SELECT gp.uuid, MIN(g.end_time) AS first_game
+        FROM scb_game_players gp
+        JOIN scb_games g ON gp.game_id = g.game_id
+        GROUP BY gp.uuid
+    ) d
+    WHERE d.first_game >= DATE_SUB(NOW(), INTERVAL 60 DAY)
+    GROUP BY date
+    ORDER BY date ASC
+`);
+
 const getPeakHours = makeCache(`
     SELECT
         HOUR(end_time) AS hour,
@@ -141,6 +181,93 @@ const getPeakHours = makeCache(`
     GROUP BY hour
     ORDER BY hour ASC
 `);
+
+// Fetches every multiplayer game played on a given calendar day (server's local date on
+// end_time), grouped into game objects the same shape as /stats/recent-matches so the
+// frontend can reuse the same match card rendering. Optionally narrowed to one game type.
+function getGamesByDay(date, gameType) {
+    const typeFilter = gameType ? 'AND LOWER(g2.game_type) = ?' : '';
+    const typeFilterOuter = gameType ? 'AND LOWER(g.game_type) = ?' : '';
+    const sql = `
+        SELECT g.game_id, g.game_type, g.map_name, g.end_time, g.game_duration_minutes,
+               gp.class_id, gp.placement, gp.kills, gp.deaths, gp.lives, gp.firstblood, gp.winner,
+               pd.LastPlayerName, pd.UUID, pd.Level, pd.RoleID
+        FROM scb_games g
+        JOIN scb_game_players gp ON g.game_id = gp.game_id
+        JOIN PlayerData pd ON gp.uuid = pd.UUID
+        WHERE DATE(g.end_time) = ? ${typeFilterOuter}
+          AND g.game_id IN (
+              SELECT game_id FROM (
+                  SELECT g2.game_id FROM scb_games g2
+                  JOIN scb_game_players gp2 ON g2.game_id = gp2.game_id
+                  WHERE DATE(g2.end_time) = ? ${typeFilter}
+                  GROUP BY g2.game_id
+                  HAVING COUNT(gp2.uuid) > 1
+              ) AS dayGames
+          )
+        ORDER BY g.end_time DESC, gp.placement ASC
+    `;
+    const params = gameType ? [date, gameType, date, gameType] : [date, date];
+    return new Promise((resolve, reject) => {
+        con.query(sql, params, (err, rows) => {
+            if (err) return reject(err);
+
+            const gamesMap = new Map();
+            for (const row of rows) {
+                if (!gamesMap.has(row.game_id)) {
+                    gamesMap.set(row.game_id, {
+                        game_id: row.game_id,
+                        game_type: row.game_type,
+                        map_name: row.map_name,
+                        end_time: row.end_time,
+                        game_duration_minutes: row.game_duration_minutes,
+                        players: [],
+                    });
+                }
+                gamesMap.get(row.game_id).players.push({
+                    uuid: row.UUID,
+                    username: row.LastPlayerName,
+                    class_id: row.class_id,
+                    placement: row.placement,
+                    kills: row.kills,
+                    deaths: row.deaths,
+                    lives: row.lives,
+                    first_blood: row.firstblood === 1 || row.firstblood === true,
+                    winner: row.winner === 1 || row.winner === true,
+                    level: row.Level,
+                    role_id: row.RoleID,
+                });
+            }
+
+            resolve(Array.from(gamesMap.values()));
+        });
+    });
+}
+
+// Fetches the classes with the most wins on one map (optionally narrowed to one game
+// type), for the "click a map to see its top classes" drill-down.
+function getMapClasses(mapName, gameType) {
+    const typeFilter = gameType ? 'AND LOWER(g.game_type) = ?' : '';
+    const sql = `
+        SELECT
+            gp.class_id,
+            COUNT(*)                                       AS played,
+            SUM(CASE WHEN gp.winner = 1 THEN 1 ELSE 0 END) AS won
+        FROM scb_games g
+        JOIN scb_game_players gp ON g.game_id = gp.game_id
+        WHERE g.map_name = ? ${typeFilter}
+        GROUP BY gp.class_id
+        ORDER BY won DESC
+        LIMIT 10
+    `;
+    const params = gameType ? [mapName, gameType] : [mapName];
+    return new Promise((resolve, reject) => {
+        con.query(sql, params, (err, rows) => {
+            if (err) return reject(err);
+            resolve(rows);
+        });
+    });
+}
 
 // Runs a cached getter and sends the result as JSON, with a 5-minute browser cache hint.
 function send(getter, req, res) {
@@ -163,6 +290,27 @@ router.get('/maps', (req, res) => {
     send(getter, req, res);
 });
 router.get('/over-time',            (req, res) => send(getGamesOverTime, req, res));
+router.get('/over-time-by-type',    (req, res) => send(getGamesOverTimeByType, req, res));
+router.get('/new-players-over-time', (req, res) => send(getNewPlayersOverTime, req, res));
+router.get('/players-over-time',    (req, res) => send(getPlayersOverTime, req, res));
 router.get('/peak-hours',           (req, res) => send(getPeakHours, req, res));
+router.get('/games-by-day', (req, res) => {
+    const date = req.query.date;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date || '')) {
+        return res.status(400).json({ error: 'date must be in YYYY-MM-DD format' });
+    }
+    const gameType = req.query.gameType?.toLowerCase() || null;
+    getGamesByDay(date, gameType)
+        .then(matches => res.json({ matches }))
+        .catch(() => res.status(500).json({ error: 'Database error' }));
+});
+router.get('/map-classes', (req, res) => {
+    const mapName = req.query.map;
+    if (!mapName) return res.status(400).json({ error: 'map is required' });
+    const gameType = req.query.gameType?.toLowerCase() || null;
+    getMapClasses(mapName, gameType)
+        .then(rows => res.json(rows))
+        .catch(() => res.status(500).json({ error: 'Database error' }));
+});
 
 module.exports = router;
