@@ -32,7 +32,7 @@ function getLeaderboard(category) {
             FROM PlayerData
             WHERE ${column} > 0
             ORDER BY ${column} DESC
-            LIMIT 25
+            LIMIT 100
         `;
 
         con.query(sql, (err, result) => {

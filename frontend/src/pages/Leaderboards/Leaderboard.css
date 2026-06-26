@@ -82,7 +82,6 @@
 
 .lb-table td.lb-col-active {
     color: var(--accent);
-    font-weight: 700;
     background: rgba(224, 168, 74, 0.06);
 }
 
@@ -158,6 +157,26 @@
     border: 1px solid;
     white-space: nowrap;
     flex-shrink: 0;
+}
+
+.lb-show-more {
+    display: block;
+    margin: 16px auto 0;
+    padding: 10px 24px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.lb-show-more:hover {
+    background: rgba(224, 168, 74, 0.1);
+    border-color: var(--accent);
+    color: var(--accent);
 }
 
 /* Error / empty states */
