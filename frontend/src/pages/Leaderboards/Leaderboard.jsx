@@ -11,10 +11,18 @@ function hexToRgba(hex, alpha) {
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
+const PAGE_SIZE = 25;
+
 function Leaderboard({ players, categoryKey, onCategoryChange, categories, loading, error }) {
     const [focusedRow, setFocusedRow] = useState(0);
+    const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
     const tableRef = useRef(null);
     const catIdx = categories.findIndex(c => c.key === categoryKey);
+    const visiblePlayers = players.slice(0, visibleCount);
+
+    useEffect(() => {
+        setVisibleCount(PAGE_SIZE);
+    }, [categoryKey]);
 
     useEffect(() => {
         const onKey = (e) => {
@@ -24,7 +32,7 @@ function Leaderboard({ players, categoryKey, onCategoryChange, categories, loadi
             if (e.key === 'ArrowUp') {
                 setFocusedRow(r => Math.max(0, r - 1));
             } else if (e.key === 'ArrowDown') {
-                setFocusedRow(r => Math.min(players.length - 1, r + 1));
+                setFocusedRow(r => Math.min(visiblePlayers.length - 1, r + 1));
             } else if (e.key === 'ArrowLeft') {
                 const nextIdx = Math.max(0, catIdx - 1);
                 if (nextIdx !== catIdx) { onCategoryChange(categories[nextIdx].key); setFocusedRow(0); }
@@ -36,14 +44,14 @@ function Leaderboard({ players, categoryKey, onCategoryChange, categories, loadi
 
         window.addEventListener('keydown', onKey);
         return () => window.removeEventListener('keydown', onKey);
-    }, [catIdx, categories, onCategoryChange, players.length]);
+    }, [catIdx, categories, onCategoryChange, visiblePlayers.length]);
 
     useEffect(() => {
         tableRef.current?.querySelector(`[data-row="${focusedRow}"]`)?.scrollIntoView({ block: 'nearest' });
     }, [focusedRow]);
 
     if (error) return <ErrorScreen title="Leaderboard error" message={error} />;
-    if (loading) return <div className="lb-empty">Loading...</div>;
+    if (loading && players.length === 0) return <div className="lb-empty">Loading...</div>;
     if (players.length === 0) return <div className="lb-empty">No data yet.</div>;
 
     return (
@@ -70,7 +78,7 @@ function Leaderboard({ players, categoryKey, onCategoryChange, categories, loadi
                         </tr>
                     </thead>
                     <tbody>
-                        {players.map((player, index) => (
+                        {visiblePlayers.map((player, index) => (
                             <tr
                                 key={player.UUID}
                                 data-row={index}
@@ -115,6 +123,15 @@ function Leaderboard({ players, categoryKey, onCategoryChange, categories, loadi
                     </tbody>
                 </table>
             </div>
+            {visibleCount < players.length && (
+                <button
+                    type="button"
+                    className="lb-show-more"
+                    onClick={() => setVisibleCount(c => c + PAGE_SIZE)}
+                >
+                    Show more
+                </button>
+            )}
         </div>
     );
 }
