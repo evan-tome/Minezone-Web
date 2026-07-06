@@ -123,6 +123,7 @@ export function KMeansPanel() {
                                 <YAxis type="number" dataKey="y" hide domain={['dataMin - 0.05', 'dataMax + 0.05']} />
                                 <Tooltip
                                     cursor={false}
+                                    isAnimationActive={false}
                                     content={({ active, payload }) => {
                                         if (!active || !payload?.length) return null;
                                         const d = payload[0].payload;

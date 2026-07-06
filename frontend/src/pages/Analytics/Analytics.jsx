@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     ResponsiveContainer, BarChart, Bar, XAxis, YAxis,
@@ -753,6 +753,13 @@ export function Analytics() {
             .catch(() => setStat('mapClasses', 'error'));
     };
 
+    // Only the "activity" tab's data loads on mount; the other tabs fetch lazily the
+    // first time they're opened (see loadedCategories effect below) so the page doesn't
+    // fire ~13 simultaneous requests/queries for charts the visitor may never look at.
+    const loadedCategories = useRef(new Set(['activity']));
+    const skipMapEffect = useRef(true);
+    const skipGamesByDayEffect = useRef(true);
+
     useEffect(() => {
         loadOverview();
         loadTopWins();
@@ -760,17 +767,27 @@ export function Analytics() {
         loadTopStreak();
         loadTopFish();
         loadLevels();
-        loadClasses();
         loadWinRates();
         loadKdRatios();
         loadGamesOverTime();
-        loadGamesOverTimeByType();
         loadPlayersOverTime();
         loadNewPlayersOverTime();
         loadPeakHours();
     }, []);
 
     useEffect(() => {
+        if (loadedCategories.current.has(activeCategory)) return;
+        loadedCategories.current.add(activeCategory);
+        if (activeCategory === 'classes') loadClasses();
+        if (activeCategory === 'maps') loadMapPopularity();
+        if (activeCategory === 'games') {
+            loadGamesOverTimeByType();
+            loadGamesByDay();
+        }
+    }, [activeCategory]);
+
+    useEffect(() => {
+        if (skipMapEffect.current) { skipMapEffect.current = false; return; }
         loadMapPopularity();
         setSelectedMap(null);
     }, [mapMode]);
@@ -780,6 +797,7 @@ export function Analytics() {
     }, [selectedMap]);
 
     useEffect(() => {
+        if (skipGamesByDayEffect.current) { skipGamesByDayEffect.current = false; return; }
         loadGamesByDay();
         setGamesByDayPage(0);
     }, [gamesByDayDate, dayTypeFilter]);

@@ -48,7 +48,7 @@
     width: 100%;
     box-sizing: border-box;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
 }
 
 .search-bar input::placeholder {

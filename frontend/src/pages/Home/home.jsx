@@ -11,12 +11,12 @@ import OnlineIndicator from '../../components/OnlineIndicator';
 import { FaDiscord, FaYoutube, FaInstagram, FaTwitter, FaTiktok, FaMap, FaUser, FaMedal, FaTrophy, FaStar, FaBolt } from 'react-icons/fa';
 
 const features = [
-    { icon: <FaMap />,    title: "60+ Classes & Maps",  desc: "Various different playstyles available with each class & map" },
-    { icon: <FaMedal />,  title: "Progression",         desc: "Level up, unlock classes, and earn rewards" },
-    { icon: <FaTrophy />, title: "Leaderboards",        desc: "Compete for the top spot in our modes with daily/weekly/monthly/lifetime leaderboards" },
-    { icon: <FaStar />,   title: "Cosmetics",           desc: "Unlock gadgets, win effects, titles, and more to stand out" },
-    { icon: <FaUser />,   title: "Singleplayer Modes",  desc: "Reel in rare catches while fishing or race through parkour courses" },
-    { icon: <FaBolt />,   title: "Updates",             desc: "Frequent and consistent updates providing a fresh, fun & seamless experience" },
+    { icon: <FaMap />, title: "60+ Classes & Maps", desc: "Various different playstyles available with each class & map" },
+    { icon: <FaMedal />, title: "Progression", desc: "Level up, unlock new classes, and earn rewards" },
+    { icon: <FaTrophy />, title: "Leaderboards", desc: "Compete for the top spot in our modes with daily, weekly, monthly, and lifetime leaderboards" },
+    { icon: <FaStar />, title: "Cosmetics", desc: "Show off with unlockable gadgets, outfits, titles, win effects, and more" },
+    { icon: <FaUser />, title: "Singleplayer Modes", desc: "Reel in rare catches while fishing or race through parkour courses" },
+    { icon: <FaBolt />, title: "Updates", desc: "Frequent content updates and improvements providing a fresh, fun & smooth experience" },
 ];
 
 const newsPosts = [
@@ -36,7 +36,6 @@ export function Home() {
                 <Navbar />
                 <div className="hero">
                     <img src="/minezonebanner.png" className="hero-logo" alt="Minezone" />
-                    <p className="hero-tagline">The Home of Super Craft Bros</p>
                     <CopyLinkButton />
                     <div className="hero-indicator">
                         <OnlineIndicator />
@@ -50,7 +49,9 @@ export function Home() {
                     <div className="about-description">
                         <h2>Welcome to Minezone</h2>
                         <p>
-                            Minezone is home to Super Craft Bros, one of Minecraft's most unique and fast-paced PvP experiences. With over 60 classes and maps, there's always a new challenge waiting. We also offer singleplayer modes where you can take a break from the action with activities like fishing and parkour. Whether you're a longtime fan of Super Craft Bros or discovering it for the first time, join the community and start playing today!
+                            Minezone is home to Super Craft Bros, one of Minecraft's most unique and fast-paced PvP experiences. 
+                            With over 60 classes and maps, there's always a new challenge waiting. We also offer singleplayer activities where you can take a break from the action like fishing and parkour. 
+                            <br/><br/>Whether you're a longtime fan of Super Craft Bros or discovering it for the first time, join the community and start playing today!
                         </p>
                         <p className="about-socials-label">Follow us on social media</p>
                         <div className="about-socials">

@@ -15,55 +15,87 @@ function getCategory(id, cls) {
     return 'Free';
 }
 
-function ClassCard({ entry }) {
+function getRequirement(cls) {
+    if (!cls) return null;
+    if (cls.rank) return `${cls.rank} Rank`;
+    if (cls.level > 0) return `Level ${cls.level}`;
+    if (cls.cost > 0) return `${cls.cost.toLocaleString()} Tokens`;
+    return null;
+}
+
+function ClassCard({ entry, category }) {
     const { class_id, games, wins } = entry;
     const cls  = CLASSES.get(class_id);
     const name = cls?.name ?? `Class ${class_id}`;
-    const wr   = games > 0 ? `${Math.round((wins / games) * 100)}%` : '—';
+    const wr   = games > 0 ? Math.round((wins / games) * 100) : null;
+    const req  = getRequirement(cls);
 
     return (
-        <div className="cs-card">
+        <div className={`cs-card cs-card--${category.toLowerCase()}`}>
             <div className="cs-name">{name}</div>
-            <div className="cs-stats">
-                <div className="cs-stat-row"><span className="cs-stat-label">Games Played</span><span className="cs-stat-value">{games.toLocaleString()}</span></div>
-                <div className="cs-stat-row"><span className="cs-stat-label">Games Won</span><span className="cs-stat-value">{wins.toLocaleString()}</span></div>
-                <div className="cs-stat-row"><span className="cs-stat-label">Win Rate</span><span className="cs-stat-value">{wr}</span></div>
+            <div className="cs-winrate-row">
+                <span className="cs-winrate-value">{wr === null ? '—' : `${wr}%`}</span>
+                <span className="cs-winrate-label">Win Rate</span>
             </div>
-            {(cls?.cost > 0 || cls?.level > 0 || cls?.rank) && (
-                <div className="cs-req-section">
-                    {cls?.cost > 0 && (
-                        <div className="cs-stat-row"><span className="cs-stat-label">Tokens</span><span className="cs-stat-value">{cls.cost.toLocaleString()}</span></div>
-                    )}
-                    {cls?.level > 0 && (
-                        <div className="cs-stat-row"><span className="cs-stat-label">Level</span><span className="cs-stat-value">{cls.level}</span></div>
-                    )}
-                    {cls?.rank && (
-                        <div className="cs-stat-row"><span className="cs-stat-label">Rank</span><span className="cs-stat-value">{cls.rank}</span></div>
-                    )}
+            <div className="cs-substats">
+                <span><strong>{games.toLocaleString()}</strong> games</span>
+                <span><strong>{wins.toLocaleString()}</strong> wins</span>
+            </div>
+            {req && (
+                <div className="cs-req">
+                    <span className="cs-req-label">Requires</span>
+                    <span className="cs-req-value">{req}</span>
                 </div>
             )}
         </div>
     );
 }
 
+function requirementValue(entry) {
+    const cls = CLASSES.get(entry.class_id);
+    return cls?.cost ?? cls?.level ?? 0;
+}
+
 const SORT_FNS = {
-    winrate: (a, b) => (b.games > 0 ? b.wins / b.games : 0) - (a.games > 0 ? a.wins / a.games : 0),
-    alpha:   (a, b) => (CLASSES.get(a.class_id)?.name ?? '').localeCompare(CLASSES.get(b.class_id)?.name ?? ''),
+    winrate:     (a, b) => (b.games > 0 ? b.wins / b.games : 0) - (a.games > 0 ? a.wins / a.games : 0),
+    alpha:       (a, b) => (CLASSES.get(a.class_id)?.name ?? '').localeCompare(CLASSES.get(b.class_id)?.name ?? ''),
+    requirement: (a, b) => requirementValue(a) - requirementValue(b),
 };
 
-function CategoryGroup({ name, entries, sort }) {
+const CATEGORY_SORT_OPTIONS = {
+    Token: [['winrate', 'Win Rate'], ['alpha', 'A–Z'], ['requirement', 'Cost']],
+    Level: [['winrate', 'Win Rate'], ['alpha', 'A–Z'], ['requirement', 'Level']],
+};
+const DEFAULT_SORT_OPTIONS = [['winrate', 'Win Rate'], ['alpha', 'A–Z']];
+
+function CategoryGroup({ name, entries }) {
     const [open, setOpen] = useState(true);
+    const [sort, setSort] = useState('winrate');
+    const sortOptions = CATEGORY_SORT_OPTIONS[name] ?? DEFAULT_SORT_OPTIONS;
 
     return (
         <div className="cs-category">
-            <button className="cs-category-header" onClick={() => setOpen(o => !o)}>
-                <FaChevronRight className={`cs-chevron${open ? ' cs-chevron-open' : ''}`} />
-                <span className="cs-category-name">{name}</span>
-                <span className="cs-category-count">{entries.length} class{entries.length !== 1 ? 'es' : ''}</span>
-            </button>
+            <div className="cs-category-header">
+                <button className="cs-category-toggle" onClick={() => setOpen(o => !o)}>
+                    <FaChevronRight className={`cs-chevron${open ? ' cs-chevron-open' : ''}`} />
+                    <span className="cs-category-name">{name}</span>
+                    <span className="cs-category-count">{entries.length} class{entries.length !== 1 ? 'es' : ''}</span>
+                </button>
+                <div className="cs-category-sort-btns">
+                    {sortOptions.map(([key, label]) => (
+                        <button
+                            key={key}
+                            className={`cs-sort-btn${sort === key ? ' active' : ''}`}
+                            onClick={() => setSort(key)}
+                        >
+                            {label}
+                        </button>
+                    ))}
+                </div>
+            </div>
             {open && (
                 <div className="cs-grid">
-                    {[...entries].sort(SORT_FNS[sort]).map(e => <ClassCard key={e.class_id} entry={e} />)}
+                    {[...entries].sort(SORT_FNS[sort]).map(e => <ClassCard key={e.class_id} entry={e} category={name} />)}
                 </div>
             )}
         </div>
@@ -71,8 +103,6 @@ function CategoryGroup({ name, entries, sort }) {
 }
 
 function ClassStats({ data, loading, error }) {
-    const [sort, setSort] = useState('winrate');
-
     if (loading) return <p className="cs-status">Loading class stats...</p>;
     if (error)   return <ErrorScreen title="Failed to load class stats" message={error} />;
     if (!data?.length) return <p className="cs-status">No class data available.</p>;
@@ -93,14 +123,10 @@ function ClassStats({ data, loading, error }) {
         <div className="cs-section">
             <div className="cs-section-header">
                 <h2>Class Stats</h2>
-                <div className="cs-sort-btns">
-                    <button className={`cs-sort-btn${sort === 'winrate' ? ' active' : ''}`} onClick={() => setSort('winrate')}>Win Rate</button>
-                    <button className={`cs-sort-btn${sort === 'alpha' ? ' active' : ''}`} onClick={() => setSort('alpha')}>A–Z</button>
-                </div>
             </div>
             <div className="cs-categories">
                 {categories.map(cat => (
-                    <CategoryGroup key={cat} name={cat} entries={grouped[cat]} sort={sort} />
+                    <CategoryGroup key={cat} name={cat} entries={grouped[cat]} />
                 ))}
             </div>
         </div>

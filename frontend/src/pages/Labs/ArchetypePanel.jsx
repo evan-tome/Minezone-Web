@@ -119,23 +119,25 @@ export function ArchetypePanel() {
                         </div>
 
                         <div className="labs-archetype-radar">
-                            <ResponsiveContainer width="100%" height={240}>
-                                <RadarChart data={radarData}>
-                                    <PolarGrid stroke="rgba(255,255,255,0.07)" />
-                                    <PolarAngleAxis
-                                        dataKey="stat"
-                                        tick={{ fill: '#64748b', fontSize: 11, fontWeight: 600 }}
-                                    />
-                                    <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
-                                    <Radar
-                                        dataKey="value"
-                                        stroke={meta.color}
-                                        fill={meta.color}
-                                        fillOpacity={0.15}
-                                        strokeWidth={1.5}
-                                    />
-                                </RadarChart>
-                            </ResponsiveContainer>
+                            <div className="labs-archetype-radar-inner">
+                                <ResponsiveContainer width="100%" height={280}>
+                                    <RadarChart data={radarData} outerRadius="75%">
+                                        <PolarGrid stroke="rgba(255,255,255,0.07)" />
+                                        <PolarAngleAxis
+                                            dataKey="stat"
+                                            tick={{ fill: '#a89478', fontSize: 12, fontWeight: 600 }}
+                                        />
+                                        <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
+                                        <Radar
+                                            dataKey="value"
+                                            stroke={meta.color}
+                                            fill={meta.color}
+                                            fillOpacity={0.18}
+                                            strokeWidth={2}
+                                        />
+                                    </RadarChart>
+                                </ResponsiveContainer>
+                            </div>
                         </div>
 
                         <div className="labs-archetype-breakdown">

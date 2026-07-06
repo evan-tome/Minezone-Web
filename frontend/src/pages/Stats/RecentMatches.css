@@ -90,7 +90,7 @@
     border-radius: 50px;
     color: var(--text);
     font-size: 1rem;
-    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
     outline: none;
     box-sizing: border-box;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
