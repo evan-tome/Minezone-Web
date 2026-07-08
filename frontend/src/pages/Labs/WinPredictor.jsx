@@ -73,17 +73,17 @@ export function WinPredictor() {
     return (
         <div className="labs-feature">
             <div className="labs-feature-header">
-                <div className="labs-feature-icon-wrap">
-                    <FaChartLine />
-                </div>
-                <div className="labs-feature-text">
+                <div className="labs-feature-title-row">
+                    <div className="labs-feature-icon-wrap">
+                        <FaChartLine />
+                    </div>
                     <h2 className="labs-feature-title">Win Predictor</h2>
-                    <p className="labs-feature-desc">
-                        See the win rate a player's stats predict, and how it compares to how
-                        they're actually performing. If the numbers differ, it means they're either
-                        over or underperforming relative to players with a similar profile.
-                    </p>
                 </div>
+                <p className="labs-feature-desc">
+                    See the win rate a player's stats predict, and how it compares to how
+                    they're actually performing. If the numbers differ, it means they're either
+                    over or underperforming relative to players with a similar profile.
+                </p>
             </div>
 
             <form className="labs-form" onSubmit={handleSubmit}>

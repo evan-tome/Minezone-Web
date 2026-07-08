@@ -208,6 +208,17 @@ router.get('/:username/profile', async (req, res) => {
 
 const ML_URL = process.env.ML_URL || 'http://localhost:8000';
 
+async function proxyML(path, res, options) {
+    try {
+        const r = await fetch(`${ML_URL}${path}`, options);
+        const data = await r.json();
+        if (!r.ok) return res.status(r.status).json(data);
+        res.json(data);
+    } catch {
+        res.status(503).json({ error: 'ML service unavailable' });
+    }
+}
+
 router.get('/class-stats', async (req, res) => {
     try {
         const [rows] = await db.query(`
@@ -228,28 +239,11 @@ router.get('/class-stats', async (req, res) => {
     }
 });
 
-router.get('/cluster-map', async (req, res) => {
-    try {
-        const r = await fetch(`${ML_URL}/cluster-map`);
-        const data = await r.json();
-        if (!r.ok) return res.status(r.status).json(data);
-        res.json(data);
-    } catch {
-        res.status(503).json({ error: 'ML service unavailable' });
-    }
-});
+router.get('/cluster-map', (req, res) => proxyML('/cluster-map', res));
 
-router.get('/:username/cluster', async (req, res) => {
-    const { username } = req.params;
-    try {
-        const r = await fetch(`${ML_URL}/cluster/${encodeURIComponent(username)}`);
-        const data = await r.json();
-        if (!r.ok) return res.status(r.status).json(data);
-        res.json(data);
-    } catch {
-        res.status(503).json({ error: 'ML service unavailable' });
-    }
-});
+router.get('/:username/cluster', (req, res) =>
+    proxyML(`/cluster/${encodeURIComponent(req.params.username)}`, res)
+);
 
 router.get('/:username', (req, res) => {
     const { username } = req.params;
@@ -358,41 +352,17 @@ router.get('/:username/games', (req, res) => {
     });
 });
 
-router.get('/:username/recommend', async (req, res) => {
-    const { username } = req.params;
-    try {
-        const r = await fetch(`${ML_URL}/recommend/${encodeURIComponent(username)}`);
-        const data = await r.json();
-        if (!r.ok) return res.status(r.status).json(data);
-        res.json(data);
-    } catch {
-        res.status(503).json({ error: 'ML service unavailable' });
-    }
-});
+router.get('/:username/recommend', (req, res) =>
+    proxyML(`/recommend/${encodeURIComponent(req.params.username)}`, res)
+);
 
-router.get('/:username/archetype', async (req, res) => {
-    const { username } = req.params;
-    try {
-        const r = await fetch(`${ML_URL}/archetype/${encodeURIComponent(username)}`);
-        const data = await r.json();
-        if (!r.ok) return res.status(r.status).json(data);
-        res.json(data);
-    } catch {
-        res.status(503).json({ error: 'ML service unavailable' });
-    }
-});
+router.get('/:username/archetype', (req, res) =>
+    proxyML(`/archetype/${encodeURIComponent(req.params.username)}`, res)
+);
 
-router.get('/:username/predict-win', async (req, res) => {
-    const { username } = req.params;
-    try {
-        const r = await fetch(`${ML_URL}/predict-win/${encodeURIComponent(username)}`);
-        const data = await r.json();
-        if (!r.ok) return res.status(r.status).json(data);
-        res.json(data);
-    } catch {
-        res.status(503).json({ error: 'ML service unavailable' });
-    }
-});
+router.get('/:username/predict-win', (req, res) =>
+    proxyML(`/predict-win/${encodeURIComponent(req.params.username)}`, res)
+);
 
 
 router.get('/:username/trend', async (req, res) => {
@@ -433,19 +403,12 @@ router.get('/:username/trend', async (req, res) => {
     }
 });
 
-router.post('/predict-game', async (req, res) => {
-    try {
-        const r = await fetch(`${ML_URL}/predict-game`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(req.body),
-        });
-        const data = await r.json();
-        if (!r.ok) return res.status(r.status).json(data);
-        res.json(data);
-    } catch {
-        res.status(503).json({ error: 'ML service unavailable' });
-    }
-});
+router.post('/predict-game', (req, res) =>
+    proxyML('/predict-game', res, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(req.body),
+    })
+);
 
 module.exports = router;

@@ -214,14 +214,13 @@
     background: none;
     border: none;
     border-radius: 8px;
-    border-left: 2px solid transparent;
     color: var(--labs-text-3);
     font-size: 0.95rem;
     font-weight: 600;
     font-family: inherit;
     text-align: left;
     cursor: pointer;
-    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    transition: background 0.15s, color 0.15s;
     position: relative;
 }
 
@@ -232,7 +231,6 @@
 
 .labs-sidebar-item.active {
     background: var(--labs-surface-2);
-    border-left-color: #f59e0b;
     color: #f59e0b;
 }
 
@@ -295,31 +293,25 @@
 
 .labs-feature-header {
     display: flex;
-    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.labs-feature-title-row {
+    display: flex;
+    align-items: center;
     gap: 20px;
 }
 
 .labs-feature-icon-wrap {
     width: 54px;
     height: 54px;
-    border-radius: 14px;
-    background: var(--labs-surface);
-    border: 1px solid rgba(245, 159, 11, 0.22);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.35rem;
     color: #f59e0b;
     flex-shrink: 0;
-    box-shadow: 0 0 16px rgba(245, 159, 11, 0.08);
-}
-
-.labs-feature-text {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
 }
 
 .labs-feature-title {

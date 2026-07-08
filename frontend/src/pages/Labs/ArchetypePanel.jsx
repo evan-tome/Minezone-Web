@@ -58,16 +58,16 @@ export function ArchetypePanel() {
     return (
         <div className="labs-feature">
             <div className="labs-feature-header">
-                <div className="labs-feature-icon-wrap">
-                    <FaUser />
-                </div>
-                <div className="labs-feature-text">
+                <div className="labs-feature-title-row">
+                    <div className="labs-feature-icon-wrap">
+                        <FaUser />
+                    </div>
                     <h2 className="labs-feature-title">Player Archetype</h2>
-                    <p className="labs-feature-desc">
-                        Enter a username to see what kind of player they are. Based on their full
-                        match history across kills, wins, streaks, and experience.
-                    </p>
                 </div>
+                <p className="labs-feature-desc">
+                    Enter a username to see what kind of player they are. Based on their full
+                    match history across kills, wins, streaks, and experience.
+                </p>
             </div>
 
             <form className="labs-form" onSubmit={handleSubmit}>

@@ -72,16 +72,16 @@ export function MatchPredictor() {
     return (
         <div className="labs-feature">
             <div className="labs-feature-header">
-                <div className="labs-feature-icon-wrap">
-                    <FaTrophy />
-                </div>
-                <div className="labs-feature-text">
+                <div className="labs-feature-title-row">
+                    <div className="labs-feature-icon-wrap">
+                        <FaTrophy />
+                    </div>
                     <h2 className="labs-feature-title">Match Predictor</h2>
-                    <p className="labs-feature-desc">
-                        Add 2 to 8 players and see who the model predicts will win.
-                        Trained on historical match outcomes using each player's stats profile.
-                    </p>
                 </div>
+                <p className="labs-feature-desc">
+                    Add 2 to 8 players and see who the model predicts will win.
+                    Trained on historical match outcomes using each player's stats profile.
+                </p>
             </div>
 
             <form className="labs-match-form" onSubmit={handleSubmit}>

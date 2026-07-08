@@ -1,5 +1,5 @@
 import '../../App.css';
-import './stats.css'
+import './Stats.css'
 import { FaFlask, FaUsers, FaGamepad } from 'react-icons/fa';
 import Navbar from "../../components/Navbar";
 import Searchbar from './Searchbar';

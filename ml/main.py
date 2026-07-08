@@ -58,6 +58,35 @@ def _load(filename, fallback_cls):
     return fallback_cls()
 
 
+def fetch_players(usernames, extra_select=""):
+    """Look up PlayerData plus aggregate scb_game_players stats for one or more
+    usernames. extra_select adds aggregate columns (e.g. first_bloods) without
+    each caller repeating the whole query.
+    """
+    placeholders = ','.join(['%s'] * len(usernames))
+    conn = _pool.get_connection()
+    try:
+        with conn.cursor(dictionary=True) as cursor:
+            cursor.execute(
+                f"""
+                SELECT pd.LastPlayerName, pd.Wins, pd.Losses, pd.Kills, pd.Deaths,
+                       pd.FlawlessWins, pd.MatchMvps,
+                       AVG(gp.kills) AS avg_kills
+                       {extra_select}
+                FROM PlayerData pd
+                LEFT JOIN scb_game_players gp ON gp.uuid = pd.UUID
+                WHERE pd.LastPlayerName IN ({placeholders})
+                  AND (pd.Wins + pd.Losses) >= 1
+                GROUP BY pd.UUID, pd.LastPlayerName, pd.Wins, pd.Losses, pd.Kills, pd.Deaths,
+                         pd.FlawlessWins, pd.MatchMvps
+                """,
+                usernames,
+            )
+            return cursor.fetchall()
+    finally:
+        conn.close()
+
+
 @app.route('/cluster-map', methods=['GET'])
 def cluster_map():
     result = kmeans_clf.get_map_data()
@@ -71,27 +100,8 @@ def cluster(username):
     if not kmeans_clf.ready:
         return jsonify(error='K-means not ready: not enough player data'), 503
 
-    conn = _pool.get_connection()
-    try:
-        with conn.cursor(dictionary=True) as cursor:
-            cursor.execute(
-                """
-                SELECT pd.LastPlayerName, pd.Wins, pd.Losses, pd.Kills, pd.Deaths,
-                       pd.MatchMvps,
-                       AVG(gp.kills) AS avg_kills
-                FROM PlayerData pd
-                LEFT JOIN scb_game_players gp ON gp.uuid = pd.UUID
-                WHERE pd.LastPlayerName = %s
-                  AND (pd.Wins + pd.Losses) >= 1
-                GROUP BY pd.UUID, pd.LastPlayerName, pd.Wins, pd.Losses, pd.Kills, pd.Deaths,
-                         pd.MatchMvps
-                LIMIT 1
-                """,
-                (username,),
-            )
-            player = cursor.fetchone()
-    finally:
-        conn.close()
+    players = fetch_players([username])
+    player = players[0] if players else None
 
     if not player:
         return jsonify(error='Player not found'), 404
@@ -177,28 +187,8 @@ def archetype(username):
     if not archetype_clf.ready:
         return jsonify(error='Archetype classifier not ready'), 503
 
-    conn = _pool.get_connection()
-    try:
-        with conn.cursor(dictionary=True) as cursor:
-            cursor.execute(
-                """
-                SELECT pd.LastPlayerName, pd.Wins, pd.Losses, pd.Kills, pd.Deaths,
-                       pd.FlawlessWins, pd.MatchMvps,
-                       AVG(gp.kills) AS avg_kills,
-                       SUM(gp.firstblood) AS first_bloods
-                FROM PlayerData pd
-                LEFT JOIN scb_game_players gp ON gp.uuid = pd.UUID
-                WHERE pd.LastPlayerName = %s
-                  AND (pd.Wins + pd.Losses) >= 1
-                GROUP BY pd.UUID, pd.LastPlayerName, pd.Wins, pd.Losses, pd.Kills, pd.Deaths,
-                         pd.FlawlessWins, pd.MatchMvps
-                LIMIT 1
-                """,
-                (username,),
-            )
-            player = cursor.fetchone()
-    finally:
-        conn.close()
+    players = fetch_players([username], extra_select=", SUM(gp.firstblood) AS first_bloods")
+    player = players[0] if players else None
 
     if not player:
         return jsonify(error='Player not found'), 404
@@ -225,29 +215,10 @@ def predict_win(username):
     if not win_predictor.ready:
         return jsonify(error='Win predictor not ready'), 503
 
-    conn = _pool.get_connection()
-    try:
-        with conn.cursor(dictionary=True) as cursor:
-            cursor.execute(
-                """
-                SELECT pd.LastPlayerName, pd.Wins, pd.Losses, pd.Kills, pd.Deaths,
-                       pd.FlawlessWins, pd.MatchMvps,
-                       AVG(gp.kills)                        AS avg_kills,
-                       COUNT(gp.game_id)                    AS tracked_games,
-                       SUM(IF(gp.placement = 1, 1, 0))      AS tracked_wins
-                FROM PlayerData pd
-                LEFT JOIN scb_game_players gp ON gp.uuid = pd.UUID
-                WHERE pd.LastPlayerName = %s
-                  AND (pd.Wins + pd.Losses) >= 1
-                GROUP BY pd.UUID, pd.LastPlayerName, pd.Wins, pd.Losses, pd.Kills, pd.Deaths,
-                         pd.FlawlessWins, pd.MatchMvps
-                LIMIT 1
-                """,
-                (username,),
-            )
-            player = cursor.fetchone()
-    finally:
-        conn.close()
+    players = fetch_players([username], extra_select="""
+                       , COUNT(gp.game_id) AS tracked_games,
+                       SUM(IF(gp.placement = 1, 1, 0)) AS tracked_wins""")
+    player = players[0] if players else None
 
     if not player:
         return jsonify(error='Player not found'), 404
@@ -294,28 +265,7 @@ def predict_game():
     if len(usernames) > 8:
         return jsonify(error='Maximum 8 players allowed'), 400
 
-    conn = _pool.get_connection()
-    try:
-        with conn.cursor(dictionary=True) as cursor:
-            placeholders = ','.join(['%s'] * len(usernames))
-            cursor.execute(
-                f"""
-                SELECT pd.LastPlayerName, pd.Wins, pd.Losses, pd.Kills, pd.Deaths,
-                       pd.FlawlessWins, pd.MatchMvps,
-                       AVG(gp.kills)      AS avg_kills,
-                       SUM(gp.firstblood) AS first_bloods
-                FROM PlayerData pd
-                LEFT JOIN scb_game_players gp ON gp.uuid = pd.UUID
-                WHERE pd.LastPlayerName IN ({placeholders})
-                  AND (pd.Wins + pd.Losses) >= 1
-                GROUP BY pd.UUID, pd.LastPlayerName, pd.Wins, pd.Losses, pd.Kills, pd.Deaths,
-                         pd.FlawlessWins, pd.MatchMvps
-                """,
-                usernames,
-            )
-            players = cursor.fetchall()
-    finally:
-        conn.close()
+    players = fetch_players(usernames, extra_select=", SUM(gp.firstblood) AS first_bloods")
 
     found = {p['LastPlayerName'].lower() for p in players}
     missing = [u for u in usernames if u.lower() not in found]

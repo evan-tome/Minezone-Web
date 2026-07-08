@@ -1,5 +1,11 @@
 import { API_URL as BASE } from './config.js';
 
+async function get(path) {
+    const res = await fetch(`${BASE}${path}`);
+    if (!res.ok) { const err = new Error('Failed to fetch'); err.status = res.status; throw err; }
+    return res.json();
+}
+
 export async function fetchProfile(name) {
     const [playerRes, favclassRes, parkourRes, gamesRes] = await Promise.all([
         fetch(`${BASE}/stats/${name}`),
@@ -24,24 +30,6 @@ export async function fetchProfile(name) {
     };
 }
 
-export async function fetchPlayer(name) {
-    const res = await fetch(`${BASE}/stats/${name}`);
-    if (!res.ok) throw new Error("Couldn't find the player you're looking for. Try checking the spelling.");
-    return res.json();
-}
-
-export async function fetchFavClass(name) {
-    const res = await fetch(`${BASE}/stats/${name}/favclass`);
-    if (!res.ok) throw new Error("Failed to load favorite class.");
-    return res.json();
-}
-
-export async function fetchParkour(name) {
-    const res = await fetch(`${BASE}/stats/${name}/parkour`);
-    if (!res.ok) throw new Error("Failed to load parkour data.");
-    return res.json();
-}
-
 export async function fetchMatch(id) {
     const res = await fetch(`${BASE}/stats/match/${encodeURIComponent(id)}`);
     if (!res.ok) throw new Error(res.status === 404 ? 'Match not found.' : 'Failed to load match.');
@@ -54,44 +42,14 @@ export async function fetchRecentMatches() {
     return res.json();
 }
 
-export async function fetchRecentGames(name) {
-    const res = await fetch(`${BASE}/stats/${name}/games`);
-    if (!res.ok) throw new Error("Failed to load recent games.");
-    return res.json();
-}
+export const fetchArchetype      = (name) => get(`/stats/${name}/archetype`);
+export const fetchRecommendation = (name) => get(`/stats/${name}/recommend`);
+export const fetchPlayerCluster  = (name) => get(`/stats/${encodeURIComponent(name)}/cluster`);
+export const fetchWinPrediction  = (name) => get(`/stats/${name}/predict-win`);
+export const fetchClusterMap     = () => get('/stats/cluster-map');
 
-export async function fetchArchetype(name) {
-    const res = await fetch(`${BASE}/stats/${name}/archetype`);
-    if (!res.ok) {
-        const err = new Error(res.statusText || String(res.status));
-        err.status = res.status;
-        throw err;
-    }
-    return res.json();
-}
-
-export async function fetchRecommendation(name) {
-    const res = await fetch(`${BASE}/stats/${name}/recommend`);
-    if (!res.ok) {
-        const err = new Error(res.statusText || String(res.status));
-        err.status = res.status;
-        throw err;
-    }
-    return res.json();
-}
-
-export async function fetchTrend(name, classId = null) {
-    const url = classId
-        ? `${BASE}/stats/${name}/trend?class_id=${classId}`
-        : `${BASE}/stats/${name}/trend`;
-    const res = await fetch(url);
-    if (!res.ok) {
-        const err = new Error(res.statusText || String(res.status));
-        err.status = res.status;
-        throw err;
-    }
-    return res.json();
-}
+export const fetchTrend = (name, classId = null) =>
+    get(`/stats/${name}/trend${classId ? `?class_id=${classId}` : ''}`);
 
 export async function fetchGamePrediction(players) {
     const res = await fetch(`${BASE}/stats/predict-game`, {
@@ -111,31 +69,5 @@ export async function fetchGamePrediction(players) {
 export async function fetchClassStats() {
     const res = await fetch(`${BASE}/stats/class-stats`);
     if (!res.ok) throw new Error('Failed to load class stats.');
-    return res.json();
-}
-
-export async function fetchClusterMap() {
-    const res = await fetch(`${BASE}/stats/cluster-map`);
-    if (!res.ok) throw new Error('Failed to fetch cluster map');
-    return res.json();
-}
-
-export async function fetchPlayerCluster(name) {
-    const res = await fetch(`${BASE}/stats/${encodeURIComponent(name)}/cluster`);
-    if (!res.ok) {
-        const err = new Error(res.statusText || String(res.status));
-        err.status = res.status;
-        throw err;
-    }
-    return res.json();
-}
-
-export async function fetchWinPrediction(name) {
-    const res = await fetch(`${BASE}/stats/${name}/predict-win`);
-    if (!res.ok) {
-        const err = new Error(res.statusText || String(res.status));
-        err.status = res.status;
-        throw err;
-    }
     return res.json();
 }

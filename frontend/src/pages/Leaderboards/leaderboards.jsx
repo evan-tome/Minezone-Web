@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import '../../App.css';
-import "./leaderboards.css";
+import "./Leaderboards.css";
 import Navbar from "../../components/Navbar";
-import Leaderboard from "./Leaderboard";
+import LeaderboardTable from "./LeaderboardTable";
 import Footer from "../../components/Footer";
 import { fetchLeaderboard } from '../../api/leaderboards.js';
 
@@ -40,7 +40,7 @@ export function Leaderboards() {
             <Navbar />
             <main className="main">
                 <h1>Leaderboards</h1>
-                <Leaderboard
+                <LeaderboardTable
                     players={playersData}
                     categoryKey={categoryKey}
                     onCategoryChange={setCategoryKey}

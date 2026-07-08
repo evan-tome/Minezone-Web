@@ -1,19 +1,19 @@
 import { useState, useEffect } from 'react';
 import './OnlineIndicator.css';
-import { SERVER_STATUS_STREAM } from '../api/server.js';
+import { fetchServerStatus } from '../api/server.js';
 import { RANKS } from '../utils/ranks.js';
+
+const POLL_MS = 30 * 1000;
 
 const OnlineIndicator = () => {
     const [status, setStatus] = useState(null);
     const [hovered, setHovered] = useState(false);
 
     useEffect(() => {
-        const source = new EventSource(SERVER_STATUS_STREAM);
-        source.onmessage = (e) => {
-            try { setStatus(JSON.parse(e.data)); } catch { /* ignore malformed */ }
-        };
-        source.onerror = () => setStatus({ offline: true });
-        return () => source.close();
+        const poll = () => fetchServerStatus().then(setStatus).catch(() => setStatus({ offline: true }));
+        poll();
+        const id = setInterval(poll, POLL_MS);
+        return () => clearInterval(id);
     }, []);
 
     if (!status) return (

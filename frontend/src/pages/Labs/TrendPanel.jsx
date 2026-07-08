@@ -136,16 +136,16 @@ export function TrendPanel() {
     return (
         <div className="labs-feature">
             <div className="labs-feature-header">
-                <div className="labs-feature-icon-wrap">
-                    <FaChartArea />
-                </div>
-                <div className="labs-feature-text">
+                <div className="labs-feature-title-row">
+                    <div className="labs-feature-icon-wrap">
+                        <FaChartArea />
+                    </div>
                     <h2 className="labs-feature-title">Performance Trend</h2>
-                    <p className="labs-feature-desc">
-                        See how a player's win rate has shifted over their last 100 recorded games
-                        and whether they're on an upward or downward trajectory.
-                    </p>
                 </div>
+                <p className="labs-feature-desc">
+                    See how a player's win rate has shifted over their last 100 recorded games
+                    and whether they're on an upward or downward trajectory.
+                </p>
             </div>
 
             <form className="labs-form" onSubmit={handleSubmit}>

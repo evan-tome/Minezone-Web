@@ -62,17 +62,17 @@ export function ClassRecommender() {
     return (
         <div className="labs-feature">
             <div className="labs-feature-header">
-                <div className="labs-feature-icon-wrap">
-                    <FaLightbulb />
-                </div>
-                <div className="labs-feature-text">
+                <div className="labs-feature-title-row">
+                    <div className="labs-feature-icon-wrap">
+                        <FaLightbulb />
+                    </div>
                     <h2 className="labs-feature-title">Class Recommender</h2>
-                    <p className="labs-feature-desc">
-                        Not sure which class fits your playstyle? Enter any username and we'll
-                        analyze how they play, looking at their kill rate, win rate, and streaks,
-                        then match them with the classes that similar players tend to dominate with.
-                    </p>
                 </div>
+                <p className="labs-feature-desc">
+                    Not sure which class fits your playstyle? Enter any username and we'll
+                    analyze how they play, looking at their kill rate, win rate, and streaks,
+                    then match them with the classes that similar players tend to dominate with.
+                </p>
             </div>
 
             <form className="labs-form" onSubmit={handleSubmit}>

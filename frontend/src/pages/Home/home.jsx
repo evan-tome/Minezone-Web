@@ -1,5 +1,5 @@
 import '../../App.css';
-import './home.css'
+import './Home.css'
 import cosmeticsImg from '../../assets/cosmetics.png';
 import homeImg from '../../assets/homepage.png';
 import Navbar from "../../components/Navbar";

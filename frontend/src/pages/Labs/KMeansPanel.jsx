@@ -62,17 +62,17 @@ export function KMeansPanel() {
     return (
         <div className="labs-feature">
             <div className="labs-feature-header">
-                <div className="labs-feature-icon-wrap">
-                    <FaCloud />
-                </div>
-                <div className="labs-feature-text">
+                <div className="labs-feature-title-row">
+                    <div className="labs-feature-icon-wrap">
+                        <FaCloud />
+                    </div>
                     <h2 className="labs-feature-title">Clusters</h2>
-                    <p className="labs-feature-desc">
-                        Enter a username to place them into a playstyle group,
-                        each shaped by how players cluster across K/D, win rate, MVP rate,
-                        and kills per game. Shows who else in the server plays the same way.
-                    </p>
                 </div>
+                <p className="labs-feature-desc">
+                    Enter a username to place them into a playstyle group,
+                    each shaped by how players cluster across K/D, win rate, MVP rate,
+                    and kills per game. Shows who else in the server plays the same way.
+                </p>
             </div>
 
             <form className="labs-form" onSubmit={handleSubmit}>

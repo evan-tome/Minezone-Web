@@ -1,4 +1,4 @@
-import './home.css';
+import './Home.css';
 
 const NewsCard = ({ title, date, content, image, reverse }) => {
   return (

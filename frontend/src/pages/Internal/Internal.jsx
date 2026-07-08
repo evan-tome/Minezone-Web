@@ -217,7 +217,7 @@ export function Internal() {
             <div className="main internal-main">
                 <div className="internal-header">
                     <h1><FaWrench /> Developer Tools</h1>
-                    <p>Internal tools for keeping tabs on the server. Not for players.</p>
+                    <p>Internal tools for monitoring activity</p>
                 </div>
 
                 <div className="internal-tabs">

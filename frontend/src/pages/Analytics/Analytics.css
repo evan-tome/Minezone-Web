@@ -159,8 +159,6 @@
     font-weight: 700;
     color: var(--text);
     margin: 0;
-    padding-left: 10px;
-    border-left: 3px solid var(--accent);
 }
 
 .chart-sort-toggle {
@@ -218,44 +216,20 @@
     border: 2px solid;
 }
 
-.player-tick {
-    fill: var(--text);
-    cursor: pointer;
-    transition: fill 0.15s ease;
-}
-
-.player-tick:hover {
-    fill: var(--accent);
-}
-
 .map-chart-clickable {
     cursor: pointer;
 }
 
-/* Tooltip */
-.chart-tooltip {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 8px 14px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+.analytics-player-tick {
+    cursor: pointer;
+    transition: fill 0.2s;
 }
 
-.chart-tooltip-name {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--muted);
-    margin: 0 0 2px 0;
+.analytics-player-tick:hover {
+    fill: var(--accent);
 }
 
-.chart-tooltip-value {
-    font-size: 1.1rem;
-    font-weight: 800;
-    color: var(--accent);
-    margin: 0;
-}
-
-/* Loading / error / empty states */
+/* Loading / empty states */
 @keyframes pulse {
     0%, 100% { opacity: 0.45; }
     50%      { opacity: 0.9; }
@@ -272,8 +246,6 @@
     border-radius: 8px;
 }
 
-.stat-card-error,
-.chart-error,
 .chart-empty {
     display: flex;
     flex-direction: column;
@@ -284,21 +256,9 @@
     text-align: center;
 }
 
-.stat-card-error {
-    gap: 6px;
-}
-
-.chart-error p,
 .chart-empty p {
     margin: 0;
     font-size: 0.9rem;
-}
-
-.stat-card-error-icon,
-.chart-error-icon {
-    font-size: 1.3rem;
-    color: #e0a204;
-    opacity: 0.8;
 }
 
 .chart-error-retry {

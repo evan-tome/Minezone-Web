@@ -19,7 +19,6 @@
     "express": "^5.2.1",
     "express-rate-limit": "^8.5.2",
     "minecraft-server-util": "^5.4.4",
-    "mysql": "^2.18.1",
     "mysql2": "^3.14.4"
   },
   "devDependencies": {
