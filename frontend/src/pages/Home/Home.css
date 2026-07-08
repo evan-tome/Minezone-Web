@@ -107,10 +107,11 @@
 ========================= */
 
 .about-section {
-    margin-top: 44px;
+    margin-top: 70px;
 }
 
 .about-container {
+    margin-top: 10px;
     display: flex;
     flex-direction: row;
     gap: 48px;
@@ -190,18 +191,16 @@ p.about-socials-label {
 .features-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
+    gap: 14px 36px;
 }
 
 .feature-card {
-    background: var(--surface);
-    border: 2px solid var(--border);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    border-radius: 12px;
-    padding: 22px 24px;
     display: flex;
     flex-direction: column;
     gap: 8px;
+    padding-top: 28px;
+    max-width: 280px;
+    margin: 0 auto;
 }
 
 
@@ -216,6 +215,7 @@ p.about-socials-label {
     font-weight: 700;
     color: var(--text);
     margin: 0;
+    text-align: left;
 }
 
 .feature-card p {
@@ -223,16 +223,12 @@ p.about-socials-label {
     color: var(--muted);
     margin: 0;
     line-height: 1.55;
+    text-align: left;
 }
 
 /* =========================
    COMMUNITY CTA
 ========================= */
-
-.cta-section {
-    margin-top: 16px;
-    margin-bottom: 0;
-}
 
 .community-cta {
     display: flex;
@@ -298,19 +294,10 @@ p.about-socials-label {
 .gc-card {
     background: var(--surface);
     border: 2px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     border-radius: 16px;
     display: flex;
     flex-direction: column;
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.gc-card:hover {
-    border-color: var(--accent);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-}
-
-.gc-card-featured {
-    border-color: var(--accent);
 }
 
 .gc-img {
@@ -346,9 +333,9 @@ p.about-socials-label {
 }
 
 .gc-bullets {
+    display: none;
     margin: 4px 0 0;
     padding: 0;
-    display: flex;
     flex-direction: column;
     gap: 3px;
 }
@@ -451,10 +438,6 @@ p.about-socials-label {
 
     .page-section {
         margin: 28px auto;
-    }
-
-    .about-section {
-        margin-top: 36px;
     }
 
     .section-header h2 {
