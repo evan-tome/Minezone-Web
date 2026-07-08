@@ -2,15 +2,13 @@
 
 A full-stack web app for [Minezone](https://minezone.club), a Minecraft server running Super Craft Bros (a class-based PvP minigame). It turns the server's raw user and match data into player profiles, leaderboards, server-wide analytics, and ML-driven insights.
 
-## What it does
+## The Problem
 
-The server generates a lot of data across thousands of matches: kills, wins, map picks, class selections, parkour times, fishing records. Without a way to look at that data, it just sits in a database. This site changes that:
+Minezone generated thousands of gameplay records across matches, player progression, classes, maps, and other systems, but that data was difficult to access and use.
 
-- **Player stats** - K/D, win rate, favorite classes, parkour times, and fishing records for every player
-- **Leaderboards** - server-wide rankings across all of the above
-- **Match history** - browse recent games and review what happened
-- **Analytics** - a server-wide view of game data: map popularity, peak hours, class usage, and player level distribution
-- **Labs** - tools built on top of that data, including ML-driven class recommendations, win prediction, and playstyle clustering, plus performance trend tracking and player archetypes
+For players, viewing their stats required navigating through multiple in-game menus, making it difficult to track overall performance, compare progress, or understand their playstyle. For developers, analyzing server activity required manually writing complex database queries, limiting their ability to identify usage patterns and make informed decisions about future updates.
+
+This platform centralizes Minezone's gameplay data into a single web application accessible from anywhere. Players can view their complete profiles, track performance, explore leaderboards, and see active server activity directly from their browser. Developers can use aggregated analytics and insights to understand player behavior and make data-driven decisions for balancing and feature development.
 
 ## Features
 
@@ -25,7 +23,7 @@ A full profile for each player, with SCB stats, fishing and parkour records, and
 <img width="900" alt="Player profile page showing level progress, win/loss record, K/D ratio, and recent games feed" src="https://github.com/user-attachments/assets/071dc72c-7291-4b65-8720-1be5d5b01fd8" />
 
 ### Recent Match History
-Browse and filter recent matches, with full scoreboards for each game.
+Browse and filter recent matches, with scoreboards for each game.
 
 <img width="900" alt="Recent match history page with filterable list of matches and detailed scoreboards" src="https://github.com/user-attachments/assets/002f37b4-7ee4-4d2c-bbdf-49f4e0e3b3d3" />
 
@@ -37,14 +35,8 @@ Tracks how a player's win rate and kills per game trend over their last 100 game
 ### Machine Learning Insights (Labs)
 ML-powered tools for class recommendations, win prediction, and playstyle clustering.
 
-<img width="900" alt="Labs page showing ML-driven win prediction, class recommendations, and playstyle clustering" src="https://github.com/user-attachments/assets/b04c34fc-06e4-453a-a6c1-3ec0f1884625" />
-
 ### Server Analytics Dashboards
 A server-wide view of activity: map popularity, peak hours, player levels, and top players by category.
-
-<img width="900" alt="Server analytics dashboard with overview cards and charts for map popularity and peak hours" src="https://github.com/user-attachments/assets/b1765a79-19a9-4313-91b7-3787d99e3e2f" />
-<img width="900" alt="Server analytics dashboard continued, showing player level distribution and top players by category" src="https://github.com/user-attachments/assets/484e75aa-5373-43a8-92fa-37e8785365f6" />
-
 
 ## Stack
 
