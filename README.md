@@ -10,6 +10,14 @@ For players, viewing their stats required navigating through multiple in-game me
 
 This platform centralizes Minezone's gameplay data into a single web application accessible from anywhere. Players can view their complete profiles, track performance, explore leaderboards, and see active server activity directly from their browser. Developers can use aggregated analytics and insights to understand player behavior and make data-driven decisions for balancing and feature development.
 
+## Tech Stack
+
+- **Frontend:** React, JavaScript, HTML/CSS
+- **Backend:** Node.js, Express, Python, Flask
+- **Database:** MySQL
+- **Data & ML:** Python, scikit-learn, pandas
+- **DevOps & Cloud:** Docker, GitHub Actions, Azure
+
 ## Features
 
 ### Leaderboards
