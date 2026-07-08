@@ -419,6 +419,30 @@
     color: var(--muted);
 }
 
+.chart-card-action-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.chart-month-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    line-height: 1.1;
+}
+
+.chart-month-stat-value {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--text);
+}
+
+.chart-month-stat-label {
+    font-size: 0.75rem;
+    color: var(--muted);
+}
+
 .map-chart-hint {
     font-size: 0.8rem;
     color: var(--muted);

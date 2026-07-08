@@ -325,6 +325,31 @@ function todayStr() {
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 }
 
+// Fills gaps in a {date, games}[] series so every day in the last `days` has an entry.
+function fillZeroDays(data, days = 60) {
+    const byDate = {};
+    data.forEach(r => { byDate[r.date.slice(0, 10)] = r.games; });
+    const today = todayStr();
+    return Array.from({ length: days }, (_, i) => {
+        const d = shiftDate(today, -(days - 1 - i));
+        return { date: d, games: byDate[d] ?? 0 };
+    });
+}
+
+function monthlyTotal(data) {
+    const prefix = todayStr().slice(0, 7);
+    return data.filter(r => r.date.slice(0, 7) === prefix).reduce((s, r) => s + r.games, 0);
+}
+
+function MonthStat({ value, label }) {
+    return (
+        <div className="chart-month-stat">
+            <span className="chart-month-stat-value">{Number(value).toLocaleString()}</span>
+            <span className="chart-month-stat-label">{label}</span>
+        </div>
+    );
+}
+
 // Shifts a YYYY-MM-DD string by `delta` days, parsing/formatting the components directly
 // so the result doesn't drift with the viewer's timezone offset.
 function shiftDate(dateStr, delta) {
@@ -658,7 +683,7 @@ export function Analytics() {
         setStat('gamesOverTime', 'loading');
         fetchGamesOverTime()
             .then(d => {
-                setGamesOverTime(d.map(r => ({ date: r.date, games: Number(r.games) })));
+                setGamesOverTime(fillZeroDays(d.map(r => ({ date: r.date, games: Number(r.games) }))));
                 setStat('gamesOverTime', 'ready');
             })
             .catch(() => setStat('gamesOverTime', 'error'));
@@ -678,7 +703,7 @@ export function Analytics() {
         setStat('playersOverTime', 'loading');
         fetchPlayersOverTime()
             .then(d => {
-                setPlayersOverTime(d.map(r => ({ date: r.date, games: Number(r.players) })));
+                setPlayersOverTime(fillZeroDays(d.map(r => ({ date: r.date, games: Number(r.players) }))));
                 setStat('playersOverTime', 'ready');
             })
             .catch(() => setStat('playersOverTime', 'error'));
@@ -688,7 +713,7 @@ export function Analytics() {
         setStat('newPlayersOverTime', 'loading');
         fetchNewPlayersOverTime()
             .then(d => {
-                setNewPlayersOverTime(d.map(r => ({ date: r.date, games: Number(r.new_players) })));
+                setNewPlayersOverTime(fillZeroDays(d.map(r => ({ date: r.date, games: Number(r.new_players) }))));
                 setStat('newPlayersOverTime', 'ready');
             })
             .catch(() => setStat('newPlayersOverTime', 'error'));
@@ -879,17 +904,26 @@ export function Analytics() {
                                     </ChartCard>
 
                                     <ChartCard title="Games Played: Last 60 Days" status={status.gamesOverTime} empty={gamesOverTime.length === 0}
-                                        minHeight={220} onRetry={loadGamesOverTime}>
+                                        minHeight={220} onRetry={loadGamesOverTime}
+                                        action={status.gamesOverTime === 'ready' && gamesOverTime.length > 0 && (
+                                            <MonthStat value={monthlyTotal(gamesOverTime)} label="Games this month" />
+                                        )}>
                                         <GamesOverTimeChart data={gamesOverTime} />
                                     </ChartCard>
 
                                     <ChartCard title="Players per Day: Last 60 Days" status={status.playersOverTime} empty={playersOverTime.length === 0}
-                                        minHeight={220} onRetry={loadPlayersOverTime}>
+                                        minHeight={220} onRetry={loadPlayersOverTime}
+                                        action={status.playersOverTime === 'ready' && playersOverTime.length > 0 && (
+                                            <MonthStat value={monthlyTotal(playersOverTime)} label="Players this month" />
+                                        )}>
                                         <GamesOverTimeChart data={playersOverTime} valueLabel="players" color="#60a5fa" gradientId="playersGrad" />
                                     </ChartCard>
 
                                     <ChartCard title="First Games Played: Last 60 Days" full status={status.newPlayersOverTime} empty={newPlayersOverTime.length === 0}
-                                        minHeight={220} onRetry={loadNewPlayersOverTime}>
+                                        minHeight={220} onRetry={loadNewPlayersOverTime}
+                                        action={status.newPlayersOverTime === 'ready' && newPlayersOverTime.length > 0 && (
+                                            <MonthStat value={monthlyTotal(newPlayersOverTime)} label="New players this month" />
+                                        )}>
                                         <GamesOverTimeChart data={newPlayersOverTime} valueLabel="new players" color="#34d399" gradientId="newPlayersGrad" />
                                     </ChartCard>
                                 </div>
@@ -1066,22 +1100,27 @@ export function Analytics() {
                                 <div className="chart-section-grid">
                                     <ChartCard title="Games Played: Last 60 Days" full status={status.gamesOverTimeByType} empty={gamesOverTimeByDate.length === 0}
                                         minHeight={220} onRetry={loadGamesOverTimeByType} action={
-                                        <div className="chart-sort-toggle">
-                                            {TREND_TYPES.map(({ key, label }) => (
-                                                <button
-                                                    key={key}
-                                                    className={gamesOverTimeTypes.includes(key) ? 'active' : ''}
-                                                    onClick={() => setGamesOverTimeTypes(prev => {
-                                                        if (prev.includes(key)) {
-                                                            const next = prev.filter(x => x !== key);
-                                                            return next.length > 0 ? next : prev;
-                                                        }
-                                                        return [...prev, key];
-                                                    })}
-                                                >
-                                                    {label}
-                                                </button>
-                                            ))}
+                                        <div className="chart-card-action-row">
+                                            {status.gamesOverTimeByType === 'ready' && gamesOverTimeByDate.length > 0 && (
+                                                <MonthStat value={monthlyTotal(gamesOverTimeByDate)} label="Games this month" />
+                                            )}
+                                            <div className="chart-sort-toggle">
+                                                {TREND_TYPES.map(({ key, label }) => (
+                                                    <button
+                                                        key={key}
+                                                        className={gamesOverTimeTypes.includes(key) ? 'active' : ''}
+                                                        onClick={() => setGamesOverTimeTypes(prev => {
+                                                            if (prev.includes(key)) {
+                                                                const next = prev.filter(x => x !== key);
+                                                                return next.length > 0 ? next : prev;
+                                                            }
+                                                            return [...prev, key];
+                                                        })}
+                                                    >
+                                                        {label}
+                                                    </button>
+                                                ))}
+                                            </div>
                                         </div>
                                     }>
                                         <p className="map-chart-hint">Click a point to see matches from that date.</p>
