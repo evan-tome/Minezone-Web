@@ -16,6 +16,7 @@ export const fetchMapPopularity       = (gameType = 'classic') => get(`/analytic
 export const fetchGamesOverTime       = () => get('/analytics/over-time');
 export const fetchGamesOverTimeByType = () => get('/analytics/over-time-by-type');
 export const fetchPlayersOverTime     = () => get('/analytics/players-over-time');
+export const fetchTotalPlaysOverTime  = () => get('/analytics/total-plays-over-time');
 export const fetchNewPlayersOverTime  = () => get('/analytics/new-players-over-time');
 export const fetchPeakHours           = () => get('/analytics/peak-hours');
 

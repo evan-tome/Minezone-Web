@@ -155,6 +155,19 @@ const getPlayersOverTime = makeCache(`
     ORDER BY date ASC
 `);
 
+// Total plays per day: every player-slot across every game counts once, so a 4-player
+// game contributes 4 (unlike players-over-time, which counts distinct players).
+const getTotalPlaysOverTime = makeCache(`
+    SELECT
+        DATE(g.end_time) AS date,
+        COUNT(*)         AS plays
+    FROM scb_games g
+    JOIN scb_game_players gp ON g.game_id = gp.game_id
+    WHERE g.end_time >= DATE_SUB(NOW(), INTERVAL 60 DAY)
+    GROUP BY date
+    ORDER BY date ASC
+`);
+
 // For every player, finds the date of their earliest recorded game (their "first game ever"),
 // then counts how many of those first games fall within the last 60 days — i.e. new-player
 // activity per day, not total games played.
@@ -293,6 +306,7 @@ router.get('/over-time',            (req, res) => send(getGamesOverTime, req, re
 router.get('/over-time-by-type',    (req, res) => send(getGamesOverTimeByType, req, res));
 router.get('/new-players-over-time', (req, res) => send(getNewPlayersOverTime, req, res));
 router.get('/players-over-time',    (req, res) => send(getPlayersOverTime, req, res));
+router.get('/total-plays-over-time', (req, res) => send(getTotalPlaysOverTime, req, res));
 router.get('/peak-hours',           (req, res) => send(getPeakHours, req, res));
 router.get('/games-by-day', (req, res) => {
     const date = req.query.date;

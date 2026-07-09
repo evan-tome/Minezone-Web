@@ -8,7 +8,7 @@ import {
 import { FaUsers, FaGamepad, FaMedal, FaSkull, FaFish, FaClock, FaChartLine, FaMap, FaShieldAlt, FaCalendarDay, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
-import { fetchOverview, fetchLevelDistribution, fetchTopByStat, fetchWinRates, fetchAllClassStats, fetchMapPopularity, fetchGamesOverTime, fetchGamesOverTimeByType, fetchPlayersOverTime, fetchNewPlayersOverTime, fetchPeakHours, fetchKDRatios, fetchGamesByDay, fetchMapClasses } from '../../api/analytics.js';
+import { fetchOverview, fetchLevelDistribution, fetchTopByStat, fetchWinRates, fetchAllClassStats, fetchMapPopularity, fetchGamesOverTime, fetchGamesOverTimeByType, fetchPlayersOverTime, fetchTotalPlaysOverTime, fetchNewPlayersOverTime, fetchPeakHours, fetchKDRatios, fetchGamesByDay, fetchMapClasses } from '../../api/analytics.js';
 import { MatchCard } from '../Stats/RecentMatches.jsx';
 import { CLASSES } from '../../utils/classes.js';
 import '../../App.css';
@@ -299,6 +299,7 @@ function MapPopularityChart({ data, selected, onSelect }) {
 }
 
 function GamesOverTimeChart({ data, dataKey = 'games', valueLabel = 'Games', color = ACCENT }) {
+    const name = valueLabel.charAt(0).toUpperCase() + valueLabel.slice(1);
     return (
         <ResponsiveContainer width="100%" height={220}>
             <AreaChart data={data} margin={{ left: 8, right: 24, top: 4, bottom: 4 }}>
@@ -307,7 +308,7 @@ function GamesOverTimeChart({ data, dataKey = 'games', valueLabel = 'Games', col
                     tickFormatter={formatDate} interval="preserveStartEnd" />
                 <YAxis tick={{ fill: 'var(--muted)', fontSize: 12 }} axisLine={false} tickLine={false} />
                 <Tooltip {...TOOLTIP_STYLE} labelFormatter={formatDate} cursor={{ stroke: color, strokeWidth: 1 }} />
-                <Area type="monotone" dataKey={dataKey} name={valueLabel} stroke={color} strokeWidth={2} fill={color} fillOpacity={0.15} dot={false} isAnimationActive={false} />
+                <Area type="monotone" dataKey={dataKey} name={name} stroke={color} strokeWidth={2} fill={color} fillOpacity={0.15} dot={false} isAnimationActive={false} />
             </AreaChart>
         </ResponsiveContainer>
     );
@@ -395,6 +396,7 @@ export function Analytics() {
     const [gamesOverTimeByType, setGamesOverTimeByType] = useState([]);
     const [gamesOverTimeTypes, setGamesOverTimeTypes]   = useState(['total']);
     const [playersOverTime, setPlayersOverTime]         = useState([]);
+    const [totalPlaysOverTime, setTotalPlaysOverTime]   = useState([]);
     const [newPlayersOverTime, setNewPlayersOverTime]   = useState([]);
     const [peakHours, setPeakHours]             = useState([]);
     const [gamesByDayDate, setGamesByDayDate]   = useState(todayStr);
@@ -412,7 +414,7 @@ export function Analytics() {
         topFish: 'loading', levels: 'loading', classes: 'loading', winRates: 'loading',
         kdRatios: 'loading', mapPopularity: 'loading', gamesOverTime: 'loading', peakHours: 'loading',
         gamesByDay: 'loading', mapClasses: 'loading', gamesOverTimeByType: 'loading',
-        newPlayersOverTime: 'loading', playersOverTime: 'loading',
+        newPlayersOverTime: 'loading', playersOverTime: 'loading', totalPlaysOverTime: 'loading',
     });
     const setStat = (key, value) => setStatus(s => ({ ...s, [key]: value }));
 
@@ -438,6 +440,7 @@ export function Analytics() {
     const loadGamesOverTime         = () => load('gamesOverTime', fetchGamesOverTime, d => setGamesOverTime(fillZeroDays(d.map(r => ({ date: r.date, games: Number(r.games) })))));
     const loadGamesOverTimeByType   = () => load('gamesOverTimeByType', fetchGamesOverTimeByType, d => setGamesOverTimeByType(d.map(r => ({ date: r.date, gameType: r.game_type, games: Number(r.games) }))));
     const loadPlayersOverTime       = () => load('playersOverTime', fetchPlayersOverTime, d => setPlayersOverTime(fillZeroDays(d.map(r => ({ date: r.date, games: Number(r.players) })))));
+    const loadTotalPlaysOverTime    = () => load('totalPlaysOverTime', fetchTotalPlaysOverTime, d => setTotalPlaysOverTime(fillZeroDays(d.map(r => ({ date: r.date, games: Number(r.plays) })))));
     const loadNewPlayersOverTime    = () => load('newPlayersOverTime', fetchNewPlayersOverTime, d => setNewPlayersOverTime(fillZeroDays(d.map(r => ({ date: r.date, games: Number(r.new_players) })))));
 
     const loadClasses = () => load('classes', fetchAllClassStats, rows => {
@@ -498,6 +501,7 @@ export function Analytics() {
         loadKdRatios();
         loadGamesOverTime();
         loadPlayersOverTime();
+        loadTotalPlaysOverTime();
         loadNewPlayersOverTime();
         loadPeakHours();
     }, []);
@@ -620,7 +624,15 @@ export function Analytics() {
                                         <GamesOverTimeChart data={playersOverTime} valueLabel="players" color="#60a5fa" />
                                     </ChartCard>
 
-                                    <ChartCard title="First Games Played: Last 60 Days" full status={status.newPlayersOverTime} empty={newPlayersOverTime.length === 0}
+                                    <ChartCard title="Individual Plays: Last 60 Days" status={status.totalPlaysOverTime} empty={totalPlaysOverTime.length === 0}
+                                        minHeight={220}
+                                        action={status.totalPlaysOverTime === 'ready' && totalPlaysOverTime.length > 0 && (
+                                            <MonthStat value={monthlyTotal(totalPlaysOverTime)} label="Individual plays this month" />
+                                        )}>
+                                        <GamesOverTimeChart data={totalPlaysOverTime} valueLabel="individual plays" color="#c084fc" />
+                                    </ChartCard>
+
+                                    <ChartCard title="First Games Played: Last 60 Days" status={status.newPlayersOverTime} empty={newPlayersOverTime.length === 0}
                                         minHeight={220}
                                         action={status.newPlayersOverTime === 'ready' && newPlayersOverTime.length > 0 && (
                                             <MonthStat value={monthlyTotal(newPlayersOverTime)} label="New players this month" />
