@@ -238,20 +238,97 @@ function todayStr() {
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 }
 
-// Fills gaps in a {date, games}[] series so every day in the last `days` has an entry.
-function fillZeroDays(data, days = 60) {
-    const byDate = {};
-    data.forEach(r => { byDate[r.date.slice(0, 10)] = r.games; });
-    const today = todayStr();
-    return Array.from({ length: days }, (_, i) => {
-        const d = shiftDate(today, -(days - 1 - i));
-        return { date: d, games: byDate[d] ?? 0 };
-    });
+// Shifts a YYYY-MM string by `delta` months.
+function shiftMonth(monthStr, delta) {
+    const [y, m] = monthStr.split('-').map(Number);
+    const d = new Date(y, m - 1 + delta, 1);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
 }
 
-function monthlyTotal(data) {
-    const prefix = todayStr().slice(0, 7);
-    return data.filter(r => r.date.slice(0, 7) === prefix).reduce((s, r) => s + r.games, 0);
+function currentMonthStr() {
+    return todayStr().slice(0, 7);
+}
+
+function daysInMonth(monthStr) {
+    const [y, m] = monthStr.split('-').map(Number);
+    return new Date(y, m, 0).getDate();
+}
+
+function formatMonthLabel(monthStr) {
+    const [y, m] = monthStr.split('-').map(Number);
+    return new Date(y, m - 1, 1).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+}
+
+// Fills gaps in a {date, games}[] series to match the selected scope: every day of the last
+// week, every day of the given month (capped at today), or left as-is for "all time" (whose
+// span is unbounded, so zero-filling isn't meaningful).
+function fillRangeDays(data, scope, month) {
+    const byDate = {};
+    data.forEach(r => { byDate[r.date.slice(0, 10)] = r.games; });
+
+    if (scope === 'all') {
+        return Object.keys(byDate).sort().map(d => ({ date: d, games: byDate[d] }));
+    }
+
+    const today = todayStr();
+    if (scope === 'week') {
+        return Array.from({ length: 7 }, (_, i) => {
+            const d = shiftDate(today, -(6 - i));
+            return { date: d, games: byDate[d] ?? 0 };
+        });
+    }
+
+    const days = daysInMonth(month);
+    return Array.from({ length: days }, (_, i) => {
+        const d = `${month}-${String(i + 1).padStart(2, '0')}`;
+        return d > today ? null : { date: d, games: byDate[d] ?? 0 };
+    }).filter(Boolean);
+}
+
+function periodTotal(data) {
+    return data.reduce((s, r) => s + r.games, 0);
+}
+
+function periodLabel(scope, month) {
+    if (scope === 'week') return 'this week';
+    if (scope === 'all') return 'all time';
+    return month === currentMonthStr() ? 'this month' : `in ${formatMonthLabel(month)}`;
+}
+
+const TIME_SCOPES = [{ key: 'week', label: 'Week' }, { key: 'month', label: 'Month' }, { key: 'all', label: 'All Time' }];
+
+// First calendar month with any recorded game data — the month picker can't go earlier.
+const EARLIEST_MONTH = '2026-05';
+
+// Shared control for the trend charts: a Week / Month / All Time scope toggle, plus a
+// prev/next month picker that only appears in "Month" scope so any past month can be browsed.
+function TimeRangeControl({ scope, onScope, month, onMonth }) {
+    return (
+        <div className="chart-card-action-row">
+            {scope === 'month' && (
+                <div className="games-by-day-calendar">
+                    <button type="button" className="games-by-day-nav" aria-label="Previous month"
+                        disabled={month <= EARLIEST_MONTH}
+                        onClick={() => onMonth(shiftMonth(month, -1))}>
+                        <FaChevronLeft />
+                    </button>
+                    <span className="analytics-month-label">{formatMonthLabel(month)}</span>
+                    <button type="button" className="games-by-day-nav" aria-label="Next month"
+                        disabled={month >= currentMonthStr()}
+                        onClick={() => onMonth(shiftMonth(month, 1))}>
+                        <FaChevronRight />
+                    </button>
+                </div>
+            )}
+            <div className="chart-sort-toggle">
+                {TIME_SCOPES.map(({ key, label }) => (
+                    <button key={key} className={scope === key ? 'active' : ''} onClick={() => onScope(key)}>
+                        {label}
+                    </button>
+                ))}
+            </div>
+        </div>
+    );
 }
 
 function MonthStat({ value, label }) {
@@ -398,6 +475,8 @@ export function Analytics() {
     const [playersOverTime, setPlayersOverTime]         = useState([]);
     const [totalPlaysOverTime, setTotalPlaysOverTime]   = useState([]);
     const [newPlayersOverTime, setNewPlayersOverTime]   = useState([]);
+    const [timeScope, setTimeScope]                     = useState('month');
+    const [timeMonth, setTimeMonth]                     = useState(currentMonthStr);
     const [peakHours, setPeakHours]             = useState([]);
     const [gamesByDayDate, setGamesByDayDate]   = useState(todayStr);
     const [gamesByDay, setGamesByDay]           = useState([]);
@@ -418,11 +497,16 @@ export function Analytics() {
     });
     const setStat = (key, value) => setStatus(s => ({ ...s, [key]: value }));
 
+    // Once a chart has loaded successfully at least once, later reloads (range/mode/date
+    // changes) keep showing the existing chart instead of swapping in a skeleton — so its
+    // size and position stay put instead of collapsing and popping back on every refetch.
+    const loadedOnce = useRef(new Set());
+
     const load = (key, fetcher, onData) => {
-        setStat(key, 'loading');
+        if (!loadedOnce.current.has(key)) setStat(key, 'loading');
         fetcher()
-            .then(d => { onData(d); setStat(key, 'ready'); })
-            .catch(() => setStat(key, 'ready'));
+            .then(d => { onData(d); setStat(key, 'ready'); loadedOnce.current.add(key); })
+            .catch(() => { setStat(key, 'ready'); loadedOnce.current.add(key); });
     };
 
     const loadOverview   = () => load('overview', fetchOverview, setOverview);
@@ -437,11 +521,15 @@ export function Analytics() {
     const loadKdRatios   = () => load('kdRatios', fetchKDRatios, d => setKdRatios(d.map(p => ({
         name: p.LastPlayerName, kd: Number(p.KDRatio), kills: Number(p.Kills), deaths: Number(p.Deaths),
     }))));
-    const loadGamesOverTime         = () => load('gamesOverTime', fetchGamesOverTime, d => setGamesOverTime(fillZeroDays(d.map(r => ({ date: r.date, games: Number(r.games) })))));
-    const loadGamesOverTimeByType   = () => load('gamesOverTimeByType', fetchGamesOverTimeByType, d => setGamesOverTimeByType(d.map(r => ({ date: r.date, gameType: r.game_type, games: Number(r.games) }))));
-    const loadPlayersOverTime       = () => load('playersOverTime', fetchPlayersOverTime, d => setPlayersOverTime(fillZeroDays(d.map(r => ({ date: r.date, games: Number(r.players) })))));
-    const loadTotalPlaysOverTime    = () => load('totalPlaysOverTime', fetchTotalPlaysOverTime, d => setTotalPlaysOverTime(fillZeroDays(d.map(r => ({ date: r.date, games: Number(r.plays) })))));
-    const loadNewPlayersOverTime    = () => load('newPlayersOverTime', fetchNewPlayersOverTime, d => setNewPlayersOverTime(fillZeroDays(d.map(r => ({ date: r.date, games: Number(r.new_players) })))));
+    // Range sent to the API: 'week' / 'all' pass through as-is, and 'month' scope resolves
+    // to the specific YYYY-MM being browsed (defaults to the current month).
+    const apiRange = timeScope === 'month' ? timeMonth : timeScope;
+
+    const loadGamesOverTime         = () => load('gamesOverTime', () => fetchGamesOverTime(apiRange), d => setGamesOverTime(fillRangeDays(d.map(r => ({ date: r.date, games: Number(r.games) })), timeScope, timeMonth)));
+    const loadGamesOverTimeByType   = () => load('gamesOverTimeByType', () => fetchGamesOverTimeByType(apiRange), d => setGamesOverTimeByType(d.map(r => ({ date: r.date, gameType: r.game_type, games: Number(r.games) }))));
+    const loadPlayersOverTime       = () => load('playersOverTime', () => fetchPlayersOverTime(apiRange), d => setPlayersOverTime(fillRangeDays(d.map(r => ({ date: r.date, games: Number(r.players) })), timeScope, timeMonth)));
+    const loadTotalPlaysOverTime    = () => load('totalPlaysOverTime', () => fetchTotalPlaysOverTime(apiRange), d => setTotalPlaysOverTime(fillRangeDays(d.map(r => ({ date: r.date, games: Number(r.plays) })), timeScope, timeMonth)));
+    const loadNewPlayersOverTime    = () => load('newPlayersOverTime', () => fetchNewPlayersOverTime(apiRange), d => setNewPlayersOverTime(fillRangeDays(d.map(r => ({ date: r.date, games: Number(r.new_players) })), timeScope, timeMonth)));
 
     const loadClasses = () => load('classes', fetchAllClassStats, rows => {
         setAllClasses(
@@ -489,6 +577,7 @@ export function Analytics() {
     const loadedCategories = useRef(new Set(['activity']));
     const skipMapEffect = useRef(true);
     const skipGamesByDayEffect = useRef(true);
+    const skipRangeEffect = useRef(true);
 
     useEffect(() => {
         loadOverview();
@@ -516,6 +605,15 @@ export function Analytics() {
             loadGamesByDay();
         }
     }, [activeCategory]);
+
+    useEffect(() => {
+        if (skipRangeEffect.current) { skipRangeEffect.current = false; return; }
+        loadGamesOverTime();
+        loadPlayersOverTime();
+        loadTotalPlaysOverTime();
+        loadNewPlayersOverTime();
+        if (loadedCategories.current.has('games')) loadGamesOverTimeByType();
+    }, [apiRange]);
 
     useEffect(() => {
         if (skipMapEffect.current) { skipMapEffect.current = false; return; }
@@ -607,35 +705,42 @@ export function Analytics() {
                                         minHeight={220}>
                                         <PeakHoursChart data={peakHours} />
                                     </ChartCard>
+                                </div>
 
-                                    <ChartCard title="Games Played: Last 60 Days" status={status.gamesOverTime} empty={gamesOverTime.length === 0}
+                                <div className="analytics-trend-header">
+                                    <h3 className="chart-card-title">Activity Trends</h3>
+                                    <TimeRangeControl scope={timeScope} onScope={setTimeScope} month={timeMonth} onMonth={setTimeMonth} />
+                                </div>
+
+                                <div className="chart-section-grid">
+                                    <ChartCard title="Games Played" status={status.gamesOverTime} empty={gamesOverTime.length === 0}
                                         minHeight={220}
                                         action={status.gamesOverTime === 'ready' && gamesOverTime.length > 0 && (
-                                            <MonthStat value={monthlyTotal(gamesOverTime)} label="Games this month" />
+                                            <MonthStat value={periodTotal(gamesOverTime)} label={`Games ${periodLabel(timeScope, timeMonth)}`} />
                                         )}>
                                         <GamesOverTimeChart data={gamesOverTime} />
                                     </ChartCard>
 
-                                    <ChartCard title="Players per Day: Last 60 Days" status={status.playersOverTime} empty={playersOverTime.length === 0}
+                                    <ChartCard title="Players per Day" status={status.playersOverTime} empty={playersOverTime.length === 0}
                                         minHeight={220}
                                         action={status.playersOverTime === 'ready' && playersOverTime.length > 0 && (
-                                            <MonthStat value={monthlyTotal(playersOverTime)} label="Players this month" />
+                                            <MonthStat value={periodTotal(playersOverTime)} label={`Players ${periodLabel(timeScope, timeMonth)}`} />
                                         )}>
                                         <GamesOverTimeChart data={playersOverTime} valueLabel="players" color="#60a5fa" />
                                     </ChartCard>
 
-                                    <ChartCard title="Individual Plays: Last 60 Days" status={status.totalPlaysOverTime} empty={totalPlaysOverTime.length === 0}
+                                    <ChartCard title="Individual Plays" status={status.totalPlaysOverTime} empty={totalPlaysOverTime.length === 0}
                                         minHeight={220}
                                         action={status.totalPlaysOverTime === 'ready' && totalPlaysOverTime.length > 0 && (
-                                            <MonthStat value={monthlyTotal(totalPlaysOverTime)} label="Individual plays this month" />
+                                            <MonthStat value={periodTotal(totalPlaysOverTime)} label={`Individual plays ${periodLabel(timeScope, timeMonth)}`} />
                                         )}>
                                         <GamesOverTimeChart data={totalPlaysOverTime} valueLabel="individual plays" color="#c084fc" />
                                     </ChartCard>
 
-                                    <ChartCard title="First Games Played: Last 60 Days" status={status.newPlayersOverTime} empty={newPlayersOverTime.length === 0}
+                                    <ChartCard title="First Games Played" status={status.newPlayersOverTime} empty={newPlayersOverTime.length === 0}
                                         minHeight={220}
                                         action={status.newPlayersOverTime === 'ready' && newPlayersOverTime.length > 0 && (
-                                            <MonthStat value={monthlyTotal(newPlayersOverTime)} label="New players this month" />
+                                            <MonthStat value={periodTotal(newPlayersOverTime)} label={`New players ${periodLabel(timeScope, timeMonth)}`} />
                                         )}>
                                         <GamesOverTimeChart data={newPlayersOverTime} valueLabel="new players" color="#34d399" />
                                     </ChartCard>
@@ -808,12 +913,17 @@ export function Analytics() {
 
                         {activeCategory === 'games' && (
                             <>
+                                <div className="analytics-trend-header">
+                                    <h3 className="chart-card-title">Games Played</h3>
+                                    <TimeRangeControl scope={timeScope} onScope={setTimeScope} month={timeMonth} onMonth={setTimeMonth} />
+                                </div>
+
                                 <div className="chart-section-grid">
-                                    <ChartCard title="Games Played: Last 60 Days" full status={status.gamesOverTimeByType} empty={gamesOverTimeByDate.length === 0}
+                                    <ChartCard title={`Games Played ${periodLabel(timeScope, timeMonth)}`} full status={status.gamesOverTimeByType} empty={gamesOverTimeByDate.length === 0}
                                         minHeight={220} action={
                                         <div className="chart-card-action-row">
                                             {status.gamesOverTimeByType === 'ready' && gamesOverTimeByDate.length > 0 && (
-                                                <MonthStat value={monthlyTotal(gamesOverTimeByDate)} label="Games this month" />
+                                                <MonthStat value={gamesOverTimeByDate.reduce((s, r) => s + r.total, 0)} label={`Games ${periodLabel(timeScope, timeMonth)}`} />
                                             )}
                                             <div className="chart-sort-toggle">
                                                 {TREND_TYPES.map(({ key, label }) => (

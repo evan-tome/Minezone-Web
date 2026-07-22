@@ -595,6 +595,10 @@ p.about-socials-label {
         grid-template-columns: 1fr;
     }
 
+    .gc-card-featured {
+        order: -1;
+    }
+
     .community-cta {
         padding: 0;
     }

@@ -130,6 +130,23 @@
     margin-top: 20px;
 }
 
+.analytics-trend-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 20px 0 -4px;
+    min-height: 32px;
+}
+
+.analytics-month-label {
+    font-size: 0.85rem;
+    color: var(--muted);
+    min-width: 88px;
+    text-align: center;
+}
+
 .chart-card {
     background: var(--surface);
     border: 2px solid var(--border);

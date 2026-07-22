@@ -13,11 +13,11 @@ export const fetchWinRates            = () => get('/analytics/winrates');
 export const fetchAllClassStats       = () => get('/analytics/all-class-stats');
 export const fetchKDRatios            = () => get('/analytics/kd-ratios');
 export const fetchMapPopularity       = (gameType = 'classic') => get(`/analytics/maps?gameType=${gameType}`);
-export const fetchGamesOverTime       = () => get('/analytics/over-time');
-export const fetchGamesOverTimeByType = () => get('/analytics/over-time-by-type');
-export const fetchPlayersOverTime     = () => get('/analytics/players-over-time');
-export const fetchTotalPlaysOverTime  = () => get('/analytics/total-plays-over-time');
-export const fetchNewPlayersOverTime  = () => get('/analytics/new-players-over-time');
+export const fetchGamesOverTime       = (range) => get(`/analytics/over-time?range=${range}`);
+export const fetchGamesOverTimeByType = (range) => get(`/analytics/over-time-by-type?range=${range}`);
+export const fetchPlayersOverTime     = (range) => get(`/analytics/players-over-time?range=${range}`);
+export const fetchTotalPlaysOverTime  = (range) => get(`/analytics/total-plays-over-time?range=${range}`);
+export const fetchNewPlayersOverTime  = (range) => get(`/analytics/new-players-over-time?range=${range}`);
 export const fetchPeakHours           = () => get('/analytics/peak-hours');
 
 export function fetchGamesByDay(date, gameType = '') {

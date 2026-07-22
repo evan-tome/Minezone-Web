@@ -123,55 +123,86 @@ const getMapPopularityDuel = makeCache(`
     ORDER BY game_count DESC
 `);
 
-const getGamesOverTime = makeCache(`
+// Trend charts take a `range` of 'week' (last 7 days), 'all' (no filter), or a specific
+// 'YYYY-MM' month — validated here so it's safe to interpolate directly into the SQL below.
+const MONTH_RANGE_RE = /^\d{4}-(0[1-9]|1[0-2])$/;
+
+function currentMonthStr() {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function parseRange(range) {
+    if (range === 'week' || range === 'all') return range;
+    if (typeof range === 'string' && MONTH_RANGE_RE.test(range)) return range;
+    return currentMonthStr();
+}
+
+function rangeFilter(range, column) {
+    if (range === 'all') return '';
+    if (range === 'week') return `AND ${column} >= DATE_SUB(NOW(), INTERVAL 7 DAY)`;
+    return `AND ${column} >= '${range}-01' AND ${column} < DATE_ADD('${range}-01', INTERVAL 1 MONTH)`;
+}
+
+// Wraps makeCache with a per-range cache, so each 'week' / 'all' / 'YYYY-MM' variant of a
+// trend query gets its own 5-minute cache entry instead of sharing one static query.
+function makeRangedCache(buildQuery) {
+    const caches = new Map();
+    return function get(range) {
+        if (!caches.has(range)) caches.set(range, makeCache(buildQuery(range)));
+        return caches.get(range)();
+    };
+}
+
+const getGamesOverTime = makeRangedCache(range => `
     SELECT
         DATE(end_time) AS date,
         COUNT(*)       AS games
     FROM scb_games
-    WHERE end_time >= DATE_SUB(NOW(), INTERVAL 60 DAY)
+    WHERE 1=1 ${rangeFilter(range, 'end_time')}
     GROUP BY date
     ORDER BY date ASC
 `);
 
-const getGamesOverTimeByType = makeCache(`
+const getGamesOverTimeByType = makeRangedCache(range => `
     SELECT
         DATE(end_time)   AS date,
         LOWER(game_type) AS game_type,
         COUNT(*)         AS games
     FROM scb_games
-    WHERE end_time >= DATE_SUB(NOW(), INTERVAL 60 DAY)
+    WHERE 1=1 ${rangeFilter(range, 'end_time')}
     GROUP BY date, game_type
     ORDER BY date ASC
 `);
 
-const getPlayersOverTime = makeCache(`
+const getPlayersOverTime = makeRangedCache(range => `
     SELECT
         DATE(g.end_time)        AS date,
         COUNT(DISTINCT gp.uuid) AS players
     FROM scb_games g
     JOIN scb_game_players gp ON g.game_id = gp.game_id
-    WHERE g.end_time >= DATE_SUB(NOW(), INTERVAL 60 DAY)
+    WHERE 1=1 ${rangeFilter(range, 'g.end_time')}
     GROUP BY date
     ORDER BY date ASC
 `);
 
 // Total plays per day: every player-slot across every game counts once, so a 4-player
 // game contributes 4 (unlike players-over-time, which counts distinct players).
-const getTotalPlaysOverTime = makeCache(`
+const getTotalPlaysOverTime = makeRangedCache(range => `
     SELECT
         DATE(g.end_time) AS date,
         COUNT(*)         AS plays
     FROM scb_games g
     JOIN scb_game_players gp ON g.game_id = gp.game_id
-    WHERE g.end_time >= DATE_SUB(NOW(), INTERVAL 60 DAY)
+    WHERE 1=1 ${rangeFilter(range, 'g.end_time')}
     GROUP BY date
     ORDER BY date ASC
 `);
 
 // For every player, finds the date of their earliest recorded game (their "first game ever"),
-// then counts how many of those first games fall within the last 60 days — i.e. new-player
+// then counts how many of those first games fall within the selected range — i.e. new-player
 // activity per day, not total games played.
-const getNewPlayersOverTime = makeCache(`
+const getNewPlayersOverTime = makeRangedCache(range => `
     SELECT
         DATE(d.first_game) AS date,
         COUNT(*)           AS new_players
@@ -181,7 +212,7 @@ const getNewPlayersOverTime = makeCache(`
         JOIN scb_games g ON gp.game_id = g.game_id
         GROUP BY gp.uuid
     ) d
-    WHERE d.first_game >= DATE_SUB(NOW(), INTERVAL 60 DAY)
+    WHERE 1=1 ${rangeFilter(range, 'd.first_game')}
     GROUP BY date
     ORDER BY date ASC
 `);
@@ -302,11 +333,11 @@ router.get('/maps', (req, res) => {
     const getter = gameType === 'duel' ? getMapPopularityDuel : getMapPopularityClassic;
     send(getter, req, res);
 });
-router.get('/over-time',            (req, res) => send(getGamesOverTime, req, res));
-router.get('/over-time-by-type',    (req, res) => send(getGamesOverTimeByType, req, res));
-router.get('/new-players-over-time', (req, res) => send(getNewPlayersOverTime, req, res));
-router.get('/players-over-time',    (req, res) => send(getPlayersOverTime, req, res));
-router.get('/total-plays-over-time', (req, res) => send(getTotalPlaysOverTime, req, res));
+router.get('/over-time',            (req, res) => send(() => getGamesOverTime(parseRange(req.query.range)), req, res));
+router.get('/over-time-by-type',    (req, res) => send(() => getGamesOverTimeByType(parseRange(req.query.range)), req, res));
+router.get('/new-players-over-time', (req, res) => send(() => getNewPlayersOverTime(parseRange(req.query.range)), req, res));
+router.get('/players-over-time',    (req, res) => send(() => getPlayersOverTime(parseRange(req.query.range)), req, res));
+router.get('/total-plays-over-time', (req, res) => send(() => getTotalPlaysOverTime(parseRange(req.query.range)), req, res));
 router.get('/peak-hours',           (req, res) => send(getPeakHours, req, res));
 router.get('/games-by-day', (req, res) => {
     const date = req.query.date;
