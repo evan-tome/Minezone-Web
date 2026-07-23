@@ -80,9 +80,8 @@ export function WinPredictor() {
                     <h2 className="labs-feature-title">Win Predictor</h2>
                 </div>
                 <p className="labs-feature-desc">
-                    See the win rate a player's stats predict, and how it compares to how
-                    they're actually performing. If the numbers differ, it means they're either
-                    over or underperforming relative to players with a similar profile.
+                    See what win rate a player's stats suggest they should have, and compare it to their actual results. 
+                    Differences can reveal whether a player is outperforming or falling behind players with similar stats.
                 </p>
             </div>
 
@@ -204,8 +203,8 @@ export function WinPredictor() {
             <div className="labs-tech-details">
                 <span className="labs-tech-label">How It Works</span>
                 <ul className="labs-tech-list">
-                    <li><span>Expected win rate</span>Trained on server match history to predict what win rate a player's stat profile typically produces. May differ from their actual career rate since it's based on how players with similar stats tend to perform.</li>
-                    <li><span>Driving factors</span>The three stats with the most influence on the prediction, each showing whether it's above or below the server average and whether that pushes the number up or down.</li>
+                     <li><span>Expected win rate</span>A predicted win rate based on historical matches and players with similar stat profiles.</li>
+                    <li><span>Key factors</span>The stats that have the biggest impact on the prediction, showing which areas are helping or hurting the result.</li>
                 </ul>
             </div>
         </div>

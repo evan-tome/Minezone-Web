@@ -169,8 +169,17 @@ export function ArchetypePanel() {
             <div className="labs-tech-details">
                 <span className="labs-tech-label">How It Works</span>
                 <ul className="labs-tech-list">
-                    <li><span>Archetypes</span>Five profiles: Slayer (K/D + kills), Phantom (flawless wins), Ace (MVPs + first bloods), All-Rounder (balanced), Coaster (high game count, low output).</li>
-                    <li><span>Scoring</span>Each stat is ranked as a server-wide percentile and scored against each archetype's profile. The closest match wins.</li>
+                    <li>
+                        <span>Archetypes</span>
+                        Players are placed into one of five playstyles based on their strengths:
+                        Slayer (high kills and K/D), Phantom (dominates with flawless wins),
+                        Ace (strong MVP and first blood performance), All-Rounder (balanced across all stats),
+                        and Coaster (many games played but lower overall impact).
+                    </li>
+                    <li>
+                        <span>Scoring</span>
+                        Player stats are compared against each archetype's profile to find the closest match.
+                    </li>
                 </ul>
             </div>
         </div>

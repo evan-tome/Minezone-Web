@@ -69,9 +69,9 @@ export function ClassRecommender() {
                     <h2 className="labs-feature-title">Class Recommender</h2>
                 </div>
                 <p className="labs-feature-desc">
-                    Not sure which class fits your playstyle? Enter any username and we'll
-                    analyze how they play, looking at their kill rate, win rate, and streaks,
-                    then match them with the classes that similar players tend to dominate with.
+                    Not sure which class suits your playstyle? Enter a username to get class
+                    recommendations based on their match history, performance stats, and
+                    playstyle.
                 </p>
             </div>
 
@@ -137,9 +137,8 @@ export function ClassRecommender() {
             <div className="labs-tech-details">
                 <span className="labs-tech-label">How It Works</span>
                 <ul className="labs-tech-list">
-                    <li><span>Class history</span>Your win rate per class is calculated from every class you've played 5+ games on.</li>
-                    <li><span>Similar players</span>Your stats are matched against the server to find players with a similar profile, then we look at which classes they win with most.</li>
-                    <li><span>Score</span>Each class is scored 50% from your own performance with it and 50% from what similar players tend to win with. Both signals need to agree for a class to rank highly.</li>
+                    <li><span>Player patterns</span>Your gameplay is compared with similar players to find classes that perform well for your style.</li>
+                    <li><span>Final ranking</span>Recommendations combine your personal results with trends from similar players to rank the best-fitting classes.</li>
                 </ul>
             </div>
         </div>

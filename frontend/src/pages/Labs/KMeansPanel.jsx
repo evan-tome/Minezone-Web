@@ -69,9 +69,8 @@ export function KMeansPanel() {
                     <h2 className="labs-feature-title">Clusters</h2>
                 </div>
                 <p className="labs-feature-desc">
-                    Enter a username to place them into a playstyle group,
-                    each shaped by how players cluster across K/D, win rate, MVP rate,
-                    and kills per game. Shows who else in the server plays the same way.
+                    Enter a username to discover their playstyle group based on their stats 
+                    and see who else plays the same way.
                 </p>
             </div>
 
@@ -215,10 +214,14 @@ export function KMeansPanel() {
             <div className="labs-tech-details">
                 <span className="labs-tech-label">How It Works</span>
                 <ul className="labs-tech-list">
-                    <li><span>Grouping</span>Players are clustered by K/D ratio, win rate, MVP rate, and kills per game, each converted to a server-wide percentile so no single stat dominates.</li>
-                    <li><span>Number of groups</span>Chosen automatically by testing K=2 through K=8 and picking the point where adding more groups stops meaningfully improving the fit.</li>
-                    <li><span>Placement</span>Your stats are converted to the same percentile scale and you're placed in whichever group's center is closest.</li>
-                    <li><span>Nearby players</span>The members of your group with the most similar stat profile to yours.</li>
+                    <li>
+                        <span>Rolling average</span>
+                        Each point shows the player's win rate across their previous 5 games, smoothing out individual results to highlight overall performance trends.
+                    </li>
+                    <li>
+                        <span>Trend direction</span>
+                        The overall direction is determined by comparing recent performance against earlier games to identify whether the player is improving, declining, or staying consistent.
+                    </li>
                 </ul>
             </div>
         </div>

@@ -79,8 +79,7 @@ export function MatchPredictor() {
                     <h2 className="labs-feature-title">Match Predictor</h2>
                 </div>
                 <p className="labs-feature-desc">
-                    Add 2 to 8 players and see who the model predicts will win.
-                    Trained on historical match outcomes using each player's stats profile.
+                    Select 2 to 8 players and see who is predicted to win based on their performance history.
                 </p>
             </div>
 
@@ -168,7 +167,7 @@ export function MatchPredictor() {
             <div className="labs-tech-details">
                 <span className="labs-tech-label">How It Works</span>
                 <ul className="labs-tech-list">
-                    <li><span>Model</span>Trained on historical matches to learn which stat patterns predict who places first. Each player is scored from their profile and probabilities are scaled relative to the pool, so they always sum to 100%.</li>
+                    <li><span>Model</span>The model was trained on historical matches to learn which player stats and performance patterns are associated with winning. It evaluates each selected player's profile and estimates their chances of taking first place.</li>
                 </ul>
             </div>
         </div>
