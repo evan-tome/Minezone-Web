@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FaChevronRight } from 'react-icons/fa';
+import { FaChevronRight, FaArrowUp, FaArrowDown } from 'react-icons/fa';
 import { CLASSES } from '../../utils/classes.js';
 import ErrorScreen from '../../components/ErrorScreen';
 import './ClassStats.css';
@@ -56,11 +56,14 @@ function requirementValue(entry) {
     return cls?.cost ?? cls?.level ?? 0;
 }
 
+// Each comparator's "natural" direction, i.e. what it returns before any flipping —
+// win rate reads best-first by default, A–Z and cost/level read lowest-first.
 const SORT_FNS = {
     winrate:     (a, b) => (b.games > 0 ? b.wins / b.games : 0) - (a.games > 0 ? a.wins / a.games : 0),
     alpha:       (a, b) => (CLASSES.get(a.class_id)?.name ?? '').localeCompare(CLASSES.get(b.class_id)?.name ?? ''),
     requirement: (a, b) => requirementValue(a) - requirementValue(b),
 };
+const NATURAL_DIR = { winrate: 'desc', alpha: 'asc', requirement: 'asc' };
 
 const CATEGORY_SORT_OPTIONS = {
     Token: [['winrate', 'Win Rate'], ['alpha', 'A–Z'], ['requirement', 'Cost']],
@@ -71,7 +74,15 @@ const DEFAULT_SORT_OPTIONS = [['winrate', 'Win Rate'], ['alpha', 'A–Z']];
 function CategoryGroup({ name, entries }) {
     const [open, setOpen] = useState(true);
     const [sort, setSort] = useState('winrate');
+    // Direction is tracked per sort key so switching keys doesn't carry over a flip
+    // that made sense for the old key (e.g. Desc on Win Rate) but not the new one.
+    const [dirBySort, setDirBySort] = useState(NATURAL_DIR);
     const sortOptions = CATEGORY_SORT_OPTIONS[name] ?? DEFAULT_SORT_OPTIONS;
+    const dir = dirBySort[sort];
+    const comparator = (a, b) => {
+        const base = SORT_FNS[sort](a, b);
+        return dir === NATURAL_DIR[sort] ? base : -base;
+    };
 
     return (
         <div className="cs-category">
@@ -91,11 +102,18 @@ function CategoryGroup({ name, entries }) {
                             {label}
                         </button>
                     ))}
+                    <button
+                        className="cs-sort-dir-btn"
+                        aria-label={dir === 'asc' ? 'Sorted ascending, click for descending' : 'Sorted descending, click for ascending'}
+                        onClick={() => setDirBySort(d => ({ ...d, [sort]: dir === 'asc' ? 'desc' : 'asc' }))}
+                    >
+                        {dir === 'asc' ? <FaArrowUp /> : <FaArrowDown />}
+                    </button>
                 </div>
             </div>
             {open && (
                 <div className="cs-grid">
-                    {[...entries].sort(SORT_FNS[sort]).map(e => <ClassCard key={e.class_id} entry={e} category={name} />)}
+                    {[...entries].sort(comparator).map(e => <ClassCard key={e.class_id} entry={e} category={name} />)}
                 </div>
             )}
         </div>
