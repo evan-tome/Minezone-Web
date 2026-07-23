@@ -84,12 +84,10 @@
     background: #4ade80;
     border-radius: 50%;
     flex-shrink: 0;
-    box-shadow: 0 0 6px #4ade80;
 }
 
 .online-dot.offline {
     background: #f87171;
-    box-shadow: 0 0 6px #f87171;
 }
 
 .online-dot.loading {
